@@ -8,6 +8,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { DashboardLayout } from '@/components/layouts/dashboard-layout';
 import { Upload, FileText, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function DataUploadPage() {
@@ -99,36 +100,38 @@ export default function DataUploadPage() {
   const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">데이터 업로드</h1>
-        <p className="text-gray-600 mt-1">
-          문서를 업로드하여 자동으로 처리하고 지식 베이스에 추가합니다.
-        </p>
-      </div>
-
-      {/* Error/Success Messages */}
-      {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
-          <div className="flex-1">
-            <p className="text-red-800">{error}</p>
-          </div>
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Page Header */}
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">데이터 업로드</h1>
+          <p className="mt-2 text-sm text-gray-600">
+            문서를 업로드하여 자동으로 처리하고 지식 베이스에 추가합니다
+          </p>
         </div>
-      )}
 
-      {success && (
-        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
-          <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
-          <div className="flex-1">
-            <p className="text-green-800">{success}</p>
-            <p className="text-green-600 text-sm mt-1">작업 모니터링 페이지로 이동합니다...</p>
+        {/* Error/Success Messages */}
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-red-800">{error}</p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* File Upload Section */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+        {success && (
+          <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
+            <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-green-800">{success}</p>
+              <p className="text-green-600 text-sm mt-1">작업 모니터링 페이지로 이동합니다...</p>
+            </div>
+          </div>
+        )}
+
+        {/* File Upload Section */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h2 className="text-lg font-semibold mb-4">파일 선택</h2>
 
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
@@ -192,10 +195,10 @@ export default function DataUploadPage() {
             </div>
           </div>
         )}
-      </div>
+        </div>
 
-      {/* Configuration Section */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+        {/* Configuration Section */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h2 className="text-lg font-semibold mb-4">처리 설정</h2>
 
         <div className="grid grid-cols-2 gap-4">
@@ -315,10 +318,10 @@ export default function DataUploadPage() {
             </select>
           </div>
         </div>
-      </div>
+        </div>
 
-      {/* Upload Button */}
-      <div className="flex items-center justify-between">
+        {/* Upload Button */}
+        <div className="flex items-center justify-between">
         <button
           onClick={() => router.push('/admin/data/jobs')}
           className="px-4 py-2 text-gray-700 hover:text-gray-900"
@@ -342,10 +345,10 @@ export default function DataUploadPage() {
             <>{files.length}개 파일 업로드</>
           )}
         </button>
-      </div>
+        </div>
 
-      {/* Info Panel */}
-      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        {/* Info Panel */}
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <h3 className="font-medium text-blue-900 mb-2">처리 과정</h3>
         <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
           <li>파일을 Supabase Storage에 업로드</li>
@@ -356,7 +359,8 @@ export default function DataUploadPage() {
           <li>Pinecone에 벡터 동기화</li>
           <li>완료 후 RAG 시스템에서 즉시 사용 가능</li>
         </ol>
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

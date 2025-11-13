@@ -53,20 +53,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    // Check admin access for /admin routes
-    if (pathname.startsWith('/admin') && user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-
-      // Only allow admin and ceo roles
-      if (!profile || (profile.role !== 'admin' && profile.role !== 'ceo')) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
-      }
-    }
-
+    // Allow all authenticated users to access any route
+    // No role-based restrictions
     return NextResponse.next();
   } catch (error) {
     console.error('[Middleware] Error:', error);

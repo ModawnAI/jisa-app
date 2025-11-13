@@ -430,15 +430,16 @@ WHERE s.status = 'active';
 -- View: Monthly Revenue Report
 CREATE OR REPLACE VIEW public.v_monthly_revenue AS
 SELECT
-  DATE_TRUNC('month', created_at) as month,
+  DATE_TRUNC('month', p.created_at) as month,
   COUNT(*) as payment_count,
-  SUM(amount) as total_revenue,
-  COUNT(DISTINCT user_id) as unique_customers,
-  tier,
-  billing_cycle
-FROM public.payments
-WHERE status = 'paid'
-GROUP BY DATE_TRUNC('month', created_at), tier, billing_cycle
+  SUM(p.amount) as total_revenue,
+  COUNT(DISTINCT p.user_id) as unique_customers,
+  s.tier,
+  s.billing_cycle
+FROM public.payments p
+LEFT JOIN public.subscriptions s ON p.subscription_id = s.id
+WHERE p.status = 'paid'
+GROUP BY DATE_TRUNC('month', p.created_at), s.tier, s.billing_cycle
 ORDER BY month DESC;
 
 -- =====================================================

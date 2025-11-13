@@ -9,11 +9,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { LogIn, Mail, Lock, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@modawn.ai');
+  const [password, setPassword] = useState('AdminJISA2025!');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -68,134 +73,122 @@ export default function LoginPage() {
         </div>
 
         {/* Login Card */}
-        <div className="bg-card rounded-2xl shadow-lg border border-border p-8 animate-in slide-in-from-bottom-4 duration-500">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-card-foreground">로그인</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+        <Card className="animate-in slide-in-from-bottom-4 duration-500">
+          <CardHeader>
+            <CardTitle className="text-2xl">관리자 로그인</CardTitle>
+            <CardDescription>
               관리자 계정으로 로그인하세요
-            </p>
-          </div>
+            </CardDescription>
+          </CardHeader>
 
-          {/* Error Message */}
-          {error && (
-            <div className="mb-4 p-4 bg-destructive/10 border border-destructive/50 rounded-lg flex items-start animate-in slide-in-from-top-2">
-              <AlertCircle className="w-5 h-5 text-destructive mt-0.5 mr-3 flex-shrink-0" />
-              <p className="text-sm text-destructive">{error}</p>
-            </div>
-          )}
+          <CardContent className="space-y-6">
+            {/* Error Message */}
+            {error && (
+              <Alert variant="destructive" className="animate-in slide-in-from-top-2">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-          {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email */}
-            <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-medium text-card-foreground">
-                이메일
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  placeholder="admin@jisa.app"
-                  className="w-full pl-11 pr-4 py-3 bg-input border border-border rounded-lg
-                             text-foreground placeholder:text-muted-foreground
-                             focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent
-                             transition-all duration-200"
-                />
+            {/* Login Form */}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email">이메일</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    placeholder="admin@jisa.app"
+                    className="pl-11 h-11 bg-background"
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className="space-y-2">
+                <Label htmlFor="password">비밀번호</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    placeholder="••••••••"
+                    className="pl-11 h-11 bg-background"
+                  />
+                </div>
+              </div>
+
+              {/* Remember Me / Forgot Password */}
+              <div className="flex items-center justify-between text-sm">
+                <label className="flex items-center group cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 text-primary border-border rounded
+                               focus:ring-2 focus:ring-ring focus:ring-offset-0
+                               cursor-pointer transition-colors"
+                  />
+                  <span className="ml-2 text-muted-foreground group-hover:text-foreground transition-colors">
+                    로그인 상태 유지
+                  </span>
+                </label>
+                <Link
+                  href="/auth/forgot-password"
+                  className="text-primary hover:text-primary/80 font-medium transition-colors"
+                >
+                  비밀번호 찾기
+                </Link>
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full h-11"
+                size="lg"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    <LogIn className="w-5 h-5 mr-2" />
+                    로그인
+                  </>
+                )}
+              </Button>
+            </form>
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-card text-muted-foreground">또는</span>
               </div>
             </div>
 
-            {/* Password */}
-            <div className="space-y-2">
-              <label htmlFor="password" className="block text-sm font-medium text-card-foreground">
-                비밀번호
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
-                <input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  placeholder="••••••••"
-                  className="w-full pl-11 pr-4 py-3 bg-input border border-border rounded-lg
-                             text-foreground placeholder:text-muted-foreground
-                             focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent
-                             transition-all duration-200"
-                />
-              </div>
+            {/* Register Link */}
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">
+                계정이 없으신가요?{' '}
+                <Link
+                  href="/auth/register"
+                  className="text-primary hover:text-primary/80 font-semibold transition-colors"
+                >
+                  회원가입
+                </Link>
+              </p>
             </div>
-
-            {/* Remember Me / Forgot Password */}
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center group cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 text-primary border-border rounded
-                             focus:ring-2 focus:ring-ring focus:ring-offset-0
-                             cursor-pointer transition-colors"
-                />
-                <span className="ml-2 text-muted-foreground group-hover:text-foreground transition-colors">
-                  로그인 상태 유지
-                </span>
-              </label>
-              <Link
-                href="/auth/forgot-password"
-                className="text-primary hover:text-primary/80 font-medium transition-colors"
-              >
-                비밀번호 찾기
-              </Link>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex items-center justify-center px-4 py-3
-                         bg-primary text-primary-foreground rounded-lg font-semibold
-                         hover:bg-primary/90
-                         active:scale-[0.98]
-                         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary
-                         transition-all duration-200 shadow-sm"
-            >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <>
-                  <LogIn className="w-5 h-5 mr-2" />
-                  로그인
-                </>
-              )}
-            </button>
-          </form>
-
-          {/* Divider */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-card text-muted-foreground">또는</span>
-            </div>
-          </div>
-
-          {/* Register Link */}
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              계정이 없으신가요?{' '}
-              <Link
-                href="/auth/register"
-                className="text-primary hover:text-primary/80 font-semibold transition-colors"
-              >
-                회원가입
-              </Link>
-            </p>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-muted-foreground animate-in fade-in duration-700">

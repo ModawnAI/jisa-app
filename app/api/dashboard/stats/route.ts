@@ -54,25 +54,29 @@ export async function GET(request: NextRequest) {
           )
         : 0;
 
-    // 2. Active users (users who made queries today)
+    // 2. Active users (users who made queries today - includes KakaoTalk users)
     const { data: todayUsers } = await supabase
       .from('query_logs')
-      .select('user_id')
+      .select('user_id, kakao_user_id')
       .gte('timestamp', today.toISOString())
       .lt('timestamp', tomorrow.toISOString());
 
     const activeUsers = new Set(
-      todayUsers?.map((log) => log.user_id).filter(Boolean)
+      todayUsers
+        ?.map((log) => log.user_id || log.kakao_user_id)
+        .filter(Boolean)
     ).size;
 
     const { data: yesterdayUsers } = await supabase
       .from('query_logs')
-      .select('user_id')
+      .select('user_id, kakao_user_id')
       .gte('timestamp', yesterday.toISOString())
       .lt('timestamp', today.toISOString());
 
     const yesterdayActiveUsers = new Set(
-      yesterdayUsers?.map((log) => log.user_id).filter(Boolean)
+      yesterdayUsers
+        ?.map((log) => log.user_id || log.kakao_user_id)
+        .filter(Boolean)
     ).size;
 
     const usersChange =
@@ -85,28 +89,28 @@ export async function GET(request: NextRequest) {
     // 3. Average response time (today)
     const { data: todayLogs } = await supabase
       .from('query_logs')
-      .select('response_time')
+      .select('response_time_ms')
       .gte('timestamp', today.toISOString())
       .lt('timestamp', tomorrow.toISOString())
-      .not('response_time', 'is', null);
+      .not('response_time_ms', 'is', null);
 
     const avgResponseTime = todayLogs?.length
       ? Math.round(
-          todayLogs.reduce((sum, log) => sum + (log.response_time || 0), 0) /
+          todayLogs.reduce((sum, log) => sum + (log.response_time_ms || 0), 0) /
             todayLogs.length
         )
       : 0;
 
     const { data: yesterdayLogs } = await supabase
       .from('query_logs')
-      .select('response_time')
+      .select('response_time_ms')
       .gte('timestamp', yesterday.toISOString())
       .lt('timestamp', today.toISOString())
-      .not('response_time', 'is', null);
+      .not('response_time_ms', 'is', null);
 
     const yesterdayAvgResponseTime = yesterdayLogs?.length
       ? Math.round(
-          yesterdayLogs.reduce((sum, log) => sum + (log.response_time || 0), 0) /
+          yesterdayLogs.reduce((sum, log) => sum + (log.response_time_ms || 0), 0) /
             yesterdayLogs.length
         )
       : 0;

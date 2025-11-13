@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Dashboard Home Page
  * Overview with key metrics and statistics

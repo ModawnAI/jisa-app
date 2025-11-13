@@ -140,11 +140,29 @@ export default function RegisterPage() {
 
         {/* Register Card */}
         <div className="bg-card rounded-2xl shadow-lg border border-border p-8 animate-in slide-in-from-bottom-4 duration-500">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-card-foreground">회원가입</h2>
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold text-card-foreground">관리자 계정 생성</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              인증 코드가 필요합니다
+              초대 코드가 필요합니다 (관리자 전용)
             </p>
+          </div>
+
+          {/* Notice for end users */}
+          <div className="mb-6 p-4 bg-accent rounded-lg border border-border">
+            <p className="text-sm text-accent-foreground">
+              💡 <strong>일반 사용자이신가요?</strong>
+            </p>
+            <p className="text-xs text-muted-foreground mt-2">
+              일반 사용자는 웹 계정이 필요 없습니다!<br/>
+              KakaoTalk에서 <strong>"JISA"</strong> 채널을 추가하고,
+              관리자로부터 받은 인증 코드를 입력하세요.
+            </p>
+            <Link
+              href="/auth/login"
+              className="inline-block mt-3 text-xs text-primary hover:text-primary/80 font-semibold"
+            >
+              ← 관리자 로그인으로 이동
+            </Link>
           </div>
 
           {/* Error Message */}
@@ -252,10 +270,10 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Access Code */}
+            {/* Admin Invitation Code */}
             <div className="space-y-2">
               <label htmlFor="accessCode" className="block text-sm font-medium text-card-foreground">
-                인증 코드
+                관리자 초대 코드
               </label>
               <div className="relative">
                 <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
@@ -266,7 +284,7 @@ export default function RegisterPage() {
                   value={formData.accessCode}
                   onChange={handleChange}
                   required
-                  placeholder="HXK-9F2-M7Q-3WP"
+                  placeholder="ADMIN-001-002-003"
                   className="w-full pl-11 pr-4 py-3 bg-input border border-border rounded-lg
                              text-foreground placeholder:text-muted-foreground font-mono uppercase
                              focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent
@@ -276,7 +294,7 @@ export default function RegisterPage() {
               <div className="mt-2 p-3 bg-accent rounded-lg border border-border">
                 <p className="text-xs text-accent-foreground flex items-start">
                   <CheckCircle className="w-4 h-4 mr-2 flex-shrink-0 mt-0.5" />
-                  <span>관리자로부터 받은 인증 코드를 입력하세요. 코드는 역할과 구독 티어를 결정합니다.</span>
+                  <span>기존 관리자로부터 받은 초대 코드를 입력하세요. 이 페이지는 관리자 계정 생성 전용입니다.</span>
                 </p>
               </div>
             </div>

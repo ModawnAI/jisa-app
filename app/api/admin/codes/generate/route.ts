@@ -104,8 +104,8 @@ export async function POST(request: NextRequest) {
         metadata: {
           role,
           subscription_tier: tier,
+          source: 'admin_dashboard', // Store source in metadata instead
         },
-        source: 'admin_dashboard',
       };
 
       // Add recipient information if provided

@@ -1,0 +1,2738 @@
+# Advanced Admin Dashboard System Design
+## Context Hub - Comprehensive System Architecture
+
+**Document Version:** 1.0
+**Date:** 2025-11-13
+**Status:** Design Proposal
+
+---
+
+## Executive Summary
+
+This document presents a comprehensive hyperanalysis of the current Context Hub Pinecone + RAG system and proposes an advanced admin dashboard architecture featuring:
+
+- **Role-Based Access Control (RBAC)** with metadata-driven content filtering
+- **Cryptic Code Generation** for KakaoTalk user verification and analytics
+- **Subscription Management** with tiered access levels
+- **Advanced User Analytics** with code-based tracking
+- **Data Ingestion Pipeline** with automated processing
+- **Admin Dashboard** for complete system management
+
+---
+btw 
+# Part 1: Current System Hyperanalysis
+
+## 1.1 RAG Architecture Deep Dive
+
+### Current Implementation
+
+The system uses a **dual-engine RAG architecture**:
+
+#### **TypeScript RAG Engine** (Next.js API)
+```
+User Query
+    ↓
+[1] Query Enhancement (Gemini 2.0 Flash)
+    → Input: User question + conversation history (last 3 messages)
+    → Output: ImprovedQuery {
+        improved_query: string,
+        search_keywords: string[],
+        matched_keywords: string[],
+        target_industry: string?,
+        target_company: string?
+    }
+    ↓
+[2] Embedding Generation (OpenAI)
+    → Model: text-embedding-3-large
+    → Dimensions: 3072
+    → Input: improved_query
+    → Output: number[]
+    ↓
+[3] Vector Search (Pinecone)
+    → Index: deckbot-presentations
+    → Namespace: enriched-slides
+    → Top-K: 10 results
+    → Filter: Optional metadata filters
+    ↓
+[4] Keyword Re-scoring
+    → Formula: new_score = min(1.0, vector_score + (keyword_matches × 0.15))
+    → Sort by new score
+    → Limit to final 4 results
+    ↓
+[5] Answer Generation (Gemini 2.0 Flash)
+    → Context: Top 4 results + metadata
+    → History: Last 3 conversation messages
+    → Output: Korean language answer
+    ↓
+[6] Streaming Response
+    → Async generator pattern
+    → Real-time token streaming to client
+```
+
+#### **Python RAG Engine** (KakaoTalk FastAPI)
+```
+User Query (via KakaoTalk)
+    ↓
+[Commission Detection]
+    → Keyword matching
+    → Confidence scoring (0.3-0.95)
+    → Route if confidence >= 0.5
+    ↓
+[1] Query Enhancement (Gemini Flash)
+    → Extensive metadata context (companies, products, dates, etc.)
+    → Enhanced query + Pinecone filters
+    → Specialized for insurance domain
+    ↓
+[2] Embedding Generation (OpenAI)
+    → Model: text-embedding-3-large
+    → Dimensions: 3072
+    ↓
+[3] Pinecone Search
+    → Index: hof-branch-chatbot
+    → Namespace: hof-knowledge-base-max
+    → Top-K: 10 results (for comprehensive answers)
+    → Filters: chunk_type, boolean flags, date filters
+    ↓
+[4] Context Formatting
+    → Multi-type handling: schedule, commission, general
+    → Metadata extraction: dates, presenters, commission rates
+    ↓
+[5] Answer Generation (Gemini Flash)
+    → Question type detection: list_all, single, explanation
+    → Specialized prompts per type
+    → Pure text formatting (no markdown)
+    ↓
+[6] PDF Attachment
+    → Intelligent PDF selection based on query + results
+    → Formatted attachment links
+```
+
+### Strengths
+
+1. **Sophisticated Query Enhancement**
+   - Context-aware (conversation history)
+   - Metadata-driven (companies, industries, keywords)
+   - Domain-specific (insurance, schedules, commissions)
+
+2. **High-Dimensional Embeddings**
+   - 3072 dimensions for nuanced semantic understanding
+   - OpenAI's latest embedding model
+
+3. **Hybrid Search**
+   - Vector similarity + keyword matching
+   - Re-scoring mechanism balances semantic and lexical
+
+4. **Streaming Architecture**
+   - Real-time response delivery
+   - Better UX for long answers
+
+5. **Dual Detection System**
+   - Commission query routing (keyword-based)
+   - Falls back gracefully to RAG
+
+### Weaknesses & Abstraction Opportunities
+
+#### **1. Hardcoded Domain Logic**
+```typescript
+// Current: Hardcoded in RAG engine
+const prompt = `You are an expert analyst helping users find relevant presentation decks...`;
+```
+
+**Abstraction Opportunity:**
+- Extract prompts to database-driven templates
+- Per-project customizable system prompts
+- User role-based prompt variations
+
+#### **2. Static Metadata Structure**
+```typescript
+interface DeckbotMetadata {
+  companies: string[];
+  industries: string[];
+  keywords: string[];
+  // ... fixed structure
+}
+```
+
+**Abstraction Opportunity:**
+- Dynamic metadata schema per project
+- Custom metadata fields via admin UI
+- Metadata inheritance and cascading
+
+#### **3. Fixed Embedding Strategy**
+```typescript
+// Always uses same model
+await this.openai.embeddings.create({
+  model: 'text-embedding-3-large',
+  dimensions: 3072
+});
+```
+
+**Abstraction Opportunity:**
+- Per-project embedding model selection
+- Multi-model fallback strategy
+- Embedding model versioning and migration
+
+#### **4. Monolithic Re-scoring Logic**
+```typescript
+// Hardcoded boost value
+const keywordBoost = matchedCount * 0.15;
+```
+
+**Abstraction Opportunity:**
+- Configurable scoring weights per project
+- ML-based scoring models
+- A/B testing framework for scoring strategies
+
+#### **5. Session Management Limitations**
+```typescript
+// In-memory only
+private sessions: Map<string, Session> = new Map();
+```
+
+**Abstraction Opportunity:**
+- Redis-backed persistent sessions
+- Session analytics and replay
+- Multi-device session sync
+
+#### **6. No RBAC in RAG Pipeline**
+```typescript
+// No access control at search level
+await engine.searchPinecone(embedding, 'enriched-slides', undefined);
+```
+
+**Abstraction Opportunity:**
+- User role-based namespace routing
+- Metadata-driven content filtering
+- Row-level security in Pinecone queries
+
+---
+
+## 1.2 Data Architecture Analysis
+
+### Current Database Schema
+
+```prisma
+User {
+  id: String
+  email: String
+  password: String?
+  role: String @default("user")  // ❌ Too simple
+  // Missing: subscription, verification, metadata, permissions
+}
+
+Project {
+  id: String
+  name: String
+  projectType: String  // 'product_catalog' | 'proposal_library'
+  userId: String
+  // Missing: access_roles, subscription_tier, visibility_rules
+}
+
+Context {
+  id: String
+  projectId: String
+  content: String
+  contentEmbedding: Json?  // Vector embedding
+  documentType: String?
+  // Missing: access_level, required_role, visibility_metadata
+}
+
+PublicQAToken {
+  token: String
+  projectId: String
+  usageCount: Int
+  // ✅ Good start, but needs expansion
+}
+
+QAQueryLog {
+  question: String
+  answer: String
+  responseTime: Int?
+  sourceType: String  // 'admin' | 'public'
+  // Missing: user_id, code_id, session_metadata, analytics_tags
+}
+```
+
+### Critical Missing Components
+
+1. **User Verification System**
+   - No cryptic code generation
+   - No KakaoTalk verification link
+   - No code-based authentication
+
+2. **Subscription Management**
+   - No subscription tiers
+   - No feature flags per tier
+   - No billing integration
+
+3. **Role-Based Content Access**
+   - No granular permissions
+   - No content-level access control
+   - No metadata-based filtering
+
+4. **Analytics Infrastructure**
+   - Limited query logging
+   - No user behavior tracking
+   - No code-based analytics
+
+5. **Admin Dashboard Data**
+   - No system configuration storage
+   - No audit logs
+   - No admin action tracking
+
+---
+
+## 1.3 Pinecone Integration Analysis
+
+### Current Usage Patterns
+
+#### **Namespace Strategy**
+```
+Index: deckbot-presentations
+├── enriched-slides (primary)
+├── deck-summaries
+├── slide-summaries
+└── hybrid-chunks
+
+Index: hof-branch-chatbot
+└── hof-knowledge-base-max
+    ├── Hanwha commission data (264 vectors)
+    ├── Schedule data (91 vectors)
+    └── General knowledge
+```
+
+#### **Metadata Structure**
+```json
+{
+  "type": "slide",
+  "company_name": "...",
+  "industry": "...",
+  "keywords": [...],
+  "image_url": "...",
+  "pdf_url": "...",
+  "chunk_type": "table_cell_commission",
+  "is_training": true,
+  "date_start": "2025-11-04"
+}
+```
+
+### Abstraction Opportunities
+
+#### **1. Multi-Tenant Isolation**
+```
+Current: Single namespace per index
+Proposed: Namespace per tenant/project
+```
+
+**Benefits:**
+- Data isolation
+- Independent scaling
+- Project-level analytics
+
+#### **2. Role-Based Metadata Tagging**
+```json
+{
+  "content": "...",
+  "access_roles": ["admin", "premium", "standard"],
+  "visibility_level": "tier_2",
+  "required_subscription": "premium"
+}
+```
+
+**Benefits:**
+- Query-time access control
+- Granular content filtering
+- Dynamic permission updates
+
+#### **3. Analytics Metadata**
+```json
+{
+  "content": "...",
+  "access_count": 42,
+  "last_accessed": "2025-11-13T10:30:00Z",
+  "popular_with_roles": ["premium"],
+  "avg_relevance_score": 0.87
+}
+```
+
+**Benefits:**
+- Content performance tracking
+- Popular content identification
+- Quality monitoring
+
+---
+
+# Part 2: Advanced Admin Dashboard Architecture
+
+## 2.1 System Overview
+
+### Architecture Layers
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     ADMIN DASHBOARD (Next.js)               │
+│  ┌──────────┬──────────┬──────────┬──────────┬───────────┐ │
+│  │  Users   │   Data   │Analytics │   Roles  │   Codes   │ │
+│  │ Mgmt     │ Ingest   │Dashboard │   RBAC   │  Manager  │ │
+│  └──────────┴──────────┴──────────┴──────────┴───────────┘ │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│                   BACKEND API LAYER (Next.js)               │
+│  ┌──────────┬──────────┬──────────┬──────────┬───────────┐ │
+│  │  User    │  Ingest  │Analytics │   RBAC   │Verification││
+│  │  API     │  API     │   API    │   API    │    API    │ │
+│  └──────────┴──────────┴──────────┴──────────┴───────────┘ │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│                    SERVICE LAYER                            │
+│  ┌──────────┬──────────┬──────────┬──────────┬───────────┐ │
+│  │  User    │Ingestion │Analytics │   RBAC   │   Code    │ │
+│  │ Service  │ Pipeline │  Engine  │  Engine  │  Service  │ │
+│  └──────────┴──────────┴──────────┴──────────┴───────────┘ │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│                     DATA LAYER                              │
+│  ┌──────────┬──────────┬──────────┬──────────┬───────────┐ │
+│  │PostgreSQL│ Pinecone │  Redis   │   AWS S3 │  KakaoTalk││
+│  │ (Primary)│ (Vectors)│(Sessions)│ (Files)  │    API    │ │
+│  └──────────┴──────────┴──────────┴──────────┴───────────┘ │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 2.2 Module 1: User Management & Verification
+
+### Enhanced User Model
+
+```prisma
+model User {
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  password            String?
+  name                String?
+  phone               String?   // For KakaoTalk verification
+
+  // Role & Permissions
+  role                String    @default("user")  // 'admin' | 'manager' | 'user' | 'guest'
+  permissions         Json?     // Custom permissions array
+
+  // Subscription
+  subscriptionTier    String    @default("free")  // 'free' | 'basic' | 'premium' | 'enterprise'
+  subscriptionStatus  String    @default("active") // 'active' | 'paused' | 'cancelled'
+  subscriptionStart   DateTime?
+  subscriptionEnd     DateTime?
+
+  // Verification
+  isVerified          Boolean   @default(false)
+  verificationMethod  String?   // 'email' | 'kakao' | 'phone'
+  verifiedAt          DateTime?
+
+  // User Metadata (for content filtering)
+  metadata            Json?     // {
+                                //   industry: "insurance",
+                                //   department: "sales",
+                                //   region: "seoul",
+                                //   clearance_level: 3
+                                // }
+
+  // Analytics
+  lastLoginAt         DateTime?
+  lastActivityAt      DateTime?
+  totalQueries        Int       @default(0)
+  totalSessions       Int       @default(0)
+
+  // Timestamps
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  // Relations
+  verificationCodes   VerificationCode[]
+  subscriptions       SubscriptionHistory[]
+  analyticsEvents     AnalyticsEvent[]
+  accessLogs          UserAccessLog[]
+  projects            Project[]
+  sessions            UserSession[]
+}
+
+// Cryptic Verification Code Model
+model VerificationCode {
+  id                  String    @id @default(cuid())
+  code                String    @unique  // Cryptic code: "HXK-9F2-M7Q-3WP"
+  userId              String?   // Linked after verification
+
+  // Code Properties
+  codeType            String    // 'registration' | 'kakao_verify' | 'subscription' | 'one_time_access'
+  isUsed              Boolean   @default(false)
+  usedAt              DateTime?
+
+  // Expiration
+  expiresAt           DateTime
+  maxUses             Int       @default(1)
+  currentUses         Int       @default(0)
+
+  // Metadata
+  metadata            Json?     // {
+                                //   subscriptionTier: "premium",
+                                //   accessLevel: "tier_2",
+                                //   source: "kakaotalk_campaign_2025Q1"
+                                // }
+
+  // KakaoTalk Integration
+  kakaoUserId         String?   // KakaoTalk user ID
+  kakaoVerifyUrl      String?   // Deep link for verification
+
+  // Analytics Tracking
+  source              String?   // 'admin_dashboard' | 'bulk_import' | 'api_generate'
+  campaign            String?   // Campaign identifier for tracking
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  // Relations
+  user                User?     @relation(fields: [userId], references: [id])
+  usageLogs           CodeUsageLog[]
+  analyticsEvents     AnalyticsEvent[]
+
+  @@index([code])
+  @@index([userId])
+  @@index([codeType, isUsed])
+  @@index([expiresAt])
+}
+
+// Code Usage Tracking
+model CodeUsageLog {
+  id                  String    @id @default(cuid())
+  codeId              String
+  userId              String?
+
+  // Usage Context
+  usedFor             String    // 'verification' | 'subscription_upgrade' | 'content_access'
+  ipAddress           String?
+  userAgent           String?
+  location            String?
+
+  // Result
+  success             Boolean
+  errorMessage        String?
+
+  timestamp           DateTime  @default(now())
+
+  code                VerificationCode @relation(fields: [codeId], references: [id])
+
+  @@index([codeId, timestamp])
+}
+```
+
+### Cryptic Code Generation Service
+
+```typescript
+// src/services/code-generator.service.ts
+
+export class CodeGeneratorService {
+
+  /**
+   * Generate cryptic verification code
+   * Format: XXX-XXX-XXX-XXX (12 chars + 3 dashes)
+   * Character set: A-Z (excluding O,I,L for clarity) + 2-9 (excluding 0,1)
+   */
+  generateCode(length: number = 12): string {
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // 31 chars
+    let code = '';
+
+    for (let i = 0; i < length; i++) {
+      if (i > 0 && i % 3 === 0) {
+        code += '-';
+      }
+      const randomIndex = Math.floor(Math.random() * chars.length);
+      code += chars[randomIndex];
+    }
+
+    return code; // Example: "HXK-9F2-M7Q-3WP"
+  }
+
+  /**
+   * Create verification code with metadata
+   */
+  async createVerificationCode(params: {
+    codeType: 'registration' | 'kakao_verify' | 'subscription' | 'one_time_access';
+    subscriptionTier?: string;
+    accessLevel?: string;
+    expiresInDays?: number;
+    maxUses?: number;
+    campaign?: string;
+    metadata?: any;
+  }): Promise<VerificationCode> {
+    const code = this.generateCode();
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + (params.expiresInDays || 30));
+
+    return await prisma.verificationCode.create({
+      data: {
+        code,
+        codeType: params.codeType,
+        expiresAt,
+        maxUses: params.maxUses || 1,
+        campaign: params.campaign,
+        metadata: {
+          subscriptionTier: params.subscriptionTier,
+          accessLevel: params.accessLevel,
+          ...params.metadata
+        },
+        source: 'admin_dashboard'
+      }
+    });
+  }
+
+  /**
+   * Generate KakaoTalk verification deep link
+   */
+  generateKakaoVerifyUrl(code: string): string {
+    const baseUrl = process.env.KAKAO_VERIFY_BASE_URL || 'https://context.flowos.work';
+    return `${baseUrl}/verify/kakao?code=${code}`;
+  }
+
+  /**
+   * Verify code and link to user
+   */
+  async verifyCode(params: {
+    code: string;
+    userId?: string;
+    kakaoUserId?: string;
+    ipAddress?: string;
+    userAgent?: string;
+  }): Promise<{ success: boolean; user?: User; error?: string }> {
+    const codeRecord = await prisma.verificationCode.findUnique({
+      where: { code: params.code }
+    });
+
+    if (!codeRecord) {
+      await this.logUsage(params.code, false, 'Code not found');
+      return { success: false, error: 'Invalid code' };
+    }
+
+    // Check expiration
+    if (new Date() > codeRecord.expiresAt) {
+      await this.logUsage(params.code, false, 'Code expired');
+      return { success: false, error: 'Code expired' };
+    }
+
+    // Check max uses
+    if (codeRecord.currentUses >= codeRecord.maxUses) {
+      await this.logUsage(params.code, false, 'Max uses exceeded');
+      return { success: false, error: 'Code already used' };
+    }
+
+    // Update code usage
+    await prisma.verificationCode.update({
+      where: { code: params.code },
+      data: {
+        isUsed: codeRecord.currentUses + 1 >= codeRecord.maxUses,
+        currentUses: { increment: 1 },
+        usedAt: new Date(),
+        userId: params.userId,
+        kakaoUserId: params.kakaoUserId
+      }
+    });
+
+    // Update user based on code metadata
+    let user: User | null = null;
+    if (params.userId) {
+      const metadata = codeRecord.metadata as any;
+      user = await prisma.user.update({
+        where: { id: params.userId },
+        data: {
+          isVerified: true,
+          verifiedAt: new Date(),
+          verificationMethod: params.kakaoUserId ? 'kakao' : 'code',
+          subscriptionTier: metadata?.subscriptionTier || 'free',
+          subscriptionStart: new Date(),
+          subscriptionEnd: this.calculateSubscriptionEnd(metadata?.subscriptionTier)
+        }
+      });
+    }
+
+    await this.logUsage(params.code, true);
+
+    return { success: true, user: user || undefined };
+  }
+
+  private calculateSubscriptionEnd(tier?: string): Date {
+    const end = new Date();
+    switch (tier) {
+      case 'basic':
+        end.setMonth(end.getMonth() + 1);
+        break;
+      case 'premium':
+        end.setMonth(end.getMonth() + 12);
+        break;
+      case 'enterprise':
+        end.setFullYear(end.getFullYear() + 1);
+        break;
+      default:
+        end.setFullYear(end.getFullYear() + 100); // Free forever
+    }
+    return end;
+  }
+
+  private async logUsage(code: string, success: boolean, error?: string) {
+    // Implementation of usage logging
+  }
+}
+```
+
+---
+
+## 2.3 Module 2: Role-Based Access Control (RBAC)
+
+### Enhanced Project & Content Models
+
+```prisma
+model Project {
+  id                  String    @id @default(cuid())
+  name                String
+  description         String?
+  userId              String
+
+  // Project Type
+  projectType         String    @default("general")  // 'general' | 'product_catalog' | 'proposal_library' | 'knowledge_base'
+
+  // Access Control
+  visibility          String    @default("private")  // 'private' | 'internal' | 'public'
+  requiredRole        String?   // Minimum role to access
+  requiredTier        String?   // Minimum subscription tier
+  accessRoles         Json?     // Array of allowed roles
+
+  // Content Access Rules
+  contentAccessRules  Json?     // {
+                                //   tier_1: ["free", "basic", "premium"],
+                                //   tier_2: ["premium"],
+                                //   tier_3: ["enterprise"]
+                                // }
+
+  // Metadata-based Filtering
+  filterRules         Json?     // {
+                                //   industry: { admin: "*", user: "insurance" },
+                                //   department: { manager: "*", user: "$user.metadata.department" }
+                                // }
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  user                User      @relation(fields: [userId], references: [id])
+  contexts            Context[]
+  rolePermissions     ProjectRolePermission[]
+}
+
+model Context {
+  id                  String    @id @default(cuid())
+  projectId           String
+  documentId          String?
+
+  title               String
+  content             String
+  contentEmbedding    Json?
+
+  // Access Control
+  accessLevel         String    @default("standard")  // 'public' | 'standard' | 'restricted' | 'confidential'
+  requiredRole        String?   // 'admin' | 'manager' | 'user' | 'guest'
+  requiredTier        String?   // 'free' | 'basic' | 'premium' | 'enterprise'
+
+  // Metadata-based Access
+  accessMetadata      Json?     // {
+                                //   required_clearance_level: 2,
+                                //   allowed_departments: ["sales", "marketing"],
+                                //   allowed_regions: ["seoul", "busan"]
+                                // }
+
+  // Pinecone Sync
+  pineconeNamespace   String?   // Which namespace this belongs to
+  pineconeId          String?   // Pinecone vector ID
+  lastSyncedAt        DateTime?
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  project             Project   @relation(fields: [projectId], references: [id])
+  accessLogs          ContextAccessLog[]
+}
+
+// Project-level Role Permissions
+model ProjectRolePermission {
+  id                  String    @id @default(cuid())
+  projectId           String
+  role                String    // 'admin' | 'manager' | 'user' | 'guest' | custom
+
+  // Permissions
+  canRead             Boolean   @default(true)
+  canWrite            Boolean   @default(false)
+  canDelete           Boolean   @default(false)
+  canManageUsers      Boolean   @default(false)
+  canManageSettings   Boolean   @default(false)
+
+  // Content Filters
+  contentFilters      Json?     // Dynamic filters based on metadata
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  project             Project   @relation(fields: [projectId], references: [id])
+
+  @@unique([projectId, role])
+}
+```
+
+### RBAC Service
+
+```typescript
+// src/services/rbac.service.ts
+
+export class RBACService {
+
+  /**
+   * Check if user can access project
+   */
+  async canAccessProject(userId: string, projectId: string): Promise<boolean> {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const project = await prisma.project.findUnique({ where: { id: projectId } });
+
+    if (!user || !project) return false;
+
+    // Owner always has access
+    if (project.userId === userId) return true;
+
+    // Check role requirement
+    if (project.requiredRole) {
+      if (!this.hasRole(user.role, project.requiredRole)) return false;
+    }
+
+    // Check subscription tier requirement
+    if (project.requiredTier) {
+      if (!this.hasTier(user.subscriptionTier, project.requiredTier)) return false;
+    }
+
+    // Check if role is in allowed roles
+    if (project.accessRoles) {
+      const allowedRoles = project.accessRoles as string[];
+      if (!allowedRoles.includes(user.role)) return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Get accessible contexts for user with metadata filtering
+   */
+  async getAccessibleContexts(
+    userId: string,
+    projectId: string,
+    filters?: any
+  ): Promise<Context[]> {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) return [];
+
+    const userMetadata = (user.metadata as any) || {};
+
+    // Build access filter
+    const accessFilter: any = {
+      projectId,
+      OR: [
+        { requiredRole: null },
+        { requiredRole: { in: this.getRoleHierarchy(user.role) } }
+      ],
+      AND: [
+        {
+          OR: [
+            { requiredTier: null },
+            { requiredTier: { in: this.getTierHierarchy(user.subscriptionTier) } }
+          ]
+        }
+      ]
+    };
+
+    // Get all contexts that match basic access requirements
+    let contexts = await prisma.context.findMany({
+      where: accessFilter
+    });
+
+    // Apply metadata-based filtering
+    contexts = contexts.filter(context => {
+      if (!context.accessMetadata) return true;
+
+      const accessMeta = context.accessMetadata as any;
+
+      // Check clearance level
+      if (accessMeta.required_clearance_level) {
+        if ((userMetadata.clearance_level || 0) < accessMeta.required_clearance_level) {
+          return false;
+        }
+      }
+
+      // Check departments
+      if (accessMeta.allowed_departments) {
+        if (!accessMeta.allowed_departments.includes(userMetadata.department)) {
+          return false;
+        }
+      }
+
+      // Check regions
+      if (accessMeta.allowed_regions) {
+        if (!accessMeta.allowed_regions.includes(userMetadata.region)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    return contexts;
+  }
+
+  /**
+   * Build Pinecone metadata filter for user
+   */
+  buildPineconeFilter(user: User, project: Project): any {
+    const userMetadata = (user.metadata as any) || {};
+    const filterRules = (project.filterRules as any) || {};
+
+    const filters: any = {
+      // Always filter by project/namespace
+      project_id: project.id
+    };
+
+    // Apply role-based filters
+    if (user.role !== 'admin') {
+      // Non-admins only see content marked for their role
+      filters.access_roles = { $in: this.getRoleHierarchy(user.role) };
+    }
+
+    // Apply subscription tier filters
+    if (project.contentAccessRules) {
+      const tierRules = project.contentAccessRules as any;
+
+      // Find what tiers the user's subscription allows
+      const allowedTiers = Object.entries(tierRules)
+        .filter(([tier, allowedSubs]: [string, any]) =>
+          allowedSubs.includes(user.subscriptionTier)
+        )
+        .map(([tier]) => tier);
+
+      filters.access_level = { $in: allowedTiers };
+    }
+
+    // Apply metadata-based filters
+    if (userMetadata.department && filterRules.department) {
+      const deptRule = filterRules.department[user.role];
+      if (deptRule !== '*') {
+        filters.department = userMetadata.department;
+      }
+    }
+
+    if (userMetadata.region && filterRules.region) {
+      const regionRule = filterRules.region[user.role];
+      if (regionRule !== '*') {
+        filters.region = userMetadata.region;
+      }
+    }
+
+    if (userMetadata.clearance_level) {
+      filters.required_clearance_level = { $lte: userMetadata.clearance_level };
+    }
+
+    return filters;
+  }
+
+  /**
+   * Role hierarchy (higher roles include lower ones)
+   */
+  private getRoleHierarchy(role: string): string[] {
+    const hierarchy: Record<string, string[]> = {
+      'admin': ['admin', 'manager', 'user', 'guest'],
+      'manager': ['manager', 'user', 'guest'],
+      'user': ['user', 'guest'],
+      'guest': ['guest']
+    };
+    return hierarchy[role] || [role];
+  }
+
+  /**
+   * Subscription tier hierarchy
+   */
+  private getTierHierarchy(tier: string): string[] {
+    const hierarchy: Record<string, string[]> = {
+      'enterprise': ['enterprise', 'premium', 'basic', 'free'],
+      'premium': ['premium', 'basic', 'free'],
+      'basic': ['basic', 'free'],
+      'free': ['free']
+    };
+    return hierarchy[tier] || [tier];
+  }
+
+  private hasRole(userRole: string, requiredRole: string): boolean {
+    return this.getRoleHierarchy(userRole).includes(requiredRole);
+  }
+
+  private hasTier(userTier: string, requiredTier: string): boolean {
+    return this.getTierHierarchy(userTier).includes(requiredTier);
+  }
+}
+```
+
+### Modified RAG Engine with RBAC
+
+```typescript
+// src/lib/proposals/core/rag-engine-rbac.ts
+
+export class RAGEngineRBAC extends RAGEngine {
+
+  /**
+   * Search Pinecone with RBAC filters
+   */
+  async searchPineconeWithRBAC(
+    queryEmbedding: number[],
+    namespace: string,
+    userId: string,
+    projectId: string
+  ): Promise<SearchResult[]> {
+    // Get user and project
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const project = await prisma.project.findUnique({ where: { id: projectId } });
+
+    if (!user || !project) {
+      throw new Error('User or project not found');
+    }
+
+    // Build RBAC filter using RBACService
+    const rbacService = new RBACService();
+    const rbacFilter = rbacService.buildPineconeFilter(user, project);
+
+    // Query Pinecone with RBAC filter
+    const index = this.pinecone.index(this.INDEX_NAME);
+
+    const queryResponse = await index.namespace(namespace).query({
+      vector: queryEmbedding,
+      topK: this.TOP_K,
+      includeMetadata: true,
+      filter: rbacFilter  // ✅ RBAC-filtered search
+    });
+
+    return queryResponse.matches.map(match => ({
+      id: match.id,
+      score: match.score || 0,
+      metadata: match.metadata as any
+    }));
+  }
+}
+```
+
+---
+
+## 2.4 Module 3: Data Ingestion Pipeline
+
+### Ingestion System Architecture
+
+```
+Document Upload
+    ↓
+[1] File Validation
+    → Type checking (PDF, DOCX, TXT, CSV)
+    → Size limits
+    → Malware scanning
+    ↓
+[2] S3 Storage
+    → Upload to AWS S3
+    → Generate CDN URL
+    ↓
+[3] Document Processing
+    → Text extraction (PDF, DOCX)
+    → Table extraction
+    → Image extraction
+    → Metadata extraction
+    ↓
+[4] Chunking Strategy
+    → Sliding window (512 tokens, 50 overlap)
+    → Semantic chunking (sentence boundaries)
+    → Table-aware chunking
+    ↓
+[5] Metadata Enrichment
+    → Auto-tagging (keywords, entities)
+    → Classification (ML model)
+    → Access level assignment (rules-based)
+    ↓
+[6] Embedding Generation
+    → Parallel batch processing
+    → Multi-model support (OpenAI, Cohere, etc.)
+    → Version tracking
+    ↓
+[7] PostgreSQL Storage
+    → Store Context with embeddings
+    → Link to Document record
+    → Version history
+    ↓
+[8] Pinecone Sync
+    → Batch upsert to Pinecone
+    → Namespace routing based on project
+    → Metadata tagging for RBAC
+    ↓
+[9] Post-Processing
+    → Index updating
+    → Analytics logging
+    → Notification (webhooks)
+```
+
+### Ingestion Models
+
+```prisma
+model IngestionJob {
+  id                  String    @id @default(cuid())
+  userId              String
+  projectId           String
+
+  // Job Details
+  status              String    @default("pending")  // 'pending' | 'processing' | 'completed' | 'failed'
+  totalDocuments      Int
+  processedDocuments  Int       @default(0)
+  failedDocuments     Int       @default(0)
+
+  // Configuration
+  chunkingStrategy    String    @default("sliding_window")  // 'sliding_window' | 'semantic' | 'table_aware'
+  chunkSize           Int       @default(512)
+  chunkOverlap        Int       @default(50)
+  embeddingModel      String    @default("text-embedding-3-large")
+  autoTagging         Boolean   @default(true)
+
+  // Access Control (applied to all ingested content)
+  defaultAccessLevel  String    @default("standard")
+  defaultRequiredRole String?
+  defaultRequiredTier String?
+  accessMetadata      Json?
+
+  // Progress Tracking
+  startedAt           DateTime?
+  completedAt         DateTime?
+  errorLog            Json?
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  documents           IngestionDocument[]
+}
+
+model IngestionDocument {
+  id                  String    @id @default(cuid())
+  jobId               String
+  documentId          String?   // Linked Document ID after processing
+
+  // File Details
+  fileName            String
+  fileType            String
+  fileSize            Int
+  s3Url               String
+
+  // Processing Status
+  status              String    @default("pending")  // 'pending' | 'processing' | 'completed' | 'failed'
+
+  // Processing Results
+  chunksCreated       Int       @default(0)
+  contextsCreated     Int       @default(0)
+  pineconeVectors     Int       @default(0)
+
+  // Error Handling
+  errorMessage        String?
+  retryCount          Int       @default(0)
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  job                 IngestionJob @relation(fields: [jobId], references: [id])
+}
+```
+
+### Ingestion Service
+
+```typescript
+// src/services/ingestion.service.ts
+
+export class IngestionService {
+
+  /**
+   * Create ingestion job
+   */
+  async createJob(params: {
+    userId: string;
+    projectId: string;
+    files: File[];
+    chunkingStrategy?: string;
+    chunkSize?: number;
+    chunkOverlap?: number;
+    embeddingModel?: string;
+    accessLevel?: string;
+    requiredRole?: string;
+    requiredTier?: string;
+    accessMetadata?: any;
+  }): Promise<IngestionJob> {
+    const job = await prisma.ingestionJob.create({
+      data: {
+        userId: params.userId,
+        projectId: params.projectId,
+        totalDocuments: params.files.length,
+        chunkingStrategy: params.chunkingStrategy || 'sliding_window',
+        chunkSize: params.chunkSize || 512,
+        chunkOverlap: params.chunkOverlap || 50,
+        embeddingModel: params.embeddingModel || 'text-embedding-3-large',
+        defaultAccessLevel: params.accessLevel || 'standard',
+        defaultRequiredRole: params.requiredRole,
+        defaultRequiredTier: params.requiredTier,
+        accessMetadata: params.accessMetadata,
+        status: 'pending'
+      }
+    });
+
+    // Create document records
+    for (const file of params.files) {
+      await prisma.ingestionDocument.create({
+        data: {
+          jobId: job.id,
+          fileName: file.name,
+          fileType: file.type,
+          fileSize: file.size,
+          s3Url: '', // Will be filled after upload
+          status: 'pending'
+        }
+      });
+    }
+
+    // Start processing in background
+    this.processJobAsync(job.id);
+
+    return job;
+  }
+
+  /**
+   * Process ingestion job
+   */
+  private async processJobAsync(jobId: string) {
+    // Update job status
+    await prisma.ingestionJob.update({
+      where: { id: jobId },
+      data: { status: 'processing', startedAt: new Date() }
+    });
+
+    try {
+      const job = await prisma.ingestionJob.findUnique({
+        where: { id: jobId },
+        include: { documents: true }
+      });
+
+      if (!job) throw new Error('Job not found');
+
+      // Process each document
+      for (const doc of job.documents) {
+        await this.processDocument(doc.id, job);
+      }
+
+      // Mark job as completed
+      await prisma.ingestionJob.update({
+        where: { id: jobId },
+        data: {
+          status: 'completed',
+          completedAt: new Date()
+        }
+      });
+
+    } catch (error) {
+      await prisma.ingestionJob.update({
+        where: { id: jobId },
+        data: {
+          status: 'failed',
+          errorLog: { message: error.message }
+        }
+      });
+    }
+  }
+
+  /**
+   * Process single document
+   */
+  private async processDocument(documentId: string, job: IngestionJob) {
+    const doc = await prisma.ingestionDocument.findUnique({ where: { id: documentId } });
+    if (!doc) return;
+
+    try {
+      // Update status
+      await prisma.ingestionDocument.update({
+        where: { id: documentId },
+        data: { status: 'processing' }
+      });
+
+      // 1. Upload to S3
+      const s3Url = await this.uploadToS3(doc);
+
+      // 2. Extract text
+      const text = await this.extractText(doc);
+
+      // 3. Chunk text
+      const chunks = await this.chunkText(text, job);
+
+      // 4. Generate embeddings
+      const embeddings = await this.generateEmbeddings(chunks, job.embeddingModel);
+
+      // 5. Store in PostgreSQL
+      const contexts = await this.storeContexts(chunks, embeddings, job, doc);
+
+      // 6. Sync to Pinecone
+      await this.syncToPinecone(contexts, job);
+
+      // 7. Update document record
+      await prisma.ingestionDocument.update({
+        where: { id: documentId },
+        data: {
+          status: 'completed',
+          s3Url,
+          chunksCreated: chunks.length,
+          contextsCreated: contexts.length,
+          pineconeVectors: contexts.length
+        }
+      });
+
+    } catch (error) {
+      await prisma.ingestionDocument.update({
+        where: { id: documentId },
+        data: {
+          status: 'failed',
+          errorMessage: error.message,
+          retryCount: { increment: 1 }
+        }
+      });
+    }
+  }
+
+  private async uploadToS3(doc: IngestionDocument): Promise<string> {
+    // Implementation
+    return 'https://s3.amazonaws.com/...';
+  }
+
+  private async extractText(doc: IngestionDocument): Promise<string> {
+    // Use pdf-parse, mammoth, etc.
+    return 'Extracted text...';
+  }
+
+  private async chunkText(text: string, job: IngestionJob): Promise<string[]> {
+    // Implement chunking strategies
+    return ['chunk1', 'chunk2', 'chunk3'];
+  }
+
+  private async generateEmbeddings(chunks: string[], model: string): Promise<number[][]> {
+    // Batch embedding generation
+    return [[0.1, 0.2, ...], [0.3, 0.4, ...]];
+  }
+
+  private async storeContexts(
+    chunks: string[],
+    embeddings: number[][],
+    job: IngestionJob,
+    doc: IngestionDocument
+  ): Promise<Context[]> {
+    const contexts: Context[] = [];
+
+    for (let i = 0; i < chunks.length; i++) {
+      const context = await prisma.context.create({
+        data: {
+          projectId: job.projectId,
+          title: `${doc.fileName} - Chunk ${i + 1}`,
+          content: chunks[i],
+          contentEmbedding: embeddings[i],
+          embeddingModel: job.embeddingModel,
+          embeddingVersion: '1.0',
+          accessLevel: job.defaultAccessLevel,
+          requiredRole: job.defaultRequiredRole,
+          requiredTier: job.defaultRequiredTier,
+          accessMetadata: job.accessMetadata
+        }
+      });
+      contexts.push(context);
+    }
+
+    return contexts;
+  }
+
+  private async syncToPinecone(contexts: Context[], job: IngestionJob) {
+    // Batch upsert to Pinecone with RBAC metadata
+    const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
+    const index = pinecone.index(process.env.PINECONE_INDEX!);
+
+    const vectors = contexts.map(ctx => ({
+      id: ctx.id,
+      values: ctx.contentEmbedding as number[],
+      metadata: {
+        project_id: job.projectId,
+        content: ctx.content.substring(0, 1000), // Pinecone metadata limit
+        access_level: ctx.accessLevel,
+        required_role: ctx.requiredRole,
+        required_tier: ctx.requiredTier,
+        access_roles: this.getRoleHierarchy(ctx.requiredRole || 'guest'),
+        ...(ctx.accessMetadata as any)
+      }
+    }));
+
+    await index.namespace(job.projectId).upsert(vectors);
+  }
+
+  private getRoleHierarchy(role: string): string[] {
+    const hierarchy: Record<string, string[]> = {
+      'admin': ['admin', 'manager', 'user', 'guest'],
+      'manager': ['manager', 'user', 'guest'],
+      'user': ['user', 'guest'],
+      'guest': ['guest']
+    };
+    return hierarchy[role] || [role];
+  }
+}
+```
+
+---
+
+## 2.5 Module 4: Analytics & Tracking
+
+### Analytics Models
+
+```prisma
+model AnalyticsEvent {
+  id                  String    @id @default(cuid())
+  userId              String?
+  codeId              String?
+  sessionId           String?
+
+  // Event Details
+  eventType           String    // 'query' | 'login' | 'code_use' | 'document_access' | 'subscription_change'
+  eventCategory       String?   // For grouping
+  eventAction         String?   // Specific action
+  eventLabel          String?   // Additional context
+
+  // Context
+  projectId           String?
+  contextId           String?
+  queryText           String?
+
+  // Metadata
+  metadata            Json?     // Flexible event data
+
+  // Technical
+  ipAddress           String?
+  userAgent           String?
+  referrer            String?
+
+  timestamp           DateTime  @default(now())
+
+  user                User?     @relation(fields: [userId], references: [id])
+  code                VerificationCode? @relation(fields: [codeId], references: [id])
+
+  @@index([userId, timestamp])
+  @@index([eventType, timestamp])
+  @@index([codeId, timestamp])
+}
+
+model UserAccessLog {
+  id                  String    @id @default(cuid())
+  userId              String
+  contextId           String?
+  projectId           String?
+
+  // Access Details
+  accessType          String    // 'read' | 'write' | 'delete'
+  accessGranted       Boolean   // Was access allowed?
+  denialReason        String?   // If not granted
+
+  // Query Performance
+  responseTime        Int?      // ms
+  relevanceScore      Float?    // Average of returned results
+
+  timestamp           DateTime  @default(now())
+
+  user                User      @relation(fields: [userId], references: [id])
+
+  @@index([userId, timestamp])
+  @@index([contextId])
+}
+
+model ContextAccessLog {
+  id                  String    @id @default(cuid())
+  contextId           String
+  userId              String?
+  codeId              String?
+
+  // Access Metadata
+  accessGranted       Boolean
+  denialReason        String?
+  relevanceScore      Float?    // How relevant was this result?
+
+  timestamp           DateTime  @default(now())
+
+  context             Context   @relation(fields: [contextId], references: [id])
+
+  @@index([contextId, timestamp])
+}
+
+model UserSession {
+  id                  String    @id @default(cuid())
+  sessionId           String    @unique
+  userId              String?
+
+  // Session Metadata
+  startedAt           DateTime  @default(now())
+  lastActivityAt      DateTime  @default(now())
+  endedAt             DateTime?
+
+  // Session Stats
+  totalQueries        Int       @default(0)
+  totalContexts       Int       @default(0)
+  avgResponseTime     Float?
+  avgRelevanceScore   Float?
+
+  // Technical
+  ipAddress           String?
+  userAgent           String?
+  location            String?
+
+  user                User?     @relation(fields: [userId], references: [id])
+
+  @@index([userId, startedAt])
+  @@index([sessionId])
+}
+```
+
+### Analytics Service
+
+```typescript
+// src/services/analytics.service.ts
+
+export class AnalyticsService {
+
+  /**
+   * Track query event
+   */
+  async trackQuery(params: {
+    userId?: string;
+    codeId?: string;
+    sessionId: string;
+    projectId: string;
+    queryText: string;
+    responseTime: number;
+    resultsCount: number;
+    avgRelevanceScore: number;
+  }) {
+    // Create analytics event
+    await prisma.analyticsEvent.create({
+      data: {
+        userId: params.userId,
+        codeId: params.codeId,
+        sessionId: params.sessionId,
+        eventType: 'query',
+        eventCategory: 'rag_search',
+        eventAction: 'execute_query',
+        projectId: params.projectId,
+        queryText: params.queryText,
+        metadata: {
+          responseTime: params.responseTime,
+          resultsCount: params.resultsCount,
+          avgRelevanceScore: params.avgRelevanceScore
+        }
+      }
+    });
+
+    // Update user stats
+    if (params.userId) {
+      await prisma.user.update({
+        where: { id: params.userId },
+        data: {
+          totalQueries: { increment: 1 },
+          lastActivityAt: new Date()
+        }
+      });
+    }
+
+    // Update session stats
+    await prisma.userSession.update({
+      where: { sessionId: params.sessionId },
+      data: {
+        totalQueries: { increment: 1 },
+        lastActivityAt: new Date()
+      }
+    });
+  }
+
+  /**
+   * Track code usage
+   */
+  async trackCodeUsage(params: {
+    codeId: string;
+    userId?: string;
+    usedFor: string;
+    success: boolean;
+    metadata?: any;
+  }) {
+    await prisma.analyticsEvent.create({
+      data: {
+        codeId: params.codeId,
+        userId: params.userId,
+        eventType: 'code_use',
+        eventCategory: 'verification',
+        eventAction: params.usedFor,
+        metadata: {
+          success: params.success,
+          ...params.metadata
+        }
+      }
+    });
+  }
+
+  /**
+   * Track content access
+   */
+  async trackContentAccess(params: {
+    userId?: string;
+    contextId: string;
+    projectId: string;
+    accessGranted: boolean;
+    denialReason?: string;
+    relevanceScore?: number;
+  }) {
+    await prisma.contextAccessLog.create({
+      data: {
+        contextId: params.contextId,
+        userId: params.userId,
+        accessGranted: params.accessGranted,
+        denialReason: params.denialReason,
+        relevanceScore: params.relevanceScore
+      }
+    });
+
+    // If denied, track why
+    if (!params.accessGranted) {
+      await prisma.analyticsEvent.create({
+        data: {
+          userId: params.userId,
+          eventType: 'document_access',
+          eventCategory: 'access_denied',
+          eventAction: params.denialReason || 'unknown',
+          contextId: params.contextId,
+          projectId: params.projectId
+        }
+      });
+    }
+  }
+
+  /**
+   * Get user analytics dashboard
+   */
+  async getUserAnalytics(userId: string, timeRange: { start: Date; end: Date }) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        analyticsEvents: {
+          where: {
+            timestamp: {
+              gte: timeRange.start,
+              lte: timeRange.end
+            }
+          }
+        },
+        sessions: {
+          where: {
+            startedAt: {
+              gte: timeRange.start,
+              lte: timeRange.end
+            }
+          }
+        }
+      }
+    });
+
+    if (!user) return null;
+
+    // Calculate metrics
+    const totalQueries = user.analyticsEvents.filter(e => e.eventType === 'query').length;
+    const totalSessions = user.sessions.length;
+    const avgSessionDuration = user.sessions.reduce((sum, s) => {
+      if (!s.endedAt) return sum;
+      return sum + (s.endedAt.getTime() - s.startedAt.getTime());
+    }, 0) / (totalSessions || 1);
+
+    // Query patterns
+    const queryTypes = user.analyticsEvents
+      .filter(e => e.eventType === 'query')
+      .map(e => (e.metadata as any)?.queryType || 'unknown');
+
+    const queryTypeDistribution = queryTypes.reduce((acc: any, type: string) => {
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Most accessed projects
+    const projectAccess = user.analyticsEvents
+      .filter(e => e.projectId)
+      .reduce((acc: any, e) => {
+        acc[e.projectId!] = (acc[e.projectId!] || 0) + 1;
+        return acc;
+      }, {});
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        subscriptionTier: user.subscriptionTier
+      },
+      metrics: {
+        totalQueries,
+        totalSessions,
+        avgSessionDuration: Math.round(avgSessionDuration / 1000), // seconds
+        totalEvents: user.analyticsEvents.length
+      },
+      queryAnalysis: {
+        typeDistribution: queryTypeDistribution,
+        avgQueriesPerSession: totalQueries / (totalSessions || 1)
+      },
+      projectUsage: projectAccess
+    };
+  }
+
+  /**
+   * Get code analytics
+   */
+  async getCodeAnalytics(codeId: string) {
+    const code = await prisma.verificationCode.findUnique({
+      where: { id: codeId },
+      include: {
+        usageLogs: true,
+        analyticsEvents: true
+      }
+    });
+
+    if (!code) return null;
+
+    return {
+      code: code.code,
+      type: code.codeType,
+      created: code.createdAt,
+      expires: code.expiresAt,
+      isUsed: code.isUsed,
+      usage: {
+        current: code.currentUses,
+        max: code.maxUses,
+        successRate: code.usageLogs.filter(l => l.success).length / (code.usageLogs.length || 1)
+      },
+      campaign: code.campaign,
+      metadata: code.metadata,
+      events: code.analyticsEvents.map(e => ({
+        type: e.eventType,
+        action: e.eventAction,
+        timestamp: e.timestamp
+      }))
+    };
+  }
+
+  /**
+   * Get system-wide analytics
+   */
+  async getSystemAnalytics(timeRange: { start: Date; end: Date }) {
+    const events = await prisma.analyticsEvent.findMany({
+      where: {
+        timestamp: {
+          gte: timeRange.start,
+          lte: timeRange.end
+        }
+      }
+    });
+
+    // Active users
+    const activeUsers = new Set(events.filter(e => e.userId).map(e => e.userId)).size;
+
+    // Total queries
+    const totalQueries = events.filter(e => e.eventType === 'query').length;
+
+    // Code usage
+    const codeUsage = events.filter(e => e.eventType === 'code_use');
+    const successfulCodes = codeUsage.filter(e => (e.metadata as any)?.success).length;
+
+    // Access denials
+    const accessDenials = events.filter(e => e.eventCategory === 'access_denied');
+
+    // Popular projects
+    const projectPopularity = events
+      .filter(e => e.projectId)
+      .reduce((acc: any, e) => {
+        acc[e.projectId!] = (acc[e.projectId!] || 0) + 1;
+        return acc;
+      }, {});
+
+    return {
+      overview: {
+        activeUsers,
+        totalQueries,
+        totalEvents: events.length,
+        avgQueriesPerUser: totalQueries / (activeUsers || 1)
+      },
+      codes: {
+        totalUsage: codeUsage.length,
+        successfulUses: successfulCodes,
+        successRate: successfulCodes / (codeUsage.length || 1)
+      },
+      access: {
+        totalDenials: accessDenials.length,
+        denialReasons: accessDenials.reduce((acc: any, e) => {
+          const reason = e.eventAction || 'unknown';
+          acc[reason] = (acc[reason] || 0) + 1;
+          return acc;
+        }, {})
+      },
+      projects: {
+        mostPopular: Object.entries(projectPopularity)
+          .sort(([, a]: any, [, b]: any) => b - a)
+          .slice(0, 10)
+          .map(([projectId, count]) => ({ projectId, accessCount: count }))
+      }
+    };
+  }
+}
+```
+
+---
+
+## 2.6 Module 5: Subscription Management
+
+### Subscription Models
+
+```prisma
+model SubscriptionTier {
+  id                  String    @id @default(cuid())
+  name                String    @unique  // 'free' | 'basic' | 'premium' | 'enterprise'
+  displayName         String    // "Premium Plan"
+  description         String
+
+  // Pricing
+  priceMonthly        Float     @default(0)
+  priceYearly         Float     @default(0)
+  currency            String    @default("USD")
+
+  // Limits
+  maxProjects         Int       @default(-1)  // -1 = unlimited
+  maxDocuments        Int       @default(-1)
+  maxQueries          Int       @default(-1)  // Per month
+  maxStorage          BigInt    @default(-1)  // Bytes
+
+  // Features
+  features            Json      // {
+                                //   "advanced_analytics": true,
+                                //   "api_access": true,
+                                //   "priority_support": true,
+                                //   "custom_models": false
+                                // }
+
+  // Access Rights
+  accessLevels        Json      // ["tier_1", "tier_2", "tier_3"]
+  maxAccessLevel      String    // "tier_3"
+
+  // Metadata
+  isActive            Boolean   @default(true)
+  sortOrder           Int       @default(0)
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  subscriptions       SubscriptionHistory[]
+}
+
+model SubscriptionHistory {
+  id                  String    @id @default(cuid())
+  userId              String
+  tierId              String
+
+  // Subscription Period
+  startDate           DateTime
+  endDate             DateTime?
+  status              String    // 'active' | 'paused' | 'cancelled' | 'expired'
+
+  // Billing
+  amount              Float
+  currency            String
+  billingCycle        String    // 'monthly' | 'yearly' | 'one_time'
+  paymentMethod       String?
+  transactionId       String?
+
+  // Cancellation
+  cancelledAt         DateTime?
+  cancellationReason  String?
+
+  // Metadata
+  metadata            Json?
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  user                User              @relation(fields: [userId], references: [id])
+  tier                SubscriptionTier  @relation(fields: [tierId], references: [id])
+
+  @@index([userId, status])
+  @@index([status, endDate])
+}
+
+model UsageTracking {
+  id                  String    @id @default(cuid())
+  userId              String
+
+  // Period
+  month               String    // "2025-11"
+
+  // Usage Metrics
+  queriesCount        Int       @default(0)
+  documentsCount      Int       @default(0)
+  storageUsed         BigInt    @default(0)
+  apiCalls            Int       @default(0)
+
+  // Limits (from subscription)
+  queriesLimit        Int       @default(-1)
+  documentsLimit      Int       @default(-1)
+  storageLimit        BigInt    @default(-1)
+  apiCallsLimit       Int       @default(-1)
+
+  // Warnings
+  hasWarning          Boolean   @default(false)
+  warningMessage      String?
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@unique([userId, month])
+  @@index([userId, month])
+}
+```
+
+### Subscription Service
+
+```typescript
+// src/services/subscription.service.ts
+
+export class SubscriptionService {
+
+  /**
+   * Get user's current subscription
+   */
+  async getCurrentSubscription(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        subscriptions: {
+          where: { status: 'active' },
+          include: { tier: true },
+          orderBy: { startDate: 'desc' },
+          take: 1
+        }
+      }
+    });
+
+    if (!user || user.subscriptions.length === 0) {
+      // Return free tier
+      return this.getFreeTier();
+    }
+
+    return user.subscriptions[0];
+  }
+
+  /**
+   * Upgrade/downgrade subscription
+   */
+  async changeSubscription(params: {
+    userId: string;
+    newTierId: string;
+    billingCycle: 'monthly' | 'yearly';
+    paymentMethod?: string;
+  }) {
+    const currentSub = await this.getCurrentSubscription(params.userId);
+    const newTier = await prisma.subscriptionTier.findUnique({
+      where: { id: params.newTierId }
+    });
+
+    if (!newTier) throw new Error('Tier not found');
+
+    // Cancel current subscription
+    if (currentSub && currentSub.id) {
+      await prisma.subscriptionHistory.update({
+        where: { id: currentSub.id },
+        data: {
+          status: 'cancelled',
+          cancelledAt: new Date(),
+          cancellationReason: 'Upgraded to new tier'
+        }
+      });
+    }
+
+    // Calculate amount
+    const amount = params.billingCycle === 'monthly'
+      ? newTier.priceMonthly
+      : newTier.priceYearly;
+
+    // Calculate end date
+    const endDate = new Date();
+    if (params.billingCycle === 'monthly') {
+      endDate.setMonth(endDate.getMonth() + 1);
+    } else {
+      endDate.setFullYear(endDate.getFullYear() + 1);
+    }
+
+    // Create new subscription
+    const newSub = await prisma.subscriptionHistory.create({
+      data: {
+        userId: params.userId,
+        tierId: params.newTierId,
+        startDate: new Date(),
+        endDate,
+        status: 'active',
+        amount,
+        currency: newTier.currency,
+        billingCycle: params.billingCycle,
+        paymentMethod: params.paymentMethod
+      },
+      include: { tier: true }
+    });
+
+    // Update user
+    await prisma.user.update({
+      where: { id: params.userId },
+      data: {
+        subscriptionTier: newTier.name,
+        subscriptionStatus: 'active',
+        subscriptionStart: new Date(),
+        subscriptionEnd: endDate
+      }
+    });
+
+    // Track event
+    await prisma.analyticsEvent.create({
+      data: {
+        userId: params.userId,
+        eventType: 'subscription_change',
+        eventCategory: 'billing',
+        eventAction: 'upgrade',
+        metadata: {
+          previousTier: currentSub?.tier?.name || 'free',
+          newTier: newTier.name,
+          billingCycle: params.billingCycle
+        }
+      }
+    });
+
+    return newSub;
+  }
+
+  /**
+   * Check if user can perform action
+   */
+  async checkLimit(userId: string, action: 'query' | 'document' | 'storage' | 'api_call'): Promise<{
+    allowed: boolean;
+    reason?: string;
+    usage?: any;
+  }> {
+    const subscription = await this.getCurrentSubscription(userId);
+    const tier = subscription.tier;
+
+    // Get current month usage
+    const month = new Date().toISOString().slice(0, 7); // "2025-11"
+    let usage = await prisma.usageTracking.findUnique({
+      where: {
+        userId_month: {
+          userId,
+          month
+        }
+      }
+    });
+
+    // Create usage record if doesn't exist
+    if (!usage) {
+      usage = await prisma.usageTracking.create({
+        data: {
+          userId,
+          month,
+          queriesLimit: tier.maxQueries,
+          documentsLimit: tier.maxDocuments,
+          storageLimit: tier.maxStorage,
+          apiCallsLimit: (tier.features as any).api_access ? 10000 : 0
+        }
+      });
+    }
+
+    // Check limits
+    switch (action) {
+      case 'query':
+        if (tier.maxQueries !== -1 && usage.queriesCount >= tier.maxQueries) {
+          return {
+            allowed: false,
+            reason: `Monthly query limit reached (${tier.maxQueries})`,
+            usage
+          };
+        }
+        break;
+
+      case 'document':
+        if (tier.maxDocuments !== -1 && usage.documentsCount >= tier.maxDocuments) {
+          return {
+            allowed: false,
+            reason: `Document limit reached (${tier.maxDocuments})`,
+            usage
+          };
+        }
+        break;
+
+      case 'storage':
+        if (tier.maxStorage !== -1n && usage.storageUsed >= tier.maxStorage) {
+          return {
+            allowed: false,
+            reason: `Storage limit reached (${tier.maxStorage} bytes)`,
+            usage
+          };
+        }
+        break;
+
+      case 'api_call':
+        if (!(tier.features as any).api_access) {
+          return {
+            allowed: false,
+            reason: 'API access not included in your plan',
+            usage
+          };
+        }
+        if (usage.apiCallsLimit !== -1 && usage.apiCalls >= usage.apiCallsLimit) {
+          return {
+            allowed: false,
+            reason: `API call limit reached (${usage.apiCallsLimit})`,
+            usage
+          };
+        }
+        break;
+    }
+
+    return { allowed: true, usage };
+  }
+
+  /**
+   * Increment usage
+   */
+  async incrementUsage(userId: string, action: 'query' | 'document' | 'storage' | 'api_call', amount: number = 1) {
+    const month = new Date().toISOString().slice(0, 7);
+
+    const updateData: any = {};
+    switch (action) {
+      case 'query':
+        updateData.queriesCount = { increment: amount };
+        break;
+      case 'document':
+        updateData.documentsCount = { increment: amount };
+        break;
+      case 'storage':
+        updateData.storageUsed = { increment: amount };
+        break;
+      case 'api_call':
+        updateData.apiCalls = { increment: amount };
+        break;
+    }
+
+    await prisma.usageTracking.upsert({
+      where: {
+        userId_month: { userId, month }
+      },
+      update: updateData,
+      create: {
+        userId,
+        month,
+        ...updateData
+      }
+    });
+  }
+
+  private async getFreeTier() {
+    return await prisma.subscriptionTier.findUnique({
+      where: { name: 'free' }
+    });
+  }
+}
+```
+
+---
+
+## 2.7 Admin Dashboard UI Components
+
+### Dashboard Structure
+
+```
+/admin
+├── /dashboard          → Overview (stats, charts, alerts)
+├── /users              → User management
+│   ├── /list           → User list with filters
+│   ├── /[userId]       → User detail & edit
+│   └── /roles          → Role management
+├── /codes              → Cryptic code management
+│   ├── /generate       → Bulk code generation
+│   ├── /list           → Code list with filters
+│   └── /analytics      → Code usage analytics
+├── /data               → Data ingestion
+│   ├── /upload         → File upload interface
+│   ├── /jobs           → Job monitoring
+│   └── /namespaces     → Pinecone namespace management
+├── /analytics          → Analytics dashboard
+│   ├── /overview       → System-wide metrics
+│   ├── /users          → User behavior analysis
+│   ├── /content        → Content performance
+│   └── /queries        → Query analysis
+├── /projects           → Project management
+│   ├── /list           → Project list
+│   ├── /[projectId]    → Project detail & settings
+│   └── /rbac           → RBAC configuration
+├── /subscriptions      → Subscription management
+│   ├── /tiers          → Tier configuration
+│   ├── /users          → User subscriptions
+│   └── /billing        → Billing dashboard
+└── /settings           → System settings
+    ├── /general        → General configuration
+    ├── /models         → AI model settings
+    └── /integrations   → External integrations
+```
+
+### Key UI Components
+
+#### 1. **Code Generation Interface**
+
+```tsx
+// src/app/admin/codes/generate/page.tsx
+
+'use client';
+
+import { useState } from 'react';
+
+export default function CodeGeneratePage() {
+  const [codeType, setCodeType] = useState('registration');
+  const [quantity, setQuantity] = useState(10);
+  const [subscriptionTier, setSubscriptionTier] = useState('basic');
+  const [expiresInDays, setExpiresInDays] = useState(30);
+  const [campaign, setCampaign] = useState('');
+
+  const generateCodes = async () => {
+    const response = await fetch('/api/admin/codes/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        codeType,
+        quantity,
+        subscriptionTier,
+        expiresInDays,
+        campaign,
+        metadata: {
+          accessLevel: subscriptionTier === 'premium' ? 'tier_2' : 'tier_1'
+        }
+      })
+    });
+
+    const codes = await response.json();
+    // Handle response (download CSV, copy to clipboard, etc.)
+  };
+
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-6">Generate Verification Codes</h1>
+
+      <div className="grid grid-cols-2 gap-4 max-w-2xl">
+        <div>
+          <label className="block mb-2">Code Type</label>
+          <select
+            value={codeType}
+            onChange={(e) => setCodeType(e.target.value)}
+            className="w-full p-2 border rounded"
+          >
+            <option value="registration">Registration</option>
+            <option value="kakao_verify">KakaoTalk Verification</option>
+            <option value="subscription">Subscription Upgrade</option>
+            <option value="one_time_access">One-Time Access</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block mb-2">Quantity</label>
+          <input
+            type="number"
+            value={quantity}
+            onChange={(e) => setQuantity(parseInt(e.target.value))}
+            className="w-full p-2 border rounded"
+            min="1"
+            max="1000"
+          />
+        </div>
+
+        <div>
+          <label className="block mb-2">Subscription Tier</label>
+          <select
+            value={subscriptionTier}
+            onChange={(e) => setSubscriptionTier(e.target.value)}
+            className="w-full p-2 border rounded"
+          >
+            <option value="free">Free</option>
+            <option value="basic">Basic</option>
+            <option value="premium">Premium</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block mb-2">Expires In (Days)</label>
+          <input
+            type="number"
+            value={expiresInDays}
+            onChange={(e) => setExpiresInDays(parseInt(e.target.value))}
+            className="w-full p-2 border rounded"
+            min="1"
+            max="365"
+          />
+        </div>
+
+        <div className="col-span-2">
+          <label className="block mb-2">Campaign Name (Optional)</label>
+          <input
+            type="text"
+            value={campaign}
+            onChange={(e) => setCampaign(e.target.value)}
+            className="w-full p-2 border rounded"
+            placeholder="e.g., Q1_2025_KakaoTalk_Campaign"
+          />
+        </div>
+
+        <div className="col-span-2">
+          <button
+            onClick={generateCodes}
+            className="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700"
+          >
+            Generate {quantity} Codes
+          </button>
+        </div>
+      </div>
+
+      {/* Generated codes display/export section */}
+    </div>
+  );
+}
+```
+
+#### 2. **User Analytics Dashboard**
+
+```tsx
+// src/app/admin/analytics/users/page.tsx
+
+'use client';
+
+import { useEffect, useState } from 'react';
+
+export default function UserAnalyticsPage() {
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [timeRange, setTimeRange] = useState('7d');
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, [timeRange]);
+
+  const fetchAnalytics = async () => {
+    const response = await fetch(`/api/admin/analytics/users?range=${timeRange}`);
+    const data = await response.json();
+    setAnalytics(data);
+  };
+
+  if (!analytics) return <div>Loading...</div>;
+
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-6">User Analytics</h1>
+
+      {/* Time range selector */}
+      <div className="mb-6">
+        <select
+          value={timeRange}
+          onChange={(e) => setTimeRange(e.target.value)}
+          className="p-2 border rounded"
+        >
+          <option value="24h">Last 24 Hours</option>
+          <option value="7d">Last 7 Days</option>
+          <option value="30d">Last 30 Days</option>
+          <option value="90d">Last 90 Days</option>
+        </select>
+      </div>
+
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="p-4 bg-white rounded shadow">
+          <div className="text-gray-500 text-sm">Active Users</div>
+          <div className="text-3xl font-bold">{analytics.overview.activeUsers}</div>
+        </div>
+
+        <div className="p-4 bg-white rounded shadow">
+          <div className="text-gray-500 text-sm">Total Queries</div>
+          <div className="text-3xl font-bold">{analytics.overview.totalQueries.toLocaleString()}</div>
+        </div>
+
+        <div className="p-4 bg-white rounded shadow">
+          <div className="text-gray-500 text-sm">Avg Queries/User</div>
+          <div className="text-3xl font-bold">{analytics.overview.avgQueriesPerUser.toFixed(1)}</div>
+        </div>
+
+        <div className="p-4 bg-white rounded shadow">
+          <div className="text-gray-500 text-sm">Code Success Rate</div>
+          <div className="text-3xl font-bold">{(analytics.codes.successRate * 100).toFixed(1)}%</div>
+        </div>
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-2 gap-6">
+        {/* Query trend chart */}
+        <div className="p-4 bg-white rounded shadow">
+          <h3 className="font-bold mb-4">Query Trend</h3>
+          {/* Chart component */}
+        </div>
+
+        {/* User growth chart */}
+        <div className="p-4 bg-white rounded shadow">
+          <h3 className="font-bold mb-4">User Growth</h3>
+          {/* Chart component */}
+        </div>
+
+        {/* Popular projects */}
+        <div className="p-4 bg-white rounded shadow">
+          <h3 className="font-bold mb-4">Most Popular Projects</h3>
+          <div className="space-y-2">
+            {analytics.projects.mostPopular.map((p: any) => (
+              <div key={p.projectId} className="flex justify-between">
+                <span>{p.projectId.slice(0, 8)}...</span>
+                <span className="font-bold">{p.accessCount}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Access denials */}
+        <div className="p-4 bg-white rounded shadow">
+          <h3 className="font-bold mb-4">Access Denials</h3>
+          <div className="space-y-2">
+            {Object.entries(analytics.access.denialReasons).map(([reason, count]: any) => (
+              <div key={reason} className="flex justify-between">
+                <span>{reason}</span>
+                <span className="font-bold">{count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+---
+
+## 2.8 KakaoTalk Integration with Cryptic Codes
+
+### KakaoTalk Verification Flow
+
+```
+User receives KakaoTalk message with verification link
+    ↓
+Clicks link → Opens deep link → Web app /verify/kakao?code=HXK-9F2-M7Q-3WP
+    ↓
+Web app validates code
+    ↓
+If valid:
+  → Create/update user account
+  → Apply subscription tier from code metadata
+  → Link KakaoTalk user ID
+  → Redirect to dashboard
+If invalid:
+  → Show error message
+  → Log failed attempt
+```
+
+### KakaoTalk Message Templates
+
+```typescript
+// src/services/kakao.service.ts
+
+export class KakaoService {
+
+  /**
+   * Send verification code via KakaoTalk
+   */
+  async sendVerificationCode(params: {
+    kakaoUserId: string;
+    code: string;
+    tierName: string;
+  }) {
+    const verifyUrl = `https://context.flowos.work/verify/kakao?code=${params.code}`;
+
+    const message = {
+      version: '2.0',
+      template: {
+        outputs: [
+          {
+            simpleText: {
+              text: `🎉 Context Hub 인증 코드를 발급받았습니다!\n\n인증 코드: ${params.code}\n구독 등급: ${params.tierName}\n\n아래 버튼을 눌러 인증을 완료하세요.`
+            }
+          }
+        ],
+        quickReplies: [
+          {
+            action: 'webLink',
+            label: '인증하기',
+            webLinkUrl: verifyUrl
+          },
+          {
+            action: 'message',
+            label: '코드 복사',
+            messageText: params.code
+          }
+        ]
+      }
+    };
+
+    // Send via KakaoTalk API
+    await this.sendKakaoMessage(params.kakaoUserId, message);
+  }
+
+  /**
+   * Send subscription upgrade notification
+   */
+  async sendSubscriptionNotification(params: {
+    kakaoUserId: string;
+    tierName: string;
+    expiresAt: Date;
+  }) {
+    const message = {
+      version: '2.0',
+      template: {
+        outputs: [
+          {
+            simpleText: {
+              text: `✅ 구독이 업그레이드되었습니다!\n\n등급: ${params.tierName}\n유효기간: ${params.expiresAt.toLocaleDateString('ko-KR')}\n\n이제 프리미엄 기능을 사용할 수 있습니다!`
+            }
+          }
+        ],
+        quickReplies: [
+          {
+            action: 'webLink',
+            label: '대시보드 열기',
+            webLinkUrl: 'https://context.flowos.work/dashboard'
+          }
+        ]
+      }
+    };
+
+    await this.sendKakaoMessage(params.kakaoUserId, message);
+  }
+
+  private async sendKakaoMessage(userId: string, message: any) {
+    // Implementation using KakaoTalk API
+  }
+}
+```
+
+---
+
+# Part 3: Implementation Roadmap
+
+## Phase 1: Foundation (Weeks 1-2)
+
+### Week 1: Database Schema & Core Services
+- [ ] Create enhanced Prisma schema
+- [ ] Run database migrations
+- [ ] Implement CodeGeneratorService
+- [ ] Implement RBACService (basic)
+- [ ] Implement SubscriptionService (basic)
+
+### Week 2: RBAC in RAG Pipeline
+- [ ] Modify RAG engine to support RBAC filters
+- [ ] Update Pinecone metadata structure
+- [ ] Implement metadata-based filtering
+- [ ] Test RBAC with sample data
+
+## Phase 2: Admin Dashboard (Weeks 3-5)
+
+### Week 3: User Management & Code Generation
+- [ ] Build admin dashboard layout
+- [ ] User management UI
+- [ ] Code generation interface
+- [ ] Bulk code export (CSV)
+
+### Week 4: Data Ingestion Pipeline
+- [ ] File upload UI
+- [ ] IngestionService implementation
+- [ ] Job monitoring dashboard
+- [ ] Namespace management UI
+
+### Week 5: Analytics Dashboard
+- [ ] Analytics data collection hooks
+- [ ] User analytics UI
+- [ ] Code analytics UI
+- [ ] System-wide metrics dashboard
+
+## Phase 3: KakaoTalk Integration (Week 6)
+
+- [ ] KakaoService implementation
+- [ ] Verification endpoint (/verify/kakao)
+- [ ] Deep link handling
+- [ ] Message templates
+- [ ] Testing with KakaoTalk sandbox
+
+## Phase 4: Subscription System (Week 7)
+
+- [ ] Subscription tier configuration UI
+- [ ] Usage tracking implementation
+- [ ] Limit checking middleware
+- [ ] Billing integration (Stripe/etc)
+- [ ] Subscription management UI
+
+## Phase 5: Testing & Optimization (Week 8)
+
+- [ ] End-to-end testing
+- [ ] Performance optimization
+- [ ] Security audit
+- [ ] Documentation
+- [ ] User training materials
+
+---
+
+# Part 4: API Endpoints Reference
+
+## Admin API Endpoints
+
+```
+POST   /api/admin/codes/generate          → Generate cryptic codes
+GET    /api/admin/codes                   → List codes with filters
+GET    /api/admin/codes/[codeId]          → Get code details
+POST   /api/admin/codes/[codeId]/revoke   → Revoke code
+
+GET    /api/admin/users                   → List users
+GET    /api/admin/users/[userId]          → Get user details
+PATCH  /api/admin/users/[userId]          → Update user
+DELETE /api/admin/users/[userId]          → Delete user
+GET    /api/admin/users/[userId]/analytics → User analytics
+
+POST   /api/admin/data/ingest             → Start ingestion job
+GET    /api/admin/data/jobs               → List ingestion jobs
+GET    /api/admin/data/jobs/[jobId]       → Job details
+
+GET    /api/admin/analytics/overview      → System-wide analytics
+GET    /api/admin/analytics/users         → User analytics
+GET    /api/admin/analytics/codes         → Code analytics
+GET    /api/admin/analytics/content       → Content performance
+
+GET    /api/admin/subscriptions/tiers     → List subscription tiers
+POST   /api/admin/subscriptions/tiers     → Create tier
+PATCH  /api/admin/subscriptions/tiers/[id] → Update tier
+```
+
+## User API Endpoints
+
+```
+POST   /api/auth/register                 → Register with code
+POST   /api/auth/verify                   → Verify email/code
+POST   /api/verify/kakao                  → KakaoTalk verification
+
+GET    /api/user/profile                  → Get current user
+PATCH  /api/user/profile                  → Update profile
+GET    /api/user/subscription             → Get subscription details
+POST   /api/user/subscription/upgrade     → Upgrade subscription
+
+POST   /api/proposals/chat                → RAG query (with RBAC)
+GET    /api/projects/[projectId]/contexts → Get accessible contexts (with RBAC)
+```
+
+---
+
+# Part 5: Security Considerations
+
+## 1. Code Security
+
+```typescript
+// Prevent brute-force attacks on code verification
+class RateLimiter {
+  private attempts = new Map<string, number>();
+
+  checkLimit(ip: string): boolean {
+    const count = this.attempts.get(ip) || 0;
+    if (count >= 5) return false;
+
+    this.attempts.set(ip, count + 1);
+    setTimeout(() => this.attempts.delete(ip), 3600000); // 1 hour
+
+    return true;
+  }
+}
+```
+
+## 2. RBAC Security
+
+- Never expose full Pinecone index to users
+- Always apply RBAC filters at query time
+- Validate user permissions on every request
+- Log all access denials for audit
+
+## 3. Data Security
+
+- Encrypt sensitive metadata in Context.accessMetadata
+- Use row-level security in PostgreSQL
+- Sanitize all user inputs
+- Implement rate limiting on all endpoints
+
+---
+
+# Part 6: Monitoring & Observability
+
+## Key Metrics to Track
+
+1. **System Health**
+   - API response times
+   - RAG query latency
+   - Pinecone query performance
+   - Database connection pool
+
+2. **User Behavior**
+   - Daily active users
+   - Query frequency per user
+   - Popular content
+   - Access denial rates
+
+3. **Code Usage**
+   - Code generation rate
+   - Verification success rate
+   - Campaign performance
+   - Expiration tracking
+
+4. **Subscription Metrics**
+   - New subscriptions
+   - Churn rate
+   - Revenue (MRR/ARR)
+   - Usage vs. limits
+
+---
+
+# Conclusion
+
+This comprehensive system design provides:
+
+✅ **Complete RBAC** with metadata-driven content filtering
+✅ **Cryptic code system** for KakaoTalk verification and analytics
+✅ **Subscription management** with tiered access and usage tracking
+✅ **Advanced analytics** with code-based tracking and user behavior analysis
+✅ **Admin dashboard** for complete system management
+✅ **Data ingestion pipeline** with automated processing and RBAC tagging
+✅ **Scalable architecture** ready for production deployment
+
+The system abstracts the current Pinecone + RAG implementation into a flexible, multi-tenant platform with granular access control and comprehensive analytics capabilities.
+
+**Total Estimated Implementation Time:** 8 weeks
+**Team Size:** 2-3 developers + 1 PM
+**Technology Stack:** Next.js, TypeScript, Prisma, PostgreSQL, Pinecone, Redis, AWS S3, KakaoTalk API

@@ -13,9 +13,10 @@ import { CredentialService } from '@/lib/services/credential.service'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await props.params
     const supabase = await createClient()
 
     // Check authentication
@@ -61,9 +62,10 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await props.params
     const supabase = await createClient()
 
     // Check authentication
@@ -112,9 +114,10 @@ export async function DELETE(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await props.params
     const supabase = await createClient()
 
     // Check authentication

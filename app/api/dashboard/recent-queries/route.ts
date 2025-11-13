@@ -24,18 +24,19 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '10');
 
-    // Fetch recent queries with user info
+    // Fetch recent queries with user info (left join to include queries without profiles)
     const { data: queries, error } = await supabase
       .from('query_logs')
       .select(
         `
         id,
         query_text,
-        response_time,
+        response_time_ms,
         query_type,
         timestamp,
         user_id,
-        profiles!inner(full_name, email)
+        kakao_user_id,
+        profiles(full_name, email)
       `
       )
       .order('timestamp', { ascending: false })
@@ -53,12 +54,14 @@ export async function GET(request: NextRequest) {
     const transformedQueries = queries?.map((query) => ({
       id: query.id,
       queryText: query.query_text,
-      responseTime: query.response_time,
-      queryType: query.query_type || 'unknown',
+      responseTime: query.response_time_ms,
+      queryType: query.query_type || 'general',
       timestamp: query.timestamp,
       userId: query.user_id,
+      kakaoUserId: query.kakao_user_id,
       userFullName:
-        (query.profiles as any)?.full_name || 'Unknown',
+        (query.profiles as any)?.full_name ||
+        (query.kakao_user_id ? `KakaoTalk User` : 'Unknown'),
       userEmail: (query.profiles as any)?.email || '',
     }));
 

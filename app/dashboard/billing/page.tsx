@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { DashboardLayout } from '@/components/layouts/dashboard-layout';
 import { PaymentHistory } from '@/components/payment/payment-history';
 import { InvoiceViewer } from '@/components/payment/invoice-viewer';
 import { format } from 'date-fns';
@@ -142,36 +143,36 @@ export default function BillingDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="flex items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="ml-3 text-gray-600">불러오는 중...</span>
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex items-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-3 text-gray-600">불러오는 중...</span>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Page Header */}
+        <div>
           <h1 className="text-3xl font-bold text-gray-900">결제 및 구독 관리</h1>
           <p className="mt-2 text-sm text-gray-600">
             구독 정보를 확인하고 결제 내역을 관리하세요
           </p>
         </div>
-      </div>
 
-      {/* Navigation Tabs */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex space-x-8">
+        {/* Navigation Tabs */}
+        <div className="bg-white border border-gray-200 rounded-lg">
+          <nav className="flex space-x-8 px-6">
             <button
               onClick={() => setActiveTab('overview')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'overview'
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-primary-600 text-primary-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -181,7 +182,7 @@ export default function BillingDashboardPage() {
               onClick={() => setActiveTab('history')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'history'
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-primary-600 text-primary-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -191,7 +192,7 @@ export default function BillingDashboardPage() {
               onClick={() => setActiveTab('invoices')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'invoices'
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-primary-600 text-primary-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -199,12 +200,11 @@ export default function BillingDashboardPage() {
             </button>
           </nav>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'overview' && (
-          <div className="space-y-6">
+        {/* Content */}
+        <div>
+          {activeTab === 'overview' && (
+          <>
             {/* Subscription Card */}
             {subscription ? (
               <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -331,17 +331,15 @@ export default function BillingDashboardPage() {
                 <p className="text-xs text-gray-500 mt-1">예정</p>
               </div>
             </div>
-          </div>
-        )}
+          </>
+          )}
 
-        {activeTab === 'history' && (
-          <div>
+            {activeTab === 'history' && (
             <PaymentHistory showFilters={true} limit={20} />
-          </div>
-        )}
+          )}
 
-        {activeTab === 'invoices' && (
-          <div>
+          {activeTab === 'invoices' && (
+          <>
             {selectedInvoiceId ? (
               <InvoiceViewer
                 invoiceId={selectedInvoiceId}
@@ -352,9 +350,10 @@ export default function BillingDashboardPage() {
                 <p className="text-gray-600">인보이스를 선택하세요</p>
               </div>
             )}
-          </div>
-        )}
+          </>
+          )}
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

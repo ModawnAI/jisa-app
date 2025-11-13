@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Access Codes Page
  * Admin interface for viewing and managing access codes

@@ -3,9 +3,6 @@ const nextConfig = {
   // React Strict Mode for development
   reactStrictMode: true,
 
-  // Production optimizations
-  swcMinify: true,
-
   // Experimental features
   experimental: {
     serverActions: {
