@@ -19,6 +19,13 @@ import {
   Shield,
   Database,
   Upload,
+  FolderOpen,
+  Layers,
+  UserCheck,
+  Tags,
+  FileStack,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -29,64 +36,128 @@ interface NavigationItem {
   badge?: string;
 }
 
-const navigation: NavigationItem[] = [
+interface NavigationSection {
+  title: string;
+  items: NavigationItem[];
+}
+
+const navigationSections: NavigationSection[] = [
   {
-    name: '대시보드',
-    href: '/dashboard',
-    icon: LayoutDashboard,
+    title: '대시보드',
+    items: [
+      {
+        name: '홈',
+        href: '/dashboard',
+        icon: LayoutDashboard,
+      },
+      {
+        name: '관리자 홈',
+        href: '/admin',
+        icon: Shield,
+        adminOnly: true,
+        badge: 'NEW',
+      },
+      {
+        name: '결제 관리',
+        href: '/dashboard/billing',
+        icon: BarChart3,
+      },
+    ],
   },
   {
-    name: '챗봇 테스트',
-    href: '/dashboard/chat',
-    icon: MessageSquare,
+    title: '사용자 관리',
+    items: [
+      {
+        name: '사용자 목록',
+        href: '/admin/users',
+        icon: Users,
+        adminOnly: true,
+      },
+      {
+        name: '인증 정보',
+        href: '/admin/credentials',
+        icon: UserCheck,
+        adminOnly: true,
+        badge: 'NEW',
+      },
+    ],
   },
   {
-    name: '사용자 관리',
-    href: '/admin/users',
-    icon: Users,
-    adminOnly: true,
+    title: '코드 관리',
+    items: [
+      {
+        name: '인증 코드',
+        href: '/admin/codes',
+        icon: KeyRound,
+        adminOnly: true,
+      },
+      {
+        name: '코드 생성',
+        href: '/admin/codes/generate',
+        icon: KeyRound,
+        adminOnly: true,
+      },
+      {
+        name: '대량 코드 생성',
+        href: '/admin/codes/bulk-generate',
+        icon: FileStack,
+        adminOnly: true,
+        badge: 'NEW',
+      },
+    ],
   },
   {
-    name: '접근 제어',
-    href: '/admin/access-control',
-    icon: Shield,
-    adminOnly: true,
+    title: '콘텐츠 관리',
+    items: [
+      {
+        name: '분류 관리',
+        href: '/admin/classification',
+        icon: Tags,
+        adminOnly: true,
+        badge: 'NEW',
+      },
+      {
+        name: '문서 라이브러리',
+        href: '/admin/data/documents',
+        icon: FolderOpen,
+        adminOnly: true,
+      },
+      {
+        name: '지식 베이스',
+        href: '/admin/data/contexts',
+        icon: Layers,
+        adminOnly: true,
+      },
+      {
+        name: '데이터 수집',
+        href: '/admin/data/upload',
+        icon: Upload,
+        adminOnly: true,
+      },
+      {
+        name: '수집 작업',
+        href: '/admin/data/jobs',
+        icon: Database,
+        adminOnly: true,
+      },
+    ],
   },
   {
-    name: '쿼리 로그',
-    href: '/admin/logs',
-    icon: FileText,
-    adminOnly: true,
-  },
-  {
-    name: '문서 관리',
-    href: '/admin/documents',
-    icon: Database,
-    adminOnly: true,
-  },
-  {
-    name: '데이터 수집',
-    href: '/admin/data/upload',
-    icon: Upload,
-    adminOnly: true,
-    badge: 'NEW',
-  },
-  {
-    name: '인증 코드',
-    href: '/admin/codes',
-    icon: KeyRound,
-    adminOnly: true,
-  },
-  {
-    name: '분석',
-    href: '/admin/analytics',
-    icon: BarChart3,
-    adminOnly: true,
-  },
-  {
-    name: '설정',
-    href: '/dashboard/settings',
-    icon: Settings,
+    title: '시스템',
+    items: [
+      {
+        name: '쿼리 로그',
+        href: '/admin/logs',
+        icon: FileText,
+        adminOnly: true,
+      },
+      {
+        name: '관리자 결제',
+        href: '/admin/billing',
+        icon: Settings,
+        adminOnly: true,
+      },
+    ],
   },
 ];
 
@@ -102,36 +173,46 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4 px-3">
-        <div className="space-y-1">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+        <div className="space-y-6">
+          {navigationSections.map((section) => (
+            <div key={section.title}>
+              {/* Section Title */}
+              <div className="px-3 mb-2">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  {section.title}
+                </h3>
+              </div>
 
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
-                  isActive
-                    ? 'bg-primary-50 text-primary-700'
-                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-                )}
-              >
-                <item.icon className="w-5 h-5 mr-3" />
-                <span className="flex-1">{item.name}</span>
-                {item.adminOnly && (
-                  <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded">
-                    Admin
-                  </span>
-                )}
-                {item.badge && (
-                  <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-red-100 text-red-800 rounded">
-                    {item.badge}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
+              {/* Section Items */}
+              <div className="space-y-1">
+                {section.items.map((item) => {
+                  const isActive =
+                    pathname === item.href || pathname.startsWith(item.href + '/');
+
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={cn(
+                        'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                        isActive
+                          ? 'bg-primary-50 text-primary-700'
+                          : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                      )}
+                    >
+                      <item.icon className="w-5 h-5 mr-3 flex-shrink-0" />
+                      <span className="flex-1 truncate">{item.name}</span>
+                      {item.badge && (
+                        <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 rounded flex-shrink-0">
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </nav>
 
