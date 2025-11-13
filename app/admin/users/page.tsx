@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Admin Users Page
  * User management interface
