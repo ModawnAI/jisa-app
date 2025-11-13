@@ -1,0 +1,250 @@
+INFO:     Started server process [2722253]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:9000 (Press CTRL+C to quit)
+사용자 질문: H건강플러스 13차월 알려줘
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:ed5ab55cba6740a7932f0d193dbf0717
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.41:0 - "POST / HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+질문: H건강플러스 13차월 알려줘에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: H건강플러스 13차월 알려줘
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: H건강플러스 13차월 수수료 보너스 성과비 지급 기준 클로백 환수 정책
+   🎯 필터: {"$and": [{"$or": [{"is_policy": true}, {"is_promotion": true}]}, {"semantic_tags": {"$in": ["agent_compensation", "performance_bonus", "clawback_policy"]}}]}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (top 10)...
+   ✅ 10개 문서 검색 완료
+   📊 최고 관련도 점수: 0.547
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 1170자)
+
+생성된 답변: HO&F 지사 AI입니다.
+
+검색된 정보에 따르면, 한화생명의 H건강 관련 상품군에 대한 13회차 성과비례 프로모션 정보와 환수 규정이 확인되었습니다.
+
+다만, 'H건강플러스' 상...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:ed5ab55cba6740a7932f0d193dbf0717
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "HO&F 지사 AI입니다.\n\n검색된 정보에 따르면, 한화생명의 H건강 관련 상품군에 대한 13회차 성과비례 프로모션 정보와 환수 규정이 확인되었습니다.\n\n다만, 'H건강플러스' 상품 자체의 13차월 시책은 직접적으로 검색되지 않...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:ed5ab55cba6740a7932f0d193dbf0717
+콜백 응답: {"taskId":"d1fb4656-0688-49fb-b7aa-e973deaafe97","status":"SUCCESS","message":"","timestamp":1762523323958}
+GPT 응답 전송 완료
+사용자 질문: H건강플러스 13차월 종합 몇 %?
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:1f4fd45f7d174da384551fae640c178d
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.41:0 - "POST / HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+질문: H건강플러스 13차월 종합 몇 %?에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: H건강플러스 13차월 종합 몇 %?
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: H건강플러스 13차월 종합 수수료율 환산율 지급률 % 종합환산
+   🎯 필터: {"$and": [{"is_policy": true}, {"has_financial_data": true}, {"$or": [{"content_type": {"$eq": "insurance_commission_table"}}, {"content_type": {"$eq": "insurance_refund_policy"}}, {"content_type": {"$eq": "procedural_instruction"}}]}, {"semantic_tags": {"$in": ["agent_compensation", "performance_bonus", "clawback_policy"]}}]}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (top 10)...
+   ✅ 0개 문서 검색 완료
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 193자)
+
+생성된 답변: HO&F 지사 AI입니다.
+
+문의하신 H건강플러스 상품의 13차월 종합 지급률에 대한 정보를 현재 검색된 자료에서는 찾을 수 없었습니다.
+
+따라서 정확한 백분율 수치를 답변 드리기...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:1f4fd45f7d174da384551fae640c178d
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "HO&F 지사 AI입니다.\n\n문의하신 H건강플러스 상품의 13차월 종합 지급률에 대한 정보를 현재 검색된 자료에서는 찾을 수 없었습니다.\n\n따라서 정확한 백분율 수치를 답변 드리기 어려운 점 양해 부탁드립니다.\n\n다른 관련 ...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:1f4fd45f7d174da384551fae640c178d
+콜백 응답: {"taskId":"5d5ce70e-6988-4974-8c75-6567133027af","status":"SUCCESS","message":"","timestamp":1762523378741}
+GPT 응답 전송 완료
+사용자 질문: 에이스H보장보험 13회차 환수율 뭐야
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:d034511d37c94b76923c4f211ce7bf39
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.40:0 - "POST / HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+질문: 에이스H보장보험 13회차 환수율 뭐야에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 에이스H보장보험 13회차 환수율 뭐야
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 에이스H보장보험 13회차 환수율 기준 클로백 정책 회수율
+   🎯 필터: {"$and": [{"is_policy": {"$eq": true}}, {"has_financial_data": {"$eq": true}}, {"semantic_tags": {"$in": ["clawback_policy", "agent_compensation", "penalty_structure"]}}, {"keywords": {"$in": ["환수", "클로백", "회수"]}}]}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (top 10)...
+   ✅ 10개 문서 검색 완료
+   📊 최고 관련도 점수: 0.598
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 355자)
+
+생성된 답변: HO&F 지사 AI입니다.
+문의하신 에이스H보장보험 13회차 환수율에 대해 검색된 정보를 바탕으로 안내해 드립니다.
+
+에이스H보장보험은 한화생명의 특별 환수율이 적용되는 상품군에 ...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:d034511d37c94b76923c4f211ce7bf39
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "HO&F 지사 AI입니다.\n문의하신 에이스H보장보험 13회차 환수율에 대해 검색된 정보를 바탕으로 안내해 드립니다.\n\n에이스H보장보험은 한화생명의 특별 환수율이 적용되는 상품군에 포함됩니다.\n\n1. 상품 및 보험사 정보\n  ...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:d034511d37c94b76923c4f211ce7bf39
+콜백 응답: {"taskId":"64b4329c-fceb-447a-95a5-13c3a18a3252","status":"SUCCESS","message":"","timestamp":1762523819526}
+GPT 응답 전송 완료
+사용자 질문: 정다운은 언제 강의해?
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:c965bdbf4c904000942de8502820dddc
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.40:0 - "POST / HTTP/1.1" 200 OK
+질문: 정다운은 언제 강의해?에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 정다운은 언제 강의해?
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 정다운 강의 일정 OR 정다운 교육 시간 OR 정다운 강사
+   🎯 필터: {"$and": [{"key_people": {"$eq": "정다운"}}, {"is_training": true}]}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (top 10)...
+   ✅ 0개 문서 검색 완료
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: list_all
+   ✅ 답변 생성 완료 (길이: 123자)
+
+생성된 답변: 안녕하세요. HO&F 지사 AI입니다.
+
+정다운 강사의 강의 일정에 대해 검색된 항목은 총 0개입니다.
+
+현재 시스템에 저장된 행사, 교육, 일정 관련 문서에서는 '정다운' 강사의...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:c965bdbf4c904000942de8502820dddc
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "안녕하세요. HO&F 지사 AI입니다.\n\n정다운 강사의 강의 일정에 대해 검색된 항목은 총 0개입니다.\n\n현재 시스템에 저장된 행사, 교육, 일정 관련 문서에서는 '정다운' 강사의 구체적인 강의 일정을 찾을 수 없습니다."}}]...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:c965bdbf4c904000942de8502820dddc
+콜백 응답: {"taskId":"9a0072e9-e925-43bc-a177-f1034b7465b5","status":"SUCCESS","message":"","timestamp":1762523949812}
+GPT 응답 전송 완료
+사용자 질문: 정다운 강의 언제야
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:396b6d0183b74e4f99422753ec4676dc
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.42:0 - "POST / HTTP/1.1" 200 OK
+질문: 정다운 강의 언제야에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 정다운 강의 언제야
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 정다운 강사 강의 일정 교육 시간 트레이닝 세션
+   🎯 필터: {"$and": [{"is_training": true}, {"$or": [{"content_type": {"$eq": "training_session"}}, {"primary_category": {"$eq": "training"}}]}]}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (top 10)...
+   ✅ 10개 문서 검색 완료
+   📊 최고 관련도 점수: 0.463
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: list_all
+   ✅ 답변 생성 완료 (길이: 179자)
+
+생성된 답변: 안녕하세요. HO&F 지사 AI입니다.
+
+정다운 본부장님의 강의는 총 1개 항목이 검색되었습니다.
+
+1. 세일즈프로세스 7단계 길라잡이
+   날짜: 2025년 11월 4일 (화요일...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:396b6d0183b74e4f99422753ec4676dc
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "안녕하세요. HO&F 지사 AI입니다.\n\n정다운 본부장님의 강의는 총 1개 항목이 검색되었습니다.\n\n1. 세일즈프로세스 7단계 길라잡이\n   날짜: 2025년 11월 4일 (화요일)\n   시간: 오후 1시 00분 ~ 오후 2...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:396b6d0183b74e4f99422753ec4676dc
+콜백 응답: {"taskId":"4f83b377-cdd1-4a3e-a935-9f33cb91552f","status":"SUCCESS","message":"","timestamp":1762523975088}
+GPT 응답 전송 완료
+사용자 질문: 삼성생명 코드발급 언제야?
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:4d5714411e4742dfa66bdbf8ec013b96
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.42:0 - "POST / HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+질문: 삼성생명 코드발급 언제야?에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 삼성생명 코드발급 언제야?
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 삼성생명 코드발급 일정 절차 신청 마감 안내
+   🎯 필터: {"$and": [{"sub_category": {"$eq": "code_issuance"}}, {"$or": [{"is_instruction": true}, {"is_policy": true}]}]}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (top 10)...
+   ✅ 0개 문서 검색 완료
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 185자)
+
+생성된 답변: 안녕하세요. HO&F 지사 AI입니다.
+
+삼성생명 코드발급 일정에 대해 문의하셨습니다.
+
+현재 시스템에서 검색된 정보 내에서는 고객님께서 문의하신 삼성생명 코드발급 일정에 대한 구...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:4d5714411e4742dfa66bdbf8ec013b96
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "안녕하세요. HO&F 지사 AI입니다.\n\n삼성생명 코드발급 일정에 대해 문의하셨습니다.\n\n현재 시스템에서 검색된 정보 내에서는 고객님께서 문의하신 삼성생명 코드발급 일정에 대한 구체적인 내용을 찾을 수 없었습니다.\n\n정확한 ...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:4d5714411e4742dfa66bdbf8ec013b96
+콜백 응답: {"taskId":"826160c9-febe-4fb8-85cc-cc75fb4656d4","status":"SUCCESS","message":"","timestamp":1762524025544}
+GPT 응답 전송 완료
+사용자 질문: H건강플러스 종합 13차월 몇%이야?
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:02d97c1e1ab64359853654a01f13fea5
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.41:0 - "POST / HTTP/1.1" 200 OK
+질문: H건강플러스 종합 13차월 몇%이야?에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: H건강플러스 종합 13차월 몇%이야?
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: H건강플러스 종합 13차월 수수료율 지급률 환수율 클로백 시책 퍼센트 (13회차 성과비례 프로모션)
+   🎯 필터: {"$and": [{"$or": [{"is_policy": true}, {"is_promotion": true}]}, {"has_financial_data": true}, {"semantic_tags": {"$in": ["agent_compensation", "performance_bonus", "clawback_policy"]}}]}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (top 10)...
+   ✅ 10개 문서 검색 완료
+   📊 최고 관련도 점수: 0.568
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 906자)
+
+생성된 답변: 안녕하십니까, HO&F 지사 AI입니다.
+
+문의하신 H건강 상품군의 13회차 시책은 월납보험료 구간에 따라 정해진 성과비례 지원금이 지급되는 방식이며, 특정 비율(%)로 지급되는 ...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:02d97c1e1ab64359853654a01f13fea5
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "안녕하십니까, HO&F 지사 AI입니다.\n\n문의하신 H건강 상품군의 13회차 시책은 월납보험료 구간에 따라 정해진 성과비례 지원금이 지급되는 방식이며, 특정 비율(%)로 지급되는 형태는 아닙니다.\n\n검색된 한화생명의 성과비례 프...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:02d97c1e1ab64359853654a01f13fea5
+콜백 응답: {"taskId":"8d98d79a-f38c-402c-84ab-11acb00ec43b","status":"SUCCESS","message":"","timestamp":1762524067432}
+GPT 응답 전송 완료
+사용자 질문: (일반/간편) 하나로H종신보험 익월이 뭐야?
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:0ab95fee130b4762addf34356ebccd01
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.41:0 - "POST / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+질문: (일반/간편) 하나로H종신보험 익월이 뭐야?에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: (일반/간편) 하나로H종신보험 익월이 뭐야?
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 하나로H종신보험 익월 OR 하나로H종신보험 다음달 OR 하나로H종신보험 시책 OR 하나로H종신보험 정책 설명
+   🎯 필터: {"$and": [{"products": {"$in": ["하나로H종신"]}}, {"$or": [{"is_policy": true}, {"is_promotion": true}, {"is_instruction": true}, {"has_financial_data": true}]}]}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (top 10)...
+   ✅ 10개 문서 검색 완료
+   📊 최고 관련도 점수: 0.589
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 499자)
+
+생성된 답변: 안녕하십니까 HO&F 지사 AI입니다.
+
+한화생명의 (일반/간편) 하나로H종신보험의 익월 환수 규정(확대 환수)에 대해 안내해 드립니다.
+
+하나로H종신보험은 확대 환수 유형이 적용...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:0ab95fee130b4762addf34356ebccd01
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "안녕하십니까 HO&F 지사 AI입니다.\n\n한화생명의 (일반/간편) 하나로H종신보험의 익월 환수 규정(확대 환수)에 대해 안내해 드립니다.\n\n하나로H종신보험은 확대 환수 유형이 적용되는 상품이며, 최대 25회차까지 환수율이 적용됩...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:0ab95fee130b4762addf34356ebccd01
+콜백 응답: {"taskId":"d6d6fd4b-433e-40e1-9ce5-d413c39ca71a","status":"SUCCESS","message":"","timestamp":1762524227595}
+GPT 응답 전송 완료
+INFO:     199.45.155.77:36962 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     199.45.155.77:49196 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     199.45.155.77:39984 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+INFO:     199.45.155.77:44422 - "GET /sitemap.xml HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     205.210.31.142:63436 - "GET / HTTP/1.1" 200 OK
+INFO:     3.134.148.59:43902 - "GET / HTTP/1.1" 200 OK
+INFO:     3.134.148.59:40510 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     183.6.187.227:45101 - "GET / HTTP/1.1" 200 OK
+INFO:     125.121.166.99:31804 - "GET / HTTP/1.1" 200 OK
+INFO:     117.156.56.5:2843 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     9.234.10.190:49348 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+사용자 질문: 오늘 몇일이야!
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:a0f0a3f001884cc0bfe1dc3aa6289747
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.40:0 - "POST / HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [2722253]

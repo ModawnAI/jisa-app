@@ -1,0 +1,80 @@
+{
+  "KB라이프": {
+    "fc_start": 5,
+    "fc_gye": 35,
+    "num_cols": 31,
+    "rate": "0.6"
+  },
+  "미래에셋": {
+    "fc_start": 5,
+    "fc_gye": 25,
+    "num_cols": 21,
+    "rate": "0.6"
+  },
+  "삼성생명": {
+    "fc_start": 4,
+    "fc_gye": 39,
+    "num_cols": 36,
+    "rate": "0.6"
+  },
+  "IM라이프": {
+    "fc_start": 4,
+    "fc_gye": 56,
+    "num_cols": 53,
+    "rate": "0.6"
+  },
+  "교보생명": {
+    "fc_start": 6,
+    "fc_gye": 40,
+    "num_cols": 35,
+    "rate": "0.6"
+  },
+  "한화생명": {
+    "fc_start": 7,
+    "fc_gye": 53,
+    "num_cols": 47,
+    "rate": "0.6"
+  },
+  "KB손해보험": {
+    "fc_start": 6,
+    "fc_gye": 18,
+    "num_cols": 13,
+    "rate": "0.65"
+  },
+  "현대해상": {
+    "fc_start": 6,
+    "fc_gye": 18,
+    "num_cols": 13,
+    "rate": "0.65"
+  },
+  "메리츠화재": {
+    "fc_start": 5,
+    "fc_gye": 16,
+    "num_cols": 12,
+    "rate": "0.65"
+  },
+  "DB손해보험": {
+    "fc_start": 6,
+    "fc_gye": 18,
+    "num_cols": 13,
+    "rate": "0.65"
+  },
+  "한화손해보험": {
+    "fc_start": 4,
+    "fc_gye": 4,
+    "num_cols": 1,
+    "rate": "0.65"
+  },
+  "삼성화재": {
+    "fc_start": 7,
+    "fc_gye": 19,
+    "num_cols": 13,
+    "rate": "0.65"
+  },
+  "라이나손보": {
+    "fc_start": 6,
+    "fc_gye": 6,
+    "num_cols": 1,
+    "rate": "0.65"
+  }
+}

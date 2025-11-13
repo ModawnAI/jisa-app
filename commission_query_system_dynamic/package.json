@@ -1,0 +1,32 @@
+{
+  "name": "commission-query-system-dynamic",
+  "version": "2.0.0",
+  "description": "Dynamic commission query system with on-the-fly calculation (50-90% range, 95.9% smaller)",
+  "type": "module",
+  "main": "src/nl_query_system_dynamic.js",
+  "scripts": {
+    "start": "node src/nl_query_system_dynamic.js",
+    "test": "node tests/test_dynamic.js",
+    "test:range": "node tests/test_percentage_range.js",
+    "setup": "bash scripts/setup.sh"
+  },
+  "keywords": [
+    "insurance",
+    "commission",
+    "gemini",
+    "natural-language",
+    "korean",
+    "ai",
+    "dynamic-calculation",
+    "on-the-fly"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/genai": "^1.29.0",
+    "dotenv": "^16.4.7"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

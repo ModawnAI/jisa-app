@@ -1,0 +1,628 @@
+INFO:     Started server process [2880805]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:9000 (Press CTRL+C to quit)
+INFO:     82.64.27.121:41636 - "GET /chat/ HTTP/1.0" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.138.176:43876 - "GET /chat/ HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.138.176:43904 - "GET /chat/favicon.ico HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.138.176:53140 - "GET /chat/login HTTP/1.1" 404 Not Found
+INFO:     198.235.24.23:59988 - "GET /chat/ HTTP/1.1" 200 OK
+INFO:     159.223.150.175:30506 - "GET /chat/ HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     123.160.223.74:12134 - "GET /chat/ HTTP/1.1" 200 OK
+INFO:     123.160.223.75:9165 - "GET /chat/favicon.ico HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     3.137.73.221:44294 - "GET /chat/ HTTP/1.1" 200 OK
+INFO:     3.137.73.221:56092 - "GET /chat/ HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+사용자 질문: 마케팅 어떻게해?
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:a65cac29c40b41e0b3801152486836bd
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.41:0 - "POST /chat/ HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+질문: 마케팅 어떻게해?에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 마케팅 어떻게해?
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 마케팅 방법 전략 프로세스 영업 안내 지침 자료
+   🎯 필터: {"is_instruction": true}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 0개 문서 검색 완료
+   ⚠️ 필터 적용 결과 0개 - 필터 없이 재검색 중...
+   ✅ 재검색 완료: 10개 문서 검색 완료 (순수 시맨틱 검색)
+   📊 최고 관련도 점수: 0.446
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 1098자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: HO&F 지사 AI입니다.
+
+마케팅은 영업 활동의 가장 중요한 초기 단계이며, 잠재 고객을 발굴하고 효과적으로 만나는 것이 핵심입니다. 현재 HO&F 지사에서 예정된 교육 중 마케...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:a65cac29c40b41e0b3801152486836bd
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "HO&F 지사 AI입니다.\n\n마케팅은 영업 활동의 가장 중요한 초기 단계이며, 잠재 고객을 발굴하고 효과적으로 만나는 것이 핵심입니다. 현재 HO&F 지사에서 예정된 교육 중 마케팅 활동에 직접적인 도움이 되는 주요 세일즈 및 고객...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:a65cac29c40b41e0b3801152486836bd
+콜백 응답: {"taskId":"6a09358c-599d-4208-ac83-2ecb3a61369d","status":"SUCCESS","message":"","timestamp":1762668052695}
+GPT 응답 전송 완료
+INFO:     134.209.254.218:43094 - "GET /chat/ HTTP/1.1" 200 OK
+INFO:     134.209.254.218:43110 - "GET /chat/favicon.ico HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     135.237.123.168:54192 - "GET /chat/ HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     135.237.124.21:35920 - "GET /chat/ HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     79.42.87.21:59911 - "GET /chat/ HTTP/1.0" 200 OK
+사용자 질문: hey
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:fe10cad828734f6ab3df634fc9730481
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.41:0 - "POST /chat/ HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+질문: hey에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: hey
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 핵심 공지사항 주요 안내 정보 11월
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 10개 문서 검색 완료
+   📊 최고 관련도 점수: 0.594
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 130자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: 안녕하세요. HO&F 지사 AI입니다.
+
+문의하실 내용을 말씀해주시면 정확하고 친절하게 답변드리겠습니다.
+
+현재 한화생명 11월 시책 정보나 2025년 11월 교육 일정 등의 검색...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:fe10cad828734f6ab3df634fc9730481
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "안녕하세요. HO&F 지사 AI입니다.\n\n문의하실 내용을 말씀해주시면 정확하고 친절하게 답변드리겠습니다.\n\n현재 한화생명 11월 시책 정보나 2025년 11월 교육 일정 등의 검색이 가능합니다. 필요하신 내용을 구체적으로 알려주...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:fe10cad828734f6ab3df634fc9730481
+콜백 응답: {"taskId":"8a0e59f4-751e-40f9-9b22-f314dfce07ee","status":"SUCCESS","message":"","timestamp":1762731674314}
+GPT 응답 전송 완료
+INFO:     87.236.176.234:55393 - "GET /chat/ HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.138.174:47038 - "GET /chat/ HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.138.174:58468 - "GET /chat/robots.txt HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.138.35:52228 - "GET /chat/ HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.138.35:52256 - "GET /chat/favicon.ico HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.138.35:45388 - "GET /chat/robots.txt HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     138.68.145.135:54426 - "GET /chat/ HTTP/1.1" 200 OK
+사용자 질문: 줌 회의 시간 알려면 누구한테 연락해야되?
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:384dfe57edbc402b88265ae29b09a877
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.40:0 - "POST /chat/ HTTP/1.1" 200 OK
+질문: 줌 회의 시간 알려면 누구한테 연락해야되?에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 줌 회의 시간 알려면 누구한테 연락해야되?
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 줌 회의 시간 접속 방법 문의 연락처 담당자 안내
+   🎯 필터: {"is_zoom": true}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 1개 문서 검색 완료
+   📊 최고 관련도 점수: 0.353
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 339자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: 안녕하십니까, HO&F 지사 AI입니다.
+
+사용자님께서 문의하신 줌 회의 시간에 대해 안내할 담당자나 연락처 정보는 현재 검색된 문서 내에서 확인되지 않았습니다.
+
+따라서 특정 줌...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:384dfe57edbc402b88265ae29b09a877
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "안녕하십니까, HO&F 지사 AI입니다.\n\n사용자님께서 문의하신 줌 회의 시간에 대해 안내할 담당자나 연락처 정보는 현재 검색된 문서 내에서 확인되지 않았습니다.\n\n따라서 특정 줌 회의 시간을 확인하시려면 해당 회의를 주관하는 ...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:384dfe57edbc402b88265ae29b09a877
+콜백 응답: {"taskId":"a01e1022-82a9-4f2f-8066-c7f76e7248b4","status":"SUCCESS","message":"","timestamp":1762746390360}
+GPT 응답 전송 완료
+사용자 질문: 이번달 법인심화과정 어디서 몇시에 해?
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:aa9b77e3e576499f81bd6fa571fc828a
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.42:0 - "POST /chat/ HTTP/1.1" 200 OK
+질문: 이번달 법인심화과정 어디서 몇시에 해?에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 이번달 법인심화과정 어디서 몇시에 해?
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 법인 심화 과정 교육 장소 위치 시간 스케줄 11월 일정
+   🎯 필터: {"$and": [{"is_training": true}, {"month": "2025-11"}]}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 10개 문서 검색 완료
+   📊 최고 관련도 점수: 0.576
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 224자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: HO&F 지사 AI입니다. 문의하신 이번 달 법인심화과정 일정에 대해 안내해 드립니다.
+
+검색된 정보에 따르면, 11월에 진행되는 법인 심화과정은 다음과 같습니다.
+
+과정명
+   ...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:aa9b77e3e576499f81bd6fa571fc828a
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "HO&F 지사 AI입니다. 문의하신 이번 달 법인심화과정 일정에 대해 안내해 드립니다.\n\n검색된 정보에 따르면, 11월에 진행되는 법인 심화과정은 다음과 같습니다.\n\n과정명\n    4분기 법인컨설팅 심화과정 (정관컨설팅 실무)...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:aa9b77e3e576499f81bd6fa571fc828a
+콜백 응답: {"taskId":"07a9df22-5da5-4cdc-80fb-8636bb4656bb","status":"SUCCESS","message":"","timestamp":1762746452284}
+GPT 응답 전송 완료
+사용자 질문: 삼성지역 kb손해보험 설계매니저 번호 좀
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:422a8a11d39844a9a4cfadcf44200dc1
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.40:0 - "POST /chat/ HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+질문: 삼성지역 kb손해보험 설계매니저 번호 좀에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 삼성지역 kb손해보험 설계매니저 번호 좀
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: KB손해보험 삼성지역 설계매니저 연락처 전화번호 담당자 번호
+   🎯 필터: {"is_resource": true}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 0개 문서 검색 완료
+   ⚠️ 필터 적용 결과 0개 - 필터 없이 재검색 중...
+   ✅ 재검색 완료: 10개 문서 검색 완료 (순수 시맨틱 검색)
+   📊 최고 관련도 점수: 0.544
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 331자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: 안녕하세요. HO&F 지사 AI입니다. 문의하신 내용에 답변드립니다.
+
+현재 검색된 HO&F 지사의 내부 문서 (교육 일정, 시책 공지 등)에서는 삼성지역 KB손해보험 설계매니저의...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:422a8a11d39844a9a4cfadcf44200dc1
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "안녕하세요. HO&F 지사 AI입니다. 문의하신 내용에 답변드립니다.\n\n현재 검색된 HO&F 지사의 내부 문서 (교육 일정, 시책 공지 등)에서는 삼성지역 KB손해보험 설계매니저의 구체적인 연락처 또는 전화번호 정보가 확인되지 않습...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:422a8a11d39844a9a4cfadcf44200dc1
+콜백 응답: {"taskId":"edb13c54-675a-4a62-9b71-9d6ebcb7cd5b","status":"SUCCESS","message":"","timestamp":1762746576934}
+GPT 응답 전송 완료
+사용자 질문: 서울지역 kb손보 설계매니저 번호 좀
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:001bebacb6ff4f14aaa31f2a65a97060
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.41:0 - "POST /chat/ HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+질문: 서울지역 kb손보 설계매니저 번호 좀에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 서울지역 kb손보 설계매니저 번호 좀
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: KB손보 KB손해보험 서울지역 설계매니저 담당자 연락처 번호 전화번호
+   🎯 필터: {"$and": [{"companies": {"$in": ["KB손보", "KB손해보험"]}}, {"locations": {"$in": ["서울", "수도권"]}}, {"$or": [{"primary_category": {"$eq": "resource"}}, {"primary_category": {"$eq": "instruction"}}]}]}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 0개 문서 검색 완료
+   ⚠️ 필터 적용 결과 0개 - 필터 없이 재검색 중...
+   ✅ 재검색 완료: 10개 문서 검색 완료 (순수 시맨틱 검색)
+   📊 최고 관련도 점수: 0.551
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 219자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: HO&F 지사 AI입니다.
+
+고객님께서 문의하신 서울지역 KB손보 설계매니저의 연락처 정보는 현재 검색된 관련 문서 목록 내에서 확인되지 않습니다.
+
+제공해 드린 검색 결과는 주로...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:001bebacb6ff4f14aaa31f2a65a97060
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "HO&F 지사 AI입니다.\n\n고객님께서 문의하신 서울지역 KB손보 설계매니저의 연락처 정보는 현재 검색된 관련 문서 목록 내에서 확인되지 않습니다.\n\n제공해 드린 검색 결과는 주로 교육 일정 (예: 생명보험 시험, DB손보 상품...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:001bebacb6ff4f14aaa31f2a65a97060
+콜백 응답: {"taskId":"6f1094ae-f628-49c0-9cda-d1d4cb63cbee","status":"SUCCESS","message":"","timestamp":1762746646139}
+GPT 응답 전송 완료
+사용자 질문: kb손보 설계매니저 번호 좀
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:e4ff46dd32b241a8b52dbfa897989ce5
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.42:0 - "POST /chat/ HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+질문: kb손보 설계매니저 번호 좀에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: kb손보 설계매니저 번호 좀
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: KB손보 KB손해 설계매니저 연락처 전화번호 문의 번호 담당자
+   🎯 필터: {"sub_category": "contact_info"}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 0개 문서 검색 완료
+   ⚠️ 필터 적용 결과 0개 - 필터 없이 재검색 중...
+   ✅ 재검색 완료: 10개 문서 검색 완료 (순수 시맨틱 검색)
+   📊 최고 관련도 점수: 0.533
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 171자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: HO&F 지사 AI입니다.
+
+문의하신 KB손보 설계매니저의 연락처 정보는 현재 검색된 자료 내에서 확인되지 않습니다.
+
+검색된 정보들은 주로 HO&F 지사의 교육 일정이나 시책 관...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:e4ff46dd32b241a8b52dbfa897989ce5
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "HO&F 지사 AI입니다.\n\n문의하신 KB손보 설계매니저의 연락처 정보는 현재 검색된 자료 내에서 확인되지 않습니다.\n\n검색된 정보들은 주로 HO&F 지사의 교육 일정이나 시책 관련 내용이며, 특정 설계매니저의 연락처는 포함하고...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:e4ff46dd32b241a8b52dbfa897989ce5
+콜백 응답: {"taskId":"94e0f2ba-806d-4d4b-854e-111c00eda922","status":"SUCCESS","message":"","timestamp":1762746681492}
+GPT 응답 전송 완료
+사용자 질문: 메리츠 화재 보험사 연락망 좀 알려줘
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:a02749e83b274fa19814df6d6ce3142c
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.40:0 - "POST /chat/ HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+질문: 메리츠 화재 보험사 연락망 좀 알려줘에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 메리츠 화재 보험사 연락망 좀 알려줘
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 메리츠 화재 보험사 연락처 전화번호 컨택 정보 연락망
+   🎯 필터: {"$or": [{"is_resource": true}, {"content_type": "resource_link"}, {"content_type": "procedural_instruction"}]}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 0개 문서 검색 완료
+   ⚠️ 필터 적용 결과 0개 - 필터 없이 재검색 중...
+   ✅ 재검색 완료: 10개 문서 검색 완료 (순수 시맨틱 검색)
+   📊 최고 관련도 점수: 0.370
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 192자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: 고객님, HO&F 지사 AI입니다.
+
+메리츠 화재 보험사의 연락망에 대해 문의하셨습니다.
+
+검색된 정보를 확인해 보았으나, 현재 보유하고 있는 자료(삼성화재 교육, 한화생명 시책 ...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:a02749e83b274fa19814df6d6ce3142c
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "고객님, HO&F 지사 AI입니다.\n\n메리츠 화재 보험사의 연락망에 대해 문의하셨습니다.\n\n검색된 정보를 확인해 보았으나, 현재 보유하고 있는 자료(삼성화재 교육, 한화생명 시책 등) 내에서는 메리츠 화재 관련 연락망이나 상세 ...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:a02749e83b274fa19814df6d6ce3142c
+콜백 응답: {"taskId":"554ee049-2a0a-4b34-8088-31421bc9c0d7","status":"SUCCESS","message":"","timestamp":1762746732798}
+GPT 응답 전송 완료
+사용자 질문: 보증보험 동의 하려면 어떻게 해야되?
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:ff7e23997d8e4d97ae2e57b8a6be39ca
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.41:0 - "POST /chat/ HTTP/1.1" 200 OK
+질문: 보증보험 동의 하려면 어떻게 해야되?에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 보증보험 동의 하려면 어떻게 해야되?
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 보증보험 동의 절차 방법 안내 지침 보증 동의
+   🎯 필터: {"$and": [{"is_instruction": true}, {"is_policy": true}]}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 0개 문서 검색 완료
+   ⚠️ 필터 적용 결과 0개 - 필터 없이 재검색 중...
+   ✅ 재검색 완료: 10개 문서 검색 완료 (순수 시맨틱 검색)
+   📊 최고 관련도 점수: 0.648
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 208자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: HO&F 지사 AI입니다.
+
+문의하신 보증보험 동의 절차와 관련된 구체적인 방법이나 안내 사항은 현재 검색된 정보 내에서 확인되지 않았습니다.
+
+검색된 문서들은 주로 한화생명 상품...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:ff7e23997d8e4d97ae2e57b8a6be39ca
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "HO&F 지사 AI입니다.\n\n문의하신 보증보험 동의 절차와 관련된 구체적인 방법이나 안내 사항은 현재 검색된 정보 내에서 확인되지 않았습니다.\n\n검색된 문서들은 주로 한화생명 상품(진심가득H보장보험, 경영인H정기보험 등)에 대한...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:ff7e23997d8e4d97ae2e57b8a6be39ca
+콜백 응답: {"taskId":"2d4b000d-2969-4e71-9247-b3fc7b7efa54","status":"SUCCESS","message":"","timestamp":1762746800246}
+GPT 응답 전송 완료
+사용자 질문: 한화생명 시책 어떻게 되?
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:36f50c18e2dd40028b440c358e58d145
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.42:0 - "POST /chat/ HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+질문: 한화생명 시책 어떻게 되?에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 한화생명 시책 어떻게 되?
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 한화생명 11월 시책 프로모션 지급률 수수료 정책 상세 내용
+   🎯 필터: {"$or": [{"chunk_type": {"$eq": "table_cell_commission"}}, {"chunk_type": {"$eq": "table_row_summary"}}, {"chunk_type": {"$eq": "table_column_summary"}}, {"chunk_type": {"$eq": "text_sentence_group"}}]}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 10개 문서 검색 완료
+   📊 최고 관련도 점수: 0.669
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: list_all
+   ✅ 답변 생성 완료 (길이: 1843자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: 안녕하세요. HO&F 지사 AI입니다.
+
+한화생명 11월 시책은 총 7가지 주요 항목으로 구성되어 있으며, 각 항목별 상세 수수료율과 조건은 다음과 같습니다.
+
+1. 종합 시책 (...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:36f50c18e2dd40028b440c358e58d145
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "안녕하세요. HO&F 지사 AI입니다.\n\n한화생명 11월 시책은 총 7가지 주요 항목으로 구성되어 있으며, 각 항목별 상세 수수료율과 조건은 다음과 같습니다.\n\n1. 종합 시책 (AP 구간별 수수료율)\n   해당 시책은 11월...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:36f50c18e2dd40028b440c358e58d145
+콜백 응답: {"taskId":"fbf5eb45-3f35-45a9-a9af-eb42adaafb7d","status":"SUCCESS","message":"","timestamp":1762748044122}
+GPT 응답 전송 완료
+사용자 질문: 레이디 h보장보험 시책 좀 알려줘
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:e08e1e0a62c84eb89161c139f8357405
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.40:0 - "POST /chat/ HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+질문: 레이디 h보장보험 시책 좀 알려줘에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 레이디 h보장보험 시책 좀 알려줘
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 레이디 H보장보험 시책 프로모션 인센티브 수수료율 1차시책 2차시책
+   🎯 필터: {"$and": [{"chunk_type": {"$eq": "table_cell_commission"}}, {"$or": [{"is_fc_policy": true}, {"is_hq_policy": true}]}]}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 10개 문서 검색 완료
+   📊 최고 관련도 점수: 0.652
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: list_all
+   ✅ 답변 생성 완료 (길이: 385자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: 안녕하세요. HO&F 지사 AI입니다.
+
+레이디H보장보험 시책 정보는 총 4개 항목이 검색되었습니다. 해당 정보는 한화생명 11월 시책공지 수수료율표 기준입니다.
+
+1. 상품명: ...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:e08e1e0a62c84eb89161c139f8357405
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "안녕하세요. HO&F 지사 AI입니다.\n\n레이디H보장보험 시책 정보는 총 4개 항목이 검색되었습니다. 해당 정보는 한화생명 11월 시책공지 수수료율표 기준입니다.\n\n1. 상품명: (일반/간편) 레이디H보장보험\n   시책 유형:...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:e08e1e0a62c84eb89161c139f8357405
+콜백 응답: {"taskId":"7d549320-eb9b-4755-b76d-4eb7a78268a5","status":"SUCCESS","message":"","timestamp":1762748576848}
+GPT 응답 전송 완료
+사용자 질문: 이번주 일정알려줘
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:db243556ee9f4fad81468e26c2234c07
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.40:0 - "POST /chat/ HTTP/1.1" 200 OK
+질문: 이번주 일정알려줘에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 이번주 일정알려줘
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 2025년 11월 이번주 일정 스케줄 교육 시험 행사
+   🎯 필터: {"month": "2025-11"}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 10개 문서 검색 완료
+   📊 최고 관련도 점수: 0.637
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: list_all
+   ✅ 답변 생성 완료 (길이: 594자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: 안녕하세요. HO&F 지사 AI입니다.
+
+검색된 일정 중, 가장 가까운 주간 일정(2025년 11월 10일 월요일부터 11월 14일 금요일까지)을 기준으로 총 10개 행사를 안내해...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:db243556ee9f4fad81468e26c2234c07
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "안녕하세요. HO&F 지사 AI입니다.\n\n검색된 일정 중, 가장 가까운 주간 일정(2025년 11월 10일 월요일부터 11월 14일 금요일까지)을 기준으로 총 10개 행사를 안내해 드립니다.\n\n1.  2025년 11월 10일 월...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:db243556ee9f4fad81468e26c2234c07
+콜백 응답: {"taskId":"0e58a44f-20ad-4e1b-bbfd-92729053105b","status":"SUCCESS","message":"","timestamp":1762750568001}
+GPT 응답 전송 완료
+사용자 질문: 손해보험 상품 분석은 몇시에 어디서 시작해?
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:54633b9473cc455a8c9d2130f2619792
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.40:0 - "POST /chat/ HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+질문: 손해보험 상품 분석은 몇시에 어디서 시작해?에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 손해보험 상품 분석은 몇시에 어디서 시작해?
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 손해보험 상품 분석 교육 강의 세션 일정 시간 장소
+   🎯 필터: {"is_training": true}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 10개 문서 검색 완료
+   📊 최고 관련도 점수: 0.618
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 508자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: HO&F 지사 AI입니다.
+손해보험 상품 분석과 관련된 교육 및 일정은 검색된 정보에 따라 다음과 같이 확인됩니다. 여러 건의 일정이 있으니 날짜를 확인해 주시기 바랍니다.
+
+1....
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:54633b9473cc455a8c9d2130f2619792
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "HO&F 지사 AI입니다.\n손해보험 상품 분석과 관련된 교육 및 일정은 검색된 정보에 따라 다음과 같이 확인됩니다. 여러 건의 일정이 있으니 날짜를 확인해 주시기 바랍니다.\n\n1.  삼성화재 제휴사 교육\n    *   해당 교육...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:54633b9473cc455a8c9d2130f2619792
+콜백 응답: {"taskId":"8a6dabd9-720d-4f58-8685-85f4e1639aee","status":"SUCCESS","message":"","timestamp":1762750625356}
+GPT 응답 전송 완료
+사용자 질문: kb 7년의 약속 플러스 종신보험 수당이 어떻게되
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:2060e4701fca4df3a9b7f3664edea2a0
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.41:0 - "POST /chat/ HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+질문: kb 7년의 약속 플러스 종신보험 수당이 어떻게되에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: kb 7년의 약속 플러스 종신보험 수당이 어떻게되
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: KB 7년의 약속 플러스 종신보험 수수료 시책 수당 보상 플랜
+   🎯 필터: {"chunk_type": "table_cell_commission"}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 10개 문서 검색 완료
+   📊 최고 관련도 점수: 0.551
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 674자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: 안녕하세요 HO&F 지사 AI입니다.
+
+문의하신 "kb 7년의 약속 플러스 종신보험"의 수당 정보에 대해 검색된 자료를 바탕으로 안내해 드리겠습니다.
+
+검색된 한화생명 11월 시책...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:2060e4701fca4df3a9b7f3664edea2a0
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "안녕하세요 HO&F 지사 AI입니다.\n\n문의하신 \"kb 7년의 약속 플러스 종신보험\"의 수당 정보에 대해 검색된 자료를 바탕으로 안내해 드리겠습니다.\n\n검색된 한화생명 11월 시책 자료에는 고객님께서 요청하신 \"kb 7년의...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:2060e4701fca4df3a9b7f3664edea2a0
+콜백 응답: {"taskId":"623cc328-7ccb-4ca5-b709-3510ab289f92","status":"SUCCESS","message":"","timestamp":1762750728198}
+GPT 응답 전송 완료
+사용자 질문: kb생명 상품으로 알려줘
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:dcc86af519b44b37b278ee49b8164cd6
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.40:0 - "POST /chat/ HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+질문: kb생명 상품으로 알려줘에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: kb생명 상품으로 알려줘
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: KB생명 상품 KB라이프 제품 목록 수수료율 정보
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 10개 문서 검색 완료
+   📊 최고 관련도 점수: 0.630
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 413자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: HO&F 지사 AI입니다.
+
+고객님께서 요청하신 KB생명 상품 정보에 대해서는 현재 검색된 문서 내에 관련 내용이 포함되어 있지 않습니다.
+
+검색된 모든 문서는 한화생명(Hanwh...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:dcc86af519b44b37b278ee49b8164cd6
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "HO&F 지사 AI입니다.\n\n고객님께서 요청하신 KB생명 상품 정보에 대해서는 현재 검색된 문서 내에 관련 내용이 포함되어 있지 않습니다.\n\n검색된 모든 문서는 한화생명(Hanwha Life Insurance)의 11월 시책 및...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:dcc86af519b44b37b278ee49b8164cd6
+콜백 응답: {"taskId":"22849e5f-f43c-44f3-b7b1-334cfe3b7bce","status":"SUCCESS","message":"","timestamp":1762750774150}
+GPT 응답 전송 완료
+사용자 질문: zoom링크 있어?
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:04e8e898785246a78d7604fea0a3a1d4
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.42:0 - "POST /chat/ HTTP/1.1" 200 OK
+질문: zoom링크 있어?에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: zoom링크 있어?
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: ZOOM 링크 접속 정보 회의 교육 강의 스케줄
+   🎯 필터: {"is_zoom": true}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 1개 문서 검색 완료
+   📊 최고 관련도 점수: 0.482
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 328자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: HO&F 지사 AI입니다.
+
+고객님께서 문의하신 Zoom 링크와 관련하여 검색된 정보를 안내해 드립니다.
+
+현재 검색된 정보에서는 특정 행사에 Zoom 사용이 확인되지만, 실제 접...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:04e8e898785246a78d7604fea0a3a1d4
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "HO&F 지사 AI입니다.\n\n고객님께서 문의하신 Zoom 링크와 관련하여 검색된 정보를 안내해 드립니다.\n\n현재 검색된 정보에서는 특정 행사에 Zoom 사용이 확인되지만, 실제 접속하실 수 있는 Zoom 링크나 회의 ID는 제공...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:04e8e898785246a78d7604fea0a3a1d4
+콜백 응답: {"taskId":"c97329a2-fba3-4ea0-9b9a-e0b6d98f5fed","status":"SUCCESS","message":"","timestamp":1762751172054}
+GPT 응답 전송 완료
+사용자 질문: 제휴사 연락처 알려줘
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:ad44c5e4b59847ab8ae4f974a0a3c200
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.41:0 - "POST /chat/ HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+질문: 제휴사 연락처 알려줘에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 제휴사 연락처 알려줘
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 제휴사 연락처 전화번호 담당자 컨택포인트 파트너사 연락 정보
+   🎯 필터: {"$or": [{"sub_category": {"$eq": "contact_info"}}, {"is_resource": true}]}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 0개 문서 검색 완료
+   ⚠️ 필터 적용 결과 0개 - 필터 없이 재검색 중...
+   ✅ 재검색 완료: 10개 문서 검색 완료 (순수 시맨틱 검색)
+   📊 최고 관련도 점수: 0.561
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 406자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: 안녕하십니까. HO&F 지사 AI입니다.
+
+문의하신 제휴사 연락처 정보는 현재 검색된 문서 내에 포함되어 있지 않아 정확하게 안내해 드리기 어렵습니다.
+
+검색된 정보에는 특정 제휴...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:ad44c5e4b59847ab8ae4f974a0a3c200
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "안녕하십니까. HO&F 지사 AI입니다.\n\n문의하신 제휴사 연락처 정보는 현재 검색된 문서 내에 포함되어 있지 않아 정확하게 안내해 드리기 어렵습니다.\n\n검색된 정보에는 특정 제휴사의 교육 일정에 대한 내용만 확인되었습니다.\n...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:ad44c5e4b59847ab8ae4f974a0a3c200
+콜백 응답: {"taskId":"f1cb7c40-cd30-4d46-8631-572c3ae43208","status":"SUCCESS","message":"","timestamp":1762751198279}
+GPT 응답 전송 완료
+사용자 질문: 보증보험 동의 절차 뭐야?
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:d583f820f94b41e49c9f249c828cfa51
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.40:0 - "POST /chat/ HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+WARNING:  Invalid HTTP request received.
+질문: 보증보험 동의 절차 뭐야?에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 보증보험 동의 절차 뭐야?
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 보증보험 동의 절차 방법 안내 지침 규정
+   🎯 필터: {"is_instruction": true}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 0개 문서 검색 완료
+   ⚠️ 필터 적용 결과 0개 - 필터 없이 재검색 중...
+   ✅ 재검색 완료: 10개 문서 검색 완료 (순수 시맨틱 검색)
+   📊 최고 관련도 점수: 0.594
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 264자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: 안녕하십니까, HO&F 지사 AI입니다.
+
+문의하신 보증보험 동의 절차에 대해 검색된 정보를 확인하였으나, 아쉽게도 현재 검색된 자료에는 해당 동의 절차에 대한 구체적인 내용이 포...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:d583f820f94b41e49c9f249c828cfa51
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "안녕하십니까, HO&F 지사 AI입니다.\n\n문의하신 보증보험 동의 절차에 대해 검색된 정보를 확인하였으나, 아쉽게도 현재 검색된 자료에는 해당 동의 절차에 대한 구체적인 내용이 포함되어 있지 않습니다.\n\n검색된 대부분의 정보는 ...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:d583f820f94b41e49c9f249c828cfa51
+콜백 응답: {"taskId":"59180fa6-a54a-4b4b-9823-683a00d25b89","status":"SUCCESS","message":"","timestamp":1762751608205}
+GPT 응답 전송 완료
+사용자 질문: 루키 스쿨 자료 있어?
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:f96a8ec77f7b4e8e9c812a0806e1a4d5
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.40:0 - "POST /chat/ HTTP/1.1" 200 OK
+질문: 루키 스쿨 자료 있어?에 대한 GPT 응답 생성 중...
+
+🔍 RAG Query: 루키 스쿨 자료 있어?
+🔄 Step 1: Gemini Flash로 쿼리 최적화 중...
+   ✅ 최적화된 쿼리: 루키 스쿨 신입 교육 자료 입문 과정 교재 커리큘럼
+   🎯 필터: {"is_training": true}
+🔍 Step 2: Pinecone에서 관련 정보 검색 중 (namespace: hof-knowledge-base-max, top 10)...
+   ✅ 10개 문서 검색 완료
+   📊 최고 관련도 점수: 0.368
+💬 Step 3: Gemini 2.5 Pro로 답변 생성 중...
+   🎯 질문 유형: explanation
+   ✅ 답변 생성 완료 (길이: 254자)
+📎 Step 4: 관련 PDF 첨부 중...
+   ✅ 1개 PDF 첨부 완료
+
+생성된 답변: HO&F 지사 AI입니다. 루키 스쿨 관련 자료를 문의해 주셨습니다.
+
+검색된 정보 중 '루키 스쿨'과 유사한 신입 입문과정인 'KRS 16기 입문과정' 일정이 확인되어 안내해 드...
+콜백 응답 전송 시작: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:f96a8ec77f7b4e8e9c812a0806e1a4d5
+응답 데이터: {"version": "2.0", "template": {"outputs": [{"simpleText": {"text": "HO&F 지사 AI입니다. 루키 스쿨 관련 자료를 문의해 주셨습니다.\n\n검색된 정보 중 '루키 스쿨'과 유사한 신입 입문과정인 'KRS 16기 입문과정' 일정이 확인되어 안내해 드립니다.\n\nKRS 16기 입문과정 정보\n\n 기...
+콜백 응답 전송 성공: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:f96a8ec77f7b4e8e9c812a0806e1a4d5
+콜백 응답: {"taskId":"0ab0f6ee-92aa-4980-ab4b-facd09362043","status":"SUCCESS","message":"","timestamp":1762752247218}
+GPT 응답 전송 완료
+사용자 질문: 보증보험 동의 절차 뭐야?
+콜백 URL: https://bot-api.kakao.com/v1/bots/657ab164a678316d2c4af356/callback/cbtoken:5fe659edb3a74333bf73119ff3244483
+비동기 GPT 응답 태스크 생성됨
+INFO:     219.249.231.42:0 - "POST /chat/ HTTP/1.1" 200 OK
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.
+Warning: there are non-text parts in the response: ['thought_signature'], returning concatenated text result from text parts. Check the full candidates.content.parts accessor to get the full model response.

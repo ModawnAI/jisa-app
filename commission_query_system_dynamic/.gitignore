@@ -1,0 +1,34 @@
+# Environment variables
+.env
+config/.env
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Data files (large)
+data/commission_data_base_60pct_only.json
+data/commission_metadata_index.json
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test output
+test-results/
+coverage/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

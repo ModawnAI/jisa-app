@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+openai
+python-dotenv
+aiohttp
+python-multipart
+pinecone[grpc]
+google-genai
