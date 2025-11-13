@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Parse request body
+    // Parse request body with optional credential fields
     const {
       count,
       codeType,
@@ -54,6 +54,10 @@ export async function POST(request: NextRequest) {
       tier,
       expiresInDays,
       maxUses,
+      intendedRecipientName,
+      intendedRecipientEmail,
+      requiresCredentialMatch,
+      credentialId,
     } = await request.json();
 
     // Validate input
@@ -89,19 +93,38 @@ export async function POST(request: NextRequest) {
 
       codes.push(code);
 
-      codeRecords.push({
+      const codeRecord: any = {
         code,
         code_type: codeType,
         expires_at: expiresAt.toISOString(),
         max_uses: maxUses || 1,
         current_uses: 0,
         is_used: false,
+        status: 'available',
         metadata: {
           role,
           subscription_tier: tier,
         },
         source: 'admin_dashboard',
-      });
+      };
+
+      // Add recipient information if provided
+      if (intendedRecipientName) {
+        codeRecord.intended_recipient_name = intendedRecipientName;
+      }
+      if (intendedRecipientEmail) {
+        codeRecord.intended_recipient_email = intendedRecipientEmail;
+      }
+
+      // Add credential matching requirements
+      if (requiresCredentialMatch) {
+        codeRecord.requires_credential_match = true;
+        if (credentialId) {
+          codeRecord.intended_recipient_id = credentialId;
+        }
+      }
+
+      codeRecords.push(codeRecord);
     }
 
     // Insert codes into database
