@@ -748,11 +748,25 @@ async def root():
 @app.post("/")    # POST to root when using --root-path /chat (becomes /chat/ externally)
 async def chat_root(request: Request):
     kakaorequest = await request.json()
+
+    # Log complete raw request for debugging
+    print("=" * 80)
+    print("RAW KAKAOTALK REQUEST:")
+    print(json.dumps(kakaorequest, indent=2, ensure_ascii=False))
+    print("=" * 80)
+
     return await mainChat(kakaorequest)   # 서버로 답변 전송
 
 @app.post("/callback/")    # Callback URL for delayed responses
 async def callback(request: Request):
     callback_data = await request.json()
+
+    # Log complete raw callback request for debugging
+    print("=" * 80)
+    print("RAW KAKAOTALK CALLBACK REQUEST:")
+    print(json.dumps(callback_data, indent=2, ensure_ascii=False))
+    print("=" * 80)
+
     return processCallback(callback_data)
 
 @app.post("/upload-pdf")
