@@ -21,6 +21,13 @@
         "PINECONE_API_KEY": "${PINECONE_API_KEY}"
       },
       "description": "Pinecone vector database operations - 9 tools for index mgmt, search, docs"
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": [
+        "shadcn@latest",
+        "mcp"
+      ]
     }
   }
 }
