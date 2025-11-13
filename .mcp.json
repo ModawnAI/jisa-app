@@ -3,12 +3,14 @@
     "supabase": {
       "type": "http",
       "url": "https://mcp.supabase.com/mcp",
-      "description": "Supabase PostgreSQL database operations - OAuth authentication"
+      "description": "Supabase PostgreSQL database operations - OAuth authentication",
+      "enabled": true
     },
     "vercel": {
       "type": "http",
       "url": "https://mcp.vercel.com",
-      "description": "Vercel deployment and hosting management - OAuth authentication"
+      "description": "Vercel deployment and hosting management - OAuth authentication",
+      "enabled": true
     },
     "pinecone": {
       "type": "stdio",
@@ -20,14 +22,27 @@
       "env": {
         "PINECONE_API_KEY": "${PINECONE_API_KEY}"
       },
-      "description": "Pinecone vector database operations - 9 tools for index mgmt, search, docs"
+      "description": "Pinecone vector database operations - 9 tools for index mgmt, search, docs",
+      "enabled": true
     },
     "shadcn": {
+      "type": "stdio",
       "command": "npx",
       "args": [
         "shadcn@latest",
         "mcp"
-      ]
+      ],
+      "enabled": true
+    },
+    "portone-mcp-server": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@portone/mcp-server@latest"
+      ],
+      "description": "PortOne payment integration server",
+      "enabled": true
     }
   }
 }
