@@ -7,13 +7,28 @@
 
 import { Bell, User, LogOut, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 
 export function Header() {
   const router = useRouter();
 
   const handleLogout = async () => {
-    // TODO: Implement Supabase logout
-    router.push('/auth/login');
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error('Logout error:', error);
+      }
+
+      // Redirect to login page
+      router.push('/auth/login');
+      router.refresh();
+    } catch (error) {
+      console.error('Unexpected logout error:', error);
+      // Still redirect even if there's an error
+      router.push('/auth/login');
+    }
   };
 
   return (

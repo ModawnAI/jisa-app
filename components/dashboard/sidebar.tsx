@@ -8,24 +8,19 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { COMPANY_INFO } from '@/lib/constants/company';
 import {
   LayoutDashboard,
   Users,
   FileText,
-  BarChart3,
-  Settings,
-  KeyRound,
-  MessageSquare,
   Shield,
-  Database,
-  Upload,
   FolderOpen,
   Layers,
   UserCheck,
   Tags,
-  FileStack,
-  ChevronDown,
-  ChevronRight,
+  KeyRound,
+  Briefcase,
+  CreditCard,
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -51,16 +46,10 @@ const navigationSections: NavigationSection[] = [
         icon: LayoutDashboard,
       },
       {
-        name: '관리자 홈',
+        name: '관리자',
         href: '/admin',
         icon: Shield,
         adminOnly: true,
-        badge: 'NEW',
-      },
-      {
-        name: '결제 관리',
-        href: '/dashboard/billing',
-        icon: BarChart3,
       },
     ],
   },
@@ -68,9 +57,15 @@ const navigationSections: NavigationSection[] = [
     title: '사용자 관리',
     items: [
       {
-        name: '사용자 목록',
+        name: '사용자',
         href: '/admin/users',
         icon: Users,
+        adminOnly: true,
+      },
+      {
+        name: '직원',
+        href: '/admin/employees',
+        icon: Briefcase,
         adminOnly: true,
       },
       {
@@ -78,7 +73,6 @@ const navigationSections: NavigationSection[] = [
         href: '/admin/credentials',
         icon: UserCheck,
         adminOnly: true,
-        badge: 'NEW',
       },
     ],
   },
@@ -91,33 +85,19 @@ const navigationSections: NavigationSection[] = [
         icon: KeyRound,
         adminOnly: true,
       },
-      {
-        name: '코드 생성',
-        href: '/admin/codes/generate',
-        icon: KeyRound,
-        adminOnly: true,
-      },
-      {
-        name: '대량 코드 생성',
-        href: '/admin/codes/bulk-generate',
-        icon: FileStack,
-        adminOnly: true,
-        badge: 'NEW',
-      },
     ],
   },
   {
     title: '콘텐츠 관리',
     items: [
       {
-        name: '분류 관리',
+        name: '분류',
         href: '/admin/classification',
         icon: Tags,
         adminOnly: true,
-        badge: 'NEW',
       },
       {
-        name: '문서 라이브러리',
+        name: '문서',
         href: '/admin/data/documents',
         icon: FolderOpen,
         adminOnly: true,
@@ -128,33 +108,21 @@ const navigationSections: NavigationSection[] = [
         icon: Layers,
         adminOnly: true,
       },
-      {
-        name: '데이터 수집',
-        href: '/admin/data/upload',
-        icon: Upload,
-        adminOnly: true,
-      },
-      {
-        name: '수집 작업',
-        href: '/admin/data/jobs',
-        icon: Database,
-        adminOnly: true,
-      },
     ],
   },
   {
     title: '시스템',
     items: [
       {
-        name: '쿼리 로그',
-        href: '/admin/logs',
-        icon: FileText,
+        name: '결제',
+        href: '/admin/billing',
+        icon: CreditCard,
         adminOnly: true,
       },
       {
-        name: '관리자 결제',
-        href: '/admin/billing',
-        icon: Settings,
+        name: '로그',
+        href: '/admin/logs',
+        icon: FileText,
         adminOnly: true,
       },
     ],
@@ -219,8 +187,9 @@ export function Sidebar() {
       {/* Footer */}
       <div className="border-t border-gray-200 p-4">
         <div className="text-xs text-gray-500 text-center">
-          <p>JISA App v1.0</p>
-          <p className="mt-1">© 2025 HO&F</p>
+          <p className="font-semibold text-gray-700">{COMPANY_INFO.appName}</p>
+          <p className="mt-1">{COMPANY_INFO.copyright}</p>
+          <p className="mt-0.5 text-[10px]">{COMPANY_INFO.certification}</p>
         </div>
       </div>
     </div>

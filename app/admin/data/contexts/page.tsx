@@ -51,6 +51,18 @@ export default function ContextsPage() {
   const [total, setTotal] = useState(0);
   const [selectedContext, setSelectedContext] = useState<Context | null>(null);
 
+  // Semantic search state
+  const [semanticQuery, setSemanticQuery] = useState('');
+  const [semanticSearching, setSemanticSearching] = useState(false);
+  const [semanticResults, setSemanticResults] = useState<Context[]>([]);
+  const [showSemanticResults, setShowSemanticResults] = useState(false);
+  const [tierFilter, setTierFilter] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+
+  // Pinecone stats
+  const [pineconeStats, setPineconeStats] = useState<any>(null);
+  const [loadingStats, setLoadingStats] = useState(false);
+
   const fetchContexts = async () => {
     try {
       setLoading(true);
@@ -77,9 +89,54 @@ export default function ContextsPage() {
     }
   };
 
+  const fetchPineconeStats = async () => {
+    try {
+      setLoadingStats(true);
+      const response = await fetch('/api/admin/data/vector-search');
+      if (!response.ok) throw new Error('Failed to fetch stats');
+      const data = await response.json();
+      setPineconeStats(data);
+    } catch (error) {
+      console.error('Failed to fetch Pinecone stats:', error);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
+
   useEffect(() => {
     fetchContexts();
+    fetchPineconeStats();
   }, [page, searchTerm, orphanedOnly, documentFilter]);
+
+  // Semantic search function
+  const performSemanticSearch = async () => {
+    if (!semanticQuery.trim()) return;
+
+    try {
+      setSemanticSearching(true);
+      const response = await fetch('/api/admin/data/vector-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: semanticQuery,
+          topK: 20,
+          tier: tierFilter || undefined,
+          role: roleFilter || undefined,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Search failed');
+
+      const data = await response.json();
+      setSemanticResults(data.results || []);
+      setShowSemanticResults(true);
+    } catch (error) {
+      console.error('Semantic search failed:', error);
+      alert('의미 검색에 실패했습니다.');
+    } finally {
+      setSemanticSearching(false);
+    }
+  };
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('ko-KR', {
@@ -113,6 +170,81 @@ export default function ContextsPage() {
           Pinecone에 저장된 모든 컨텍스트와 임베딩을 확인합니다.
         </p>
       </div>
+
+      {/* Pinecone Index Stats */}
+      {pineconeStats && (
+        <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-sm border-2 border-green-200 p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <Database className="w-5 h-5 text-green-600" />
+              Pinecone 인덱스: {pineconeStats.indexName}
+            </h2>
+            <button
+              onClick={fetchPineconeStats}
+              disabled={loadingStats}
+              className="px-3 py-1 text-sm border border-gray-300 rounded-lg flex items-center gap-2 hover:bg-white disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${loadingStats ? 'animate-spin' : ''}`} />
+              새로고침
+            </button>
+          </div>
+
+          <div className="grid grid-cols-4 gap-4">
+            <div className="bg-white rounded-lg border border-green-200 p-4">
+              <p className="text-sm text-gray-600 mb-1">총 벡터</p>
+              <p className="text-2xl font-bold text-green-600">
+                {pineconeStats.pinecone?.totalVectors?.toLocaleString() || 0}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg border border-blue-200 p-4">
+              <p className="text-sm text-gray-600 mb-1">차원</p>
+              <p className="text-2xl font-bold text-blue-600">
+                {pineconeStats.pinecone?.dimension || 0}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg border border-purple-200 p-4">
+              <p className="text-sm text-gray-600 mb-1">Supabase 컨텍스트</p>
+              <p className="text-2xl font-bold text-purple-600">
+                {pineconeStats.supabase?.totalContexts?.toLocaleString() || 0}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg border border-orange-200 p-4">
+              <p className="text-sm text-gray-600 mb-1">동기화 상태</p>
+              <div className="flex items-center gap-2">
+                {pineconeStats.sync?.inSync ? (
+                  <>
+                    <div className="w-3 h-3 bg-green-500 rounded-full" />
+                    <p className="text-sm font-bold text-green-600">동기화됨</p>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-3 h-3 bg-orange-500 rounded-full animate-pulse" />
+                    <p className="text-sm font-bold text-orange-600">
+                      차이: {pineconeStats.sync?.difference}
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {pineconeStats.pinecone?.namespaces && pineconeStats.pinecone.namespaces.length > 0 && (
+            <div className="mt-4 bg-white rounded-lg border border-gray-200 p-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">네임스페이스:</p>
+              <div className="flex flex-wrap gap-2">
+                {pineconeStats.pinecone.namespaces.map((ns: any) => (
+                  <span
+                    key={ns.name}
+                    className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium"
+                  >
+                    {ns.name}: {ns.vectorCount.toLocaleString()}개
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4 mb-6">
@@ -161,6 +293,144 @@ export default function ContextsPage() {
             <Database className="w-8 h-8 text-purple-600" />
           </div>
         </div>
+      </div>
+
+      {/* Semantic Search Section */}
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg shadow-sm border-2 border-blue-200 p-6 mb-6">
+        <div className="mb-4">
+          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <Search className="w-5 h-5 text-blue-600" />
+            AI 의미 검색 (Vector Search)
+          </h2>
+          <p className="text-sm text-gray-600 mt-1">
+            질문의 의미를 이해하여 가장 관련성 높은 지식을 찾습니다.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          {/* Semantic Search Input */}
+          <div className="md:col-span-2">
+            <input
+              type="text"
+              placeholder="예: 보험 청구 절차가 어떻게 되나요?"
+              value={semanticQuery}
+              onChange={(e) => setSemanticQuery(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && performSemanticSearch()}
+              className="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Tier Filter */}
+          <div>
+            <select
+              value={tierFilter}
+              onChange={(e) => setTierFilter(e.target.value)}
+              className="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">모든 등급 (Tier)</option>
+              <option value="free">Free</option>
+              <option value="basic">Basic</option>
+              <option value="pro">Pro</option>
+              <option value="enterprise">Enterprise</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            onClick={performSemanticSearch}
+            disabled={semanticSearching || !semanticQuery.trim()}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium flex items-center gap-2 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {semanticSearching ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                검색 중...
+              </>
+            ) : (
+              <>
+                <Search className="w-4 h-4" />
+                AI 검색
+              </>
+            )}
+          </button>
+
+          {showSemanticResults && (
+            <button
+              onClick={() => {
+                setShowSemanticResults(false);
+                setSemanticResults([]);
+                setSemanticQuery('');
+              }}
+              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium flex items-center gap-2 hover:bg-gray-200"
+            >
+              <X className="w-4 h-4" />
+              검색 결과 닫기
+            </button>
+          )}
+        </div>
+
+        {/* Semantic Search Results */}
+        {showSemanticResults && (
+          <div className="mt-6 bg-white rounded-lg border-2 border-blue-300 overflow-hidden">
+            <div className="bg-blue-100 px-4 py-3 border-b border-blue-300">
+              <h3 className="font-semibold text-gray-900">
+                검색 결과: {semanticResults.length}개 발견
+              </h3>
+              <p className="text-sm text-gray-600">유사도 점수 순으로 정렬됨</p>
+            </div>
+
+            {semanticResults.length === 0 ? (
+              <div className="p-8 text-center">
+                <AlertCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-600">검색 결과가 없습니다.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-200 max-h-[600px] overflow-y-auto">
+                {semanticResults.map((result: any) => (
+                  <div key={result.id} className="p-4 hover:bg-blue-50">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-gray-900">{result.title}</h3>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getAccessBadgeColor(result.access_level)}`}>
+                            {result.access_level}
+                          </span>
+                          {result.similarity_score && (
+                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              유사도: {(result.similarity_score * 100).toFixed(1)}%
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-sm text-gray-600 mb-3 line-clamp-3">
+                          {result.content.substring(0, 300)}...
+                        </p>
+
+                        <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
+                          <div className="flex items-center gap-1">
+                            <Database className="w-3 h-3" />
+                            {result.pinecone_namespace}
+                          </div>
+                          <div>
+                            생성일: {formatDate(result.created_at)}
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => setSelectedContext(result)}
+                        className="ml-4 p-2 text-blue-600 hover:bg-blue-50 rounded"
+                      >
+                        <Eye className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Filters */}
@@ -385,14 +655,83 @@ export default function ContextsPage() {
                     <label className="text-sm font-medium text-gray-700">임베딩 모델</label>
                     <p className="text-gray-900">{selectedContext.embedding_model}</p>
                   </div>
+                  {(selectedContext as any).similarity_score && (
+                    <div className="col-span-2">
+                      <label className="text-sm font-medium text-gray-700">유사도 점수</label>
+                      <div className="flex items-center gap-3 mt-1">
+                        <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-green-400 to-blue-500"
+                            style={{ width: `${((selectedContext as any).similarity_score * 100)}%` }}
+                          />
+                        </div>
+                        <span className="text-lg font-bold text-blue-600">
+                          {((selectedContext as any).similarity_score * 100).toFixed(2)}%
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {selectedContext.metadata && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">메타데이터</label>
-                    <pre className="mt-1 p-3 bg-gray-50 rounded text-xs overflow-x-auto">
-                      {JSON.stringify(selectedContext.metadata, null, 2)}
-                    </pre>
+                {/* Supabase Metadata */}
+                {((selectedContext as any).supabase_metadata || selectedContext.metadata) && (
+                  <div className="border-t border-gray-200 pt-4">
+                    <details className="cursor-pointer" open>
+                      <summary className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                        <Database className="w-4 h-4 text-blue-600" />
+                        Supabase 메타데이터 (전체)
+                      </summary>
+                      <div className="mt-2 space-y-2">
+                        {Object.entries((selectedContext as any).supabase_metadata || selectedContext.metadata || {}).map(([key, value]) => (
+                          <div key={key} className="flex gap-2 text-xs">
+                            <span className="font-mono text-purple-600 min-w-[150px]">{key}:</span>
+                            <span className="text-gray-700 break-all">
+                              {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <pre className="mt-3 p-3 bg-gray-50 rounded text-xs overflow-x-auto border border-gray-200">
+                        {JSON.stringify((selectedContext as any).supabase_metadata || selectedContext.metadata, null, 2)}
+                      </pre>
+                    </details>
+                  </div>
+                )}
+
+                {/* Pinecone Metadata */}
+                {(selectedContext as any).pinecone_metadata && (
+                  <div className="border-t border-gray-200 pt-4">
+                    <details className="cursor-pointer" open>
+                      <summary className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                        <Database className="w-4 h-4 text-green-600" />
+                        Pinecone 메타데이터 (전체)
+                      </summary>
+                      <div className="mt-2 space-y-2">
+                        {Object.entries((selectedContext as any).pinecone_metadata || {}).map(([key, value]) => (
+                          <div key={key} className="flex gap-2 text-xs">
+                            <span className="font-mono text-green-600 min-w-[150px]">{key}:</span>
+                            <span className="text-gray-700 break-all">
+                              {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <pre className="mt-3 p-3 bg-green-50 rounded text-xs overflow-x-auto border border-green-200">
+                        {JSON.stringify((selectedContext as any).pinecone_metadata, null, 2)}
+                      </pre>
+                    </details>
+                  </div>
+                )}
+
+                {/* Raw Vector Metadata (legacy support) */}
+                {(selectedContext as any).vector_metadata && !(selectedContext as any).pinecone_metadata && (
+                  <div className="border-t border-gray-200 pt-4">
+                    <details className="cursor-pointer">
+                      <summary className="text-sm font-bold text-gray-900 mb-2">벡터 메타데이터 (Raw)</summary>
+                      <pre className="mt-2 p-3 bg-gray-50 rounded text-xs overflow-x-auto">
+                        {JSON.stringify((selectedContext as any).vector_metadata, null, 2)}
+                      </pre>
+                    </details>
                   </div>
                 )}
               </div>

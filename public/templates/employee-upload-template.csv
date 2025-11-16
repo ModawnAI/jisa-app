@@ -1,0 +1,5 @@
+full_name,email,employee_id,department,position,tier,role,phone_number,team,hire_date,location
+홍길동,hong@company.com,EMP001,영업팀,시니어 영업사원,pro,senior,010-1234-5678,1팀,2024-01-15,서울
+김영희,kim@company.com,EMP002,마케팅팀,주니어 마케터,basic,junior,010-2345-6789,디지털팀,2024-03-01,부산
+박철수,park@company.com,EMP003,IT팀,매니저,enterprise,manager,010-3456-7890,개발팀,2023-06-01,서울
+이미영,lee@company.com,EMP004,인사팀,직원,free,user,010-4567-8901,채용팀,2024-05-20,대전
