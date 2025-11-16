@@ -9,6 +9,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const params = await props.params
   try {
     const supabase = await createClient();
     const { id: invoiceId } = await params;

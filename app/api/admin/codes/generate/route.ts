@@ -96,15 +96,17 @@ export async function POST(request: NextRequest) {
       const codeRecord: any = {
         code,
         code_type: codeType,
+        tier, // Required column
+        role: role || 'user', // Column with default
         expires_at: expiresAt.toISOString(),
         max_uses: maxUses || 1,
         current_uses: 0,
         is_used: false,
-        status: 'available',
+        is_active: true,
+        status: 'active', // Must match DB constraint
         metadata: {
-          role,
-          subscription_tier: tier,
-          source: 'admin_dashboard', // Store source in metadata instead
+          source: 'admin_dashboard',
+          generated_at: new Date().toISOString(),
         },
       };
 

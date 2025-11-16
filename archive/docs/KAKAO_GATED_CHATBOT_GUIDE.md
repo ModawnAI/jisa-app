@@ -939,7 +939,7 @@ WHERE title LIKE '%[query topic]%';
 - Content properly restricted (working as intended)
 
 **Solution:**
-- Upgrade user's code if appropriate
+- Upgrade user's code if appropriate 
 - Explain access limitations
 - Review content classification if incorrect
 
