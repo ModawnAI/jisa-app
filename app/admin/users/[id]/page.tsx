@@ -57,6 +57,31 @@ interface VerificationCode {
   used_at?: string
 }
 
+interface QueryLog {
+  id: string
+  query_text: string
+  response_text: string
+  query_type: string
+  response_time_ms: number
+  timestamp: string
+  metadata?: any
+}
+
+interface QueryHistoryData {
+  queries: QueryLog[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+  stats: {
+    total_queries: number
+    avg_response_time_ms: number
+    query_type_breakdown: Record<string, number>
+  }
+}
+
 interface UserDetailData {
   profile: UserProfile
   credential?: UserCredential
@@ -79,12 +104,23 @@ export default function UserDetailPage() {
   const userId = params.id as string
 
   const [data, setData] = useState<UserDetailData | null>(null)
+  const [queryHistory, setQueryHistory] = useState<QueryHistoryData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [queriesLoading, setQueriesLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [queryPage, setQueryPage] = useState(1)
+  const [expandedQuery, setExpandedQuery] = useState<string | null>(null)
 
   useEffect(() => {
     fetchUserDetails()
+    fetchQueryHistory()
   }, [userId])
+
+  useEffect(() => {
+    if (userId) {
+      fetchQueryHistory()
+    }
+  }, [queryPage])
 
   const fetchUserDetails = async () => {
     try {
@@ -102,6 +138,30 @@ export default function UserDetailPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const fetchQueryHistory = async () => {
+    try {
+      setQueriesLoading(true)
+      const response = await fetch(`/api/admin/users/${userId}/queries?page=${queryPage}&limit=10`)
+
+      if (!response.ok) {
+        console.error('Failed to fetch query history')
+        return
+      }
+
+      const result = await response.json()
+      setQueryHistory(result.data)
+    } catch (err) {
+      console.error('Error fetching query history:', err)
+    } finally {
+      setQueriesLoading(false)
+    }
+  }
+
+  const truncateText = (text: string, maxLength: number) => {
+    if (text.length <= maxLength) return text
+    return text.substring(0, maxLength) + '...'
   }
 
   const getRoleBadgeColor = (role: string) => {
@@ -383,6 +443,133 @@ export default function UserDetailPage() {
               </div>
             </div>
           )}
+
+          {/* Query History Section */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold">Query History</h2>
+              {queryHistory && (
+                <div className="text-sm text-gray-600">
+                  Total: {queryHistory.stats.total_queries} queries | Avg: {queryHistory.stats.avg_response_time_ms}ms
+                </div>
+              )}
+            </div>
+
+            {queriesLoading ? (
+              <div className="text-center py-8 text-gray-500">Loading query history...</div>
+            ) : !queryHistory || queryHistory.queries.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p className="mb-2">No queries yet</p>
+                <p className="text-sm">User hasn't asked any questions</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Query Type Breakdown */}
+                <div className="flex gap-2 mb-4">
+                  {Object.entries(queryHistory.stats.query_type_breakdown).map(([type, count]) => (
+                    <span
+                      key={type}
+                      className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium"
+                    >
+                      {type}: {count}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Query List */}
+                {queryHistory.queries.map((query) => (
+                  <div
+                    key={query.id}
+                    className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xs font-medium text-gray-500">
+                            {new Date(query.timestamp).toLocaleString()}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 rounded text-xs font-medium ${
+                              query.query_type === 'rag'
+                                ? 'bg-purple-100 text-purple-800'
+                                : query.query_type === 'commission'
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-gray-100 text-gray-800'
+                            }`}
+                          >
+                            {query.query_type}
+                          </span>
+                          <span className="text-xs text-gray-500">{query.response_time_ms}ms</span>
+                        </div>
+
+                        <div className="mb-3">
+                          <div className="text-sm font-semibold text-gray-700 mb-1">
+                            Question:
+                          </div>
+                          <div className="text-sm text-gray-900 bg-blue-50 p-3 rounded">
+                            {expandedQuery === query.id
+                              ? query.query_text
+                              : truncateText(query.query_text, 150)}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="text-sm font-semibold text-gray-700 mb-1">Answer:</div>
+                          <div className="text-sm text-gray-900 bg-green-50 p-3 rounded whitespace-pre-wrap">
+                            {expandedQuery === query.id
+                              ? query.response_text
+                              : truncateText(query.response_text, 200)}
+                          </div>
+                        </div>
+
+                        {(query.query_text.length > 150 ||
+                          query.response_text.length > 200) && (
+                          <button
+                            onClick={() =>
+                              setExpandedQuery(expandedQuery === query.id ? null : query.id)
+                            }
+                            className="text-blue-600 hover:text-blue-800 text-sm mt-2"
+                          >
+                            {expandedQuery === query.id ? 'Show less' : 'Show more'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Pagination */}
+                {queryHistory.pagination.totalPages > 1 && (
+                  <div className="flex items-center justify-between pt-4 border-t">
+                    <button
+                      onClick={() => setQueryPage((p) => Math.max(1, p - 1))}
+                      disabled={queryPage === 1}
+                      className="px-4 py-2 text-sm border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      Previous
+                    </button>
+
+                    <span className="text-sm text-gray-600">
+                      Page {queryHistory.pagination.page} of{' '}
+                      {queryHistory.pagination.totalPages}
+                    </span>
+
+                    <button
+                      onClick={() =>
+                        setQueryPage((p) =>
+                          Math.min(queryHistory.pagination.totalPages, p + 1)
+                        )
+                      }
+                      disabled={queryPage === queryHistory.pagination.totalPages}
+                      className="px-4 py-2 text-sm border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Column - Access Summary */}

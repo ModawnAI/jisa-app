@@ -8,7 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 const ROLE_HIERARCHY = ['user', 'junior', 'senior', 'manager', 'admin', 'ceo']
 const TIER_HIERARCHY = ['free', 'basic', 'pro', 'enterprise']
@@ -42,8 +42,11 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
+    // Use service client to bypass RLS and access all user data
+    const serviceClient = createServiceClient()
+
     // Get user profile
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await serviceClient
       .from('profiles')
       .select('*')
       .eq('id', params.id)
@@ -54,7 +57,7 @@ export async function GET(
     }
 
     // Get user credential (if exists)
-    const { data: credential } = await supabase
+    const { data: credential } = await serviceClient
       .from('user_credentials')
       .select('*')
       .eq('user_id', params.id)
@@ -64,7 +67,7 @@ export async function GET(
     // Get verification code (if used by this user)
     let verificationCode = null
     if (credential?.verification_code_id) {
-      const { data: code } = await supabase
+      const { data: code } = await serviceClient
         .from('verification_codes')
         .select('*')
         .eq('id', credential.verification_code_id)

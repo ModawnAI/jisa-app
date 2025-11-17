@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,8 +35,9 @@ export async function GET(request: NextRequest) {
     const role = searchParams.get('role');
     const tier = searchParams.get('tier');
 
-    // 사용자 목록 조회
-    let query = supabase
+    // 사용자 목록 조회 - Use service client to bypass RLS and see all users
+    const serviceClient = createServiceClient();
+    let query = serviceClient
       .from('profiles')
       .select('*', { count: 'exact' });
 

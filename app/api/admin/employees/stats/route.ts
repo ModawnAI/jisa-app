@@ -8,7 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,13 +35,16 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Use service client to bypass RLS
+    const serviceClient = createServiceClient()
+
     // 3. Get total credentials count
-    const { count: totalCount } = await supabase
+    const { count: totalCount } = await serviceClient
       .from('user_credentials')
       .select('*', { count: 'exact', head: true })
 
     // 4. Get verified count (credentials with profiles)
-    const { data: profiles } = await supabase
+    const { data: profiles } = await serviceClient
       .from('profiles')
       .select('credential_id')
       .not('credential_id', 'is', null)
@@ -49,13 +52,13 @@ export async function GET(request: NextRequest) {
     const verifiedCount = profiles?.length || 0
 
     // 5. Get pending count
-    const { count: pendingCount } = await supabase
+    const { count: pendingCount } = await serviceClient
       .from('user_credentials')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'pending')
 
     // 6. Get credentials with codes
-    const { data: codesWithCredentials } = await supabase
+    const { data: codesWithCredentials } = await serviceClient
       .from('verification_codes')
       .select('intended_recipient_id')
       .not('intended_recipient_id', 'is', null)
@@ -69,7 +72,7 @@ export async function GET(request: NextRequest) {
     let activeChattersCount = 0
     if (verifiedProfileIds.length > 0) {
       // Get profiles IDs from credential IDs
-      const { data: profilesWithIds } = await supabase
+      const { data: profilesWithIds } = await serviceClient
         .from('profiles')
         .select('id, credential_id')
         .in('credential_id', verifiedProfileIds)
@@ -78,7 +81,7 @@ export async function GET(request: NextRequest) {
 
       if (profileIds.length > 0) {
         // Get unique users who have chat logs
-        const { data: chatUsers } = await supabase
+        const { data: chatUsers } = await serviceClient
           .from('chat_logs')
           .select('user_id')
           .in('user_id', profileIds)

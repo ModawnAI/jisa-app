@@ -174,15 +174,15 @@ export default function EmployeesPage() {
 
   const getStatusBadge = (status: string) => {
     const colors = {
-      verified: 'bg-green-100 text-green-800',
-      pending: 'bg-yellow-100 text-yellow-800',
-      inactive: 'bg-gray-100 text-gray-800',
+      verified: 'bg-gray-100 text-gray-800',
+      pending: 'bg-gray-100 text-gray-600',
+      inactive: 'bg-gray-100 text-gray-500',
     }
 
     const labels = {
-      verified: 'Verified',
-      pending: 'Pending',
-      inactive: 'Inactive',
+      verified: '인증완료',
+      pending: '대기중',
+      inactive: '비활성',
     }
 
     return (
@@ -203,7 +203,7 @@ export default function EmployeesPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">직원 관리</h1>
         <p className="text-gray-600">
-          모든 직원, 인증 상태 및 채팅 활동 조회 및 관리
+          직원 인증 상태 및 채팅 활동 조회 및 관리
         </p>
       </div>
 
@@ -293,24 +293,24 @@ export default function EmployeesPage() {
       </div>
 
       {/* Quick Links */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-blue-900">Quick Actions</h3>
-            <p className="text-sm text-blue-700">Manage employees and credentials</p>
+            <h3 className="font-semibold text-gray-900">빠른 작업</h3>
+            <p className="text-sm text-gray-600">직원 정보 및 인증 코드 관리</p>
           </div>
           <div className="flex space-x-2">
             <Link
               href="/admin/credentials"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
             >
-              📤 Bulk Upload
+              대량 업로드
             </Link>
             <Link
               href="/admin/codes/generate"
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900"
             >
-              🔑 Generate Codes
+              코드 생성
             </Link>
           </div>
         </div>
@@ -338,28 +338,28 @@ export default function EmployeesPage() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Employee
+                  직원
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Employee ID
+                  사원번호
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Department
+                  부서
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Status
+                  상태
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Code Status
+                  코드 상태
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Chat Activity
+                  채팅 활동
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Tier/Role
+                  등급/역할
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Actions
+                  작업
                 </th>
               </tr>
             </thead>
@@ -367,7 +367,7 @@ export default function EmployeesPage() {
               {employees.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
-                    No employees found
+                    등록된 직원이 없습니다
                   </td>
                 </tr>
               ) : (
@@ -381,8 +381,8 @@ export default function EmployeesPage() {
                         <div className="text-xs text-gray-500">{employee.email}</div>
                       )}
                       {employee.verified_at && (
-                        <div className="text-xs text-green-600">
-                          ✓ Verified {new Date(employee.verified_at).toLocaleDateString()}
+                        <div className="text-xs text-gray-600">
+                          인증완료 {new Date(employee.verified_at).toLocaleDateString('ko-KR')}
                         </div>
                       )}
                     </td>
@@ -403,7 +403,7 @@ export default function EmployeesPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       {employee.has_code ? (
                         <div>
-                          <span className="text-green-600">✓ Has Code</span>
+                          <span className="text-gray-800">코드 있음</span>
                           {employee.verification_code && (
                             <div className="text-xs text-gray-500 font-mono">
                               {employee.verification_code}
@@ -411,34 +411,34 @@ export default function EmployeesPage() {
                           )}
                         </div>
                       ) : (
-                        <span className="text-orange-600">⚠ No Code</span>
+                        <span className="text-gray-500">코드 없음</span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       {employee.total_chats ? (
                         <div>
-                          <div className="text-purple-600 font-medium">
-                            {employee.total_chats} chats
+                          <div className="text-gray-900 font-medium">
+                            {employee.total_chats}회
                           </div>
                           {employee.last_chat_at && (
                             <div className="text-xs text-gray-500">
-                              Last: {new Date(employee.last_chat_at).toLocaleString()}
+                              마지막: {new Date(employee.last_chat_at).toLocaleString('ko-KR')}
                             </div>
                           )}
                         </div>
                       ) : (
-                        <span className="text-gray-400">No activity</span>
+                        <span className="text-gray-400">활동 없음</span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <div className="flex flex-col space-y-1">
                         {employee.metadata?.tier && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
                             {employee.metadata.tier}
                           </span>
                         )}
                         {employee.metadata?.role && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
                             {employee.metadata.role}
                           </span>
                         )}
@@ -448,19 +448,19 @@ export default function EmployeesPage() {
                       <div className="flex flex-col space-y-1">
                         <button
                           onClick={() => handleViewEmployee(employee.id)}
-                          className="text-blue-600 hover:text-blue-900 text-left"
+                          className="text-gray-700 hover:text-gray-900 text-left"
                         >
-                          View Details →
+                          상세보기
                         </button>
                         {!employee.has_code && (
                           <button
                             onClick={() => handleGenerateCode(employee.id)}
                             disabled={generatingCodeFor === employee.id}
-                            className="text-green-600 hover:text-green-900 disabled:opacity-50 text-left"
+                            className="text-gray-600 hover:text-gray-800 disabled:opacity-50 text-left"
                           >
                             {generatingCodeFor === employee.id
-                              ? 'Generating...'
-                              : 'Generate Code'}
+                              ? '생성중...'
+                              : '코드 생성'}
                           </button>
                         )}
                       </div>
@@ -477,8 +477,8 @@ export default function EmployeesPage() {
       {totalPages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <div className="text-sm text-gray-700">
-            Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
-            {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} employees
+            {totalItems}명 중 {(currentPage - 1) * itemsPerPage + 1}~
+            {Math.min(currentPage * itemsPerPage, totalItems)}명 표시
           </div>
           <div className="flex space-x-2">
             <button
@@ -486,7 +486,7 @@ export default function EmployeesPage() {
               disabled={currentPage === 1}
               className="px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Previous
+              이전
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1)
               .filter(
@@ -504,7 +504,7 @@ export default function EmployeesPage() {
                     onClick={() => setCurrentPage(page)}
                     className={`px-3 py-1 border rounded ${
                       currentPage === page
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-gray-800 text-white'
                         : 'hover:bg-gray-50'
                     }`}
                   >
@@ -517,7 +517,7 @@ export default function EmployeesPage() {
               disabled={currentPage === totalPages}
               className="px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Next
+              다음
             </button>
           </div>
         </div>

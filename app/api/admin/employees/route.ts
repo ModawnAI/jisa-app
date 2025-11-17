@@ -8,7 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,6 +35,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Use service client to bypass RLS and see all data
+    const serviceClient = createServiceClient()
+
     // 3. Parse query parameters
     const { searchParams } = new URL(request.url)
     const statusFilter = searchParams.get('status') || 'all'
@@ -45,7 +48,7 @@ export async function GET(request: NextRequest) {
     const pageSize = parseInt(searchParams.get('pageSize') || '20')
 
     // 4. Build base query for credentials
-    let credentialsQuery = supabase
+    let credentialsQuery = serviceClient
       .from('user_credentials')
       .select('*', { count: 'exact' })
 
@@ -96,7 +99,7 @@ export async function GET(request: NextRequest) {
 
     // 5. Get verification codes for these credentials
     const credentialIds = credentials.map(c => c.id)
-    const { data: codes } = await supabase
+    const { data: codes } = await serviceClient
       .from('verification_codes')
       .select('intended_recipient_id, code, created_at')
       .in('intended_recipient_id', credentialIds)
@@ -108,7 +111,7 @@ export async function GET(request: NextRequest) {
     )
 
     // 6. Get profiles for verified employees
-    const { data: profiles } = await supabase
+    const { data: profiles } = await serviceClient
       .from('profiles')
       .select('id, credential_id, created_at')
       .in('credential_id', credentialIds)
@@ -124,7 +127,7 @@ export async function GET(request: NextRequest) {
     let chatActivity = new Map()
 
     if (verifiedProfileIds.length > 0) {
-      const { data: chats } = await supabase
+      const { data: chats } = await serviceClient
         .from('chat_logs')
         .select('user_id')
         .in('user_id', verifiedProfileIds)
@@ -138,7 +141,7 @@ export async function GET(request: NextRequest) {
 
         // Get last chat timestamp for each user
         for (const profileId of verifiedProfileIds) {
-          const { data: lastChat } = await supabase
+          const { data: lastChat } = await serviceClient
             .from('chat_logs')
             .select('created_at')
             .eq('user_id', profileId)
