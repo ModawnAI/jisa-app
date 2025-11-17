@@ -9,10 +9,10 @@ export default function Home() {
       </p>
       <div className="mt-8 flex gap-4">
         <a
-          href="/dashboard"
+          href="/admin"
           className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition"
         >
-          대시보드
+          관리자
         </a>
         <a
           href="/api/kakao/chat"

@@ -68,7 +68,7 @@ const nextConfig = {
     return [
       {
         source: '/',
-        destination: '/dashboard',
+        destination: '/admin',
         permanent: false,
       },
     ];
