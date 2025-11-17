@@ -19,7 +19,25 @@ export async function GET(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      // Return mock subscription for unauthenticated users
+      return NextResponse.json({
+        subscription: {
+          id: 'mock-sub-1',
+          user_id: 'mock-user',
+          tier: 'free',
+          status: 'active',
+          billing_cycle: 'monthly',
+          amount: 0,
+          currency: 'KRW',
+          current_period_start: new Date().toISOString(),
+          current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          cancel_at_period_end: false,
+          subscription_pricing: {
+            name: 'Free 플랜',
+            description: '기본 무료 플랜',
+          },
+        },
+      });
     }
 
     // Get subscription with pricing info

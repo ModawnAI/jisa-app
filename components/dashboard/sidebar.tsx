@@ -128,6 +128,11 @@ const navigationSections: NavigationSection[] = [
         adminOnly: true,
       },
       {
+        name: '요금제',
+        href: '/dashboard/pricing',
+        icon: Tags,
+      },
+      {
         name: '내 구독',
         href: '/dashboard/billing',
         icon: CreditCard,
