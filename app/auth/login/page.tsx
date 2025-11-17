@@ -47,7 +47,7 @@ export default function LoginPage() {
       console.log('Login successful:', data.user.id);
 
       // Redirect to dashboard
-      router.push('/dashboard');
+      router.push('/admin');
     } catch (err: any) {
       console.error('Login error:', err);
       setError(err.message || '로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');

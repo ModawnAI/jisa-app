@@ -54,7 +54,7 @@ export default function AdminBillingPage() {
               이 페이지는 관리자만 접근할 수 있습니다.
             </p>
             <button
-              onClick={() => window.location.href = '/dashboard'}
+              onClick={() => window.location.href = '/admin'}
               className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
             >
               대시보드로 돌아가기

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Billing Dashboard Page
+ * User Subscription Management Page
  * Central hub for subscription management, payment history, and billing analytics
  */
 
@@ -29,7 +29,7 @@ interface Subscription {
   };
 }
 
-export default function BillingDashboardPage() {
+export default function SubscriptionPage() {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -159,7 +159,7 @@ export default function BillingDashboardPage() {
       <div className="space-y-6">
         {/* Page Header */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">결제 및 구독 관리</h1>
+          <h1 className="text-3xl font-bold text-gray-900">내 구독 관리</h1>
           <p className="mt-2 text-sm text-gray-600">
             구독 정보를 확인하고 결제 내역을 관리하세요
           </p>
@@ -261,7 +261,7 @@ export default function BillingDashboardPage() {
                   {subscription.tier !== 'free' && !subscription.cancel_at_period_end && (
                     <>
                       <button
-                        onClick={() => setShowUpgradeModal(true)}
+                        onClick={() => window.location.href = '/admin/pricing'}
                         className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
                       >
                         플랜 변경
@@ -284,7 +284,7 @@ export default function BillingDashboardPage() {
                   )}
                   {subscription.tier === 'free' && (
                     <button
-                      onClick={() => window.location.href = '/dashboard/pricing'}
+                      onClick={() => window.location.href = '/admin/pricing'}
                       className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
                     >
                       업그레이드
@@ -301,7 +301,7 @@ export default function BillingDashboardPage() {
                   플랜을 선택하여 JISA의 모든 기능을 이용하세요
                 </p>
                 <button
-                  onClick={() => window.location.href = '/dashboard/pricing'}
+                  onClick={() => window.location.href = '/admin/pricing'}
                   className="px-6 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
                 >
                   플랜 선택하기
@@ -310,7 +310,7 @@ export default function BillingDashboardPage() {
             )}
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <p className="text-sm text-gray-600 mb-1">총 결제 금액</p>
                 <p className="text-2xl font-bold text-gray-900">₩0</p>

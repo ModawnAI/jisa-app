@@ -43,14 +43,8 @@ const navigationSections: NavigationSection[] = [
     items: [
       {
         name: '홈',
-        href: '/dashboard',
-        icon: LayoutDashboard,
-      },
-      {
-        name: '관리 콘솔',
         href: '/admin',
-        icon: Shield,
-        adminOnly: true,
+        icon: LayoutDashboard,
       },
     ],
   },
@@ -122,20 +116,30 @@ const navigationSections: NavigationSection[] = [
     title: '결제 및 구독',
     items: [
       {
-        name: '기업 구독 (관리자)',
+        name: '기업 구독',
         href: '/admin/billing',
         icon: Briefcase,
         adminOnly: true,
       },
       {
         name: '요금제',
-        href: '/dashboard/pricing',
+        href: '/admin/pricing',
         icon: Tags,
       },
       {
         name: '내 구독',
-        href: '/dashboard/billing',
+        href: '/admin/subscription',
         icon: CreditCard,
+      },
+    ],
+  },
+  {
+    title: '설정',
+    items: [
+      {
+        name: '계정 설정',
+        href: '/admin/settings',
+        icon: Users,
       },
     ],
   },

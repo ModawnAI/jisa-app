@@ -75,7 +75,7 @@ export default function PricingPage() {
     }
 
     if (tier === currentTier) {
-      router.push('/dashboard/billing');
+      router.push('/admin/subscription');
       return;
     }
 
@@ -95,7 +95,7 @@ export default function PricingPage() {
       }
 
       alert('구독이 성공적으로 업그레이드되었습니다!');
-      router.push('/dashboard/billing');
+      router.push('/admin/subscription');
     } catch (err) {
       console.error('Error upgrading subscription:', err);
       alert(err instanceof Error ? err.message : '오류가 발생했습니다');
