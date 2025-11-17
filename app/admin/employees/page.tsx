@@ -169,7 +169,7 @@ export default function EmployeesPage() {
   }
 
   const handleViewEmployee = (id: string) => {
-    router.push(`/admin/employees/${id}`)
+    router.push(`/admin/users/${id}`)
   }
 
   const getStatusBadge = (status: string) => {

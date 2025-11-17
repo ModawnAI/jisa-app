@@ -38,59 +38,36 @@ export async function GET(request: NextRequest) {
     // Use service client to bypass RLS
     const serviceClient = createServiceClient()
 
-    // 3. Get total credentials count
+    // 3. Get total user count from profiles
     const { count: totalCount } = await serviceClient
-      .from('user_credentials')
-      .select('*', { count: 'exact', head: true })
-
-    // 4. Get verified count (credentials with profiles)
-    const { data: profiles } = await serviceClient
       .from('profiles')
-      .select('credential_id')
-      .not('credential_id', 'is', null)
-
-    const verifiedCount = profiles?.length || 0
-
-    // 5. Get pending count
-    const { count: pendingCount } = await serviceClient
-      .from('user_credentials')
       .select('*', { count: 'exact', head: true })
-      .eq('status', 'pending')
 
-    // 6. Get credentials with codes
-    const { data: codesWithCredentials } = await serviceClient
-      .from('verification_codes')
-      .select('intended_recipient_id')
-      .not('intended_recipient_id', 'is', null)
+    // 4. Get verified count (users with verification codes)
+    const { count: verifiedCount } = await serviceClient
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .not('verified_with_code', 'is', null)
 
-    const withCodesCount = codesWithCredentials?.length || 0
+    // 5. Get pending count (users without verification codes)
+    const { count: pendingCount } = await serviceClient
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .is('verified_with_code', null)
+
+    // 6. Users with codes (same as verified)
+    const withCodesCount = verifiedCount || 0
     const withoutCodesCount = (totalCount || 0) - withCodesCount
 
-    // 7. Get active chatters (users who have sent at least one message)
-    const verifiedProfileIds = profiles?.map(p => p.credential_id) || []
+    // 7. Get active chatters (users who have queries)
+    const { data: queryUsers } = await serviceClient
+      .from('query_logs')
+      .select('user_id')
 
     let activeChattersCount = 0
-    if (verifiedProfileIds.length > 0) {
-      // Get profiles IDs from credential IDs
-      const { data: profilesWithIds } = await serviceClient
-        .from('profiles')
-        .select('id, credential_id')
-        .in('credential_id', verifiedProfileIds)
-
-      const profileIds = profilesWithIds?.map(p => p.id) || []
-
-      if (profileIds.length > 0) {
-        // Get unique users who have chat logs
-        const { data: chatUsers } = await serviceClient
-          .from('chat_logs')
-          .select('user_id')
-          .in('user_id', profileIds)
-
-        if (chatUsers) {
-          const uniqueUserIds = new Set(chatUsers.map(c => c.user_id))
-          activeChattersCount = uniqueUserIds.size
-        }
-      }
+    if (queryUsers && queryUsers.length > 0) {
+      const uniqueUserIds = new Set(queryUsers.map(q => q.user_id).filter(id => id))
+      activeChattersCount = uniqueUserIds.size
     }
 
     // 8. Calculate percentages
@@ -102,30 +79,17 @@ export async function GET(request: NextRequest) {
       ? Math.round((activeChattersCount / verifiedCount) * 100)
       : 0
 
-    // 9. Return statistics
+    // 9. Return statistics with simple format for employee page
     return NextResponse.json({
-      total: total,
-      verified: {
-        count: verifiedCount,
-        percentage: verifiedPercentage,
-      },
-      pending: {
-        count: pendingCount || 0,
-        percentage: pendingPercentage,
-      },
-      withCodes: {
-        count: withCodesCount,
-        percentage: withCodesPercentage,
-      },
-      withoutCodes: {
-        count: withoutCodesCount,
-        percentage: 100 - withCodesPercentage,
-      },
-      activeChatters: {
-        count: activeChattersCount,
-        percentage: activeChattersPercentage,
-        outOf: verifiedCount,
-      },
+      stats: {
+        total: total,
+        verified: verifiedCount || 0,
+        pending: pendingCount || 0,
+        inactive: 0,
+        with_codes: withCodesCount,
+        without_codes: withoutCodesCount,
+        active_chatters: activeChattersCount,
+      }
     })
 
   } catch (error: any) {

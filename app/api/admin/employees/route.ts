@@ -47,48 +47,45 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1')
     const pageSize = parseInt(searchParams.get('pageSize') || '20')
 
-    // 4. Build base query for credentials
-    let credentialsQuery = serviceClient
-      .from('user_credentials')
+    // 4. Get all profiles (users) instead of just employee credentials
+    let profilesQuery = serviceClient
+      .from('profiles')
       .select('*', { count: 'exact' })
-
-    // Apply status filter
-    if (statusFilter !== 'all') {
-      credentialsQuery = credentialsQuery.eq('status', statusFilter)
-    }
-
-    // Apply department filter (from metadata)
-    if (department && department !== 'all') {
-      credentialsQuery = credentialsQuery.eq('metadata->>department', department)
-    }
 
     // Apply search filter
     if (search) {
-      credentialsQuery = credentialsQuery.or(
-        `full_name.ilike.%${search}%,employee_id.ilike.%${search}%,email.ilike.%${search}%`
+      profilesQuery = profilesQuery.or(
+        `full_name.ilike.%${search}%,email.ilike.%${search}%,kakao_nickname.ilike.%${search}%`
       )
+    }
+
+    // Apply status filter (map to profile data)
+    if (statusFilter === 'verified') {
+      profilesQuery = profilesQuery.not('verified_with_code', 'is', null)
+    } else if (statusFilter === 'pending') {
+      profilesQuery = profilesQuery.is('verified_with_code', null)
     }
 
     // Apply pagination
     const from = (page - 1) * pageSize
     const to = from + pageSize - 1
-    credentialsQuery = credentialsQuery.range(from, to)
+    profilesQuery = profilesQuery.range(from, to)
 
     // Order by created_at descending
-    credentialsQuery = credentialsQuery.order('created_at', { ascending: false })
+    profilesQuery = profilesQuery.order('created_at', { ascending: false })
 
-    // Execute credentials query
-    const { data: credentials, error: credError, count } = await credentialsQuery
+    // Execute profiles query
+    const { data: profiles, error: profilesError, count } = await profilesQuery
 
-    if (credError) {
-      console.error('[Employees API] Credentials error:', credError)
+    if (profilesError) {
+      console.error('[Employees API] Profiles error:', profilesError)
       return NextResponse.json(
         { error: 'Failed to fetch employees' },
         { status: 500 }
       )
     }
 
-    if (!credentials || credentials.length === 0) {
+    if (!profiles || profiles.length === 0) {
       return NextResponse.json({
         employees: [],
         total: 0,
@@ -97,100 +94,95 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // 5. Get verification codes for these credentials
-    const credentialIds = credentials.map(c => c.id)
-    const { data: codes } = await serviceClient
-      .from('verification_codes')
-      .select('intended_recipient_id, code, created_at')
-      .in('intended_recipient_id', credentialIds)
-      .not('intended_recipient_id', 'is', null)
-
-    // Create code lookup map
-    const codeMap = new Map(
-      codes?.map(c => [c.intended_recipient_id, c]) || []
-    )
-
-    // 6. Get profiles for verified employees
-    const { data: profiles } = await serviceClient
-      .from('profiles')
-      .select('id, credential_id, created_at')
-      .in('credential_id', credentialIds)
-      .not('credential_id', 'is', null)
-
-    // Create profile lookup map
-    const profileMap = new Map(
-      profiles?.map(p => [p.credential_id, p]) || []
-    )
-
-    // 7. Get chat activity for verified employees
-    const verifiedProfileIds = profiles?.map(p => p.id) || []
+    // 5. Get query logs for chat activity
+    const profileIds = profiles.map(p => p.id)
     let chatActivity = new Map()
 
-    if (verifiedProfileIds.length > 0) {
-      const { data: chats } = await serviceClient
-        .from('chat_logs')
+    if (profileIds.length > 0) {
+      const { data: queryCounts } = await serviceClient
+        .from('query_logs')
         .select('user_id')
-        .in('user_id', verifiedProfileIds)
+        .in('user_id', profileIds)
 
-      if (chats) {
-        // Count chats per user
-        const chatCounts = chats.reduce((acc, chat) => {
-          acc[chat.user_id] = (acc[chat.user_id] || 0) + 1
+      if (queryCounts) {
+        // Count queries per user
+        const counts = queryCounts.reduce((acc, query) => {
+          acc[query.user_id] = (acc[query.user_id] || 0) + 1
           return acc
         }, {} as Record<string, number>)
 
-        // Get last chat timestamp for each user
-        for (const profileId of verifiedProfileIds) {
-          const { data: lastChat } = await serviceClient
-            .from('chat_logs')
-            .select('created_at')
+        // Get last query timestamp for each user
+        for (const profileId of profileIds) {
+          const { data: lastQuery } = await serviceClient
+            .from('query_logs')
+            .select('timestamp')
             .eq('user_id', profileId)
-            .order('created_at', { ascending: false })
+            .order('timestamp', { ascending: false })
             .limit(1)
             .single()
 
           chatActivity.set(profileId, {
-            total_chats: chatCounts[profileId] || 0,
-            last_chat_at: lastChat?.created_at || null,
+            total_chats: counts[profileId] || 0,
+            last_chat_at: lastQuery?.timestamp || null,
           })
         }
       }
     }
 
-    // 8. Combine data into employee objects
-    let employees = credentials.map(credential => {
-      const code = codeMap.get(credential.id)
-      const profile = profileMap.get(credential.id)
-      const activity = profile ? chatActivity.get(profile.id) : null
+    // 6. Get verification codes used by these users
+    const verificationCodes = profiles
+      .map(p => p.verified_with_code)
+      .filter(code => code != null)
+
+    let codeMap = new Map()
+    if (verificationCodes.length > 0) {
+      const { data: codes } = await serviceClient
+        .from('verification_codes')
+        .select('code, created_at')
+        .in('code', verificationCodes)
+
+      codes?.forEach(code => {
+        codeMap.set(code.code, code)
+      })
+    }
+
+    // 7. Combine data into employee objects
+    let employees = profiles.map(profile => {
+      const activity = chatActivity.get(profile.id)
+      const code = profile.verified_with_code ? codeMap.get(profile.verified_with_code) : null
 
       return {
-        // Credential data
-        id: credential.id,
-        full_name: credential.full_name,
-        email: credential.email,
-        employee_id: credential.employee_id,
-        status: credential.status,
-        created_at: credential.created_at,
-        metadata: credential.metadata,
+        // Profile data
+        id: profile.id,
+        full_name: profile.full_name || profile.kakao_nickname || '사용자',
+        email: profile.email || null,
+        employee_id: profile.id.substring(0, 8), // Use first 8 chars of UUID as employee ID
+        status: profile.verified_with_code ? 'verified' : 'pending',
+        created_at: profile.created_at,
+        metadata: {
+          tier: profile.subscription_tier,
+          role: profile.role,
+          department: null,
+        },
 
         // Verification code data
-        has_code: !!code,
-        verification_code: code?.code || null,
+        has_code: !!profile.verified_with_code,
+        verification_code: profile.verified_with_code || null,
         code_created_at: code?.created_at || null,
 
         // Profile data
-        is_verified: !!profile,
-        profile_id: profile?.id || null,
-        verified_at: profile?.created_at || null,
+        is_verified: !!profile.verified_with_code,
+        profile_id: profile.id,
+        verified_at: profile.created_at,
 
         // Chat activity data
         total_chats: activity?.total_chats || 0,
         last_chat_at: activity?.last_chat_at || null,
 
         // Computed fields
-        tier: credential.metadata?.tier || 'free',
-        role: credential.metadata?.role || 'user',
-        department: credential.metadata?.department || null,
+        tier: profile.subscription_tier || 'free',
+        role: profile.role || 'user',
+        department: null,
       }
     })
 

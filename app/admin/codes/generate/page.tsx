@@ -1,119 +1,56 @@
 /**
- * Generate Access Codes Page
- * Admin interface for generating access codes with credential linking
- *
- * Database: kuixphvkbuuzfezoeyii
- * Phase 4: Enhanced Admin UI
+ * Generate Single Access Code Page
+ * Simplified interface for generating a single permanent employee code
  */
 
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { DashboardLayout } from '@/components/layouts/dashboard-layout'
-import { Key, Plus, ArrowLeft, AlertCircle, CheckCircle, Search, X } from 'lucide-react'
+import { Key, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 
-interface Credential {
-  id: string
-  full_name: string
-  email?: string
-  employee_id?: string
-  department?: string
-}
-
-export default function GenerateCodesPage() {
+export default function GenerateCodePage() {
   const router = useRouter()
   const [formData, setFormData] = useState({
-    count: 1,
-    codeType: 'registration',
-    role: 'user',
     tier: 'free',
-    expiresInDays: 30,
-    maxUses: 1,
-    intendedRecipientName: '',
-    intendedRecipientEmail: '',
-    requiresCredentialMatch: false,
-    credentialId: '',
+    employeeName: '',
+    employeeEmail: '',
+    employeePhone: '',
+    employeePosition: '', // 직급
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
-  const [generatedCodes, setGeneratedCodes] = useState<string[]>([])
-
-  // Credential selection state
-  const [showCredentialSearch, setShowCredentialSearch] = useState(false)
-  const [credentialSearch, setCredentialSearch] = useState('')
-  const [credentials, setCredentials] = useState<Credential[]>([])
-  const [selectedCredential, setSelectedCredential] = useState<Credential | null>(null)
-  const [loadingCredentials, setLoadingCredentials] = useState(false)
-
-  useEffect(() => {
-    if (credentialSearch.length > 0) {
-      searchCredentials()
-    } else {
-      setCredentials([])
-    }
-  }, [credentialSearch])
-
-  const searchCredentials = async () => {
-    setLoadingCredentials(true)
-    try {
-      const response = await fetch(
-        `/api/admin/credentials?search=${encodeURIComponent(credentialSearch)}&limit=10&status=verified`
-      )
-      if (response.ok) {
-        const data = await response.json()
-        setCredentials(data.credentials || [])
-      }
-    } catch (err) {
-      console.error('Failed to search credentials:', err)
-    } finally {
-      setLoadingCredentials(false)
-    }
-  }
-
-  const handleSelectCredential = (credential: Credential) => {
-    setSelectedCredential(credential)
-    setFormData({
-      ...formData,
-      intendedRecipientName: credential.full_name,
-      intendedRecipientEmail: credential.email || '',
-      credentialId: credential.id,
-      requiresCredentialMatch: true,
-    })
-    setShowCredentialSearch(false)
-    setCredentialSearch('')
-  }
-
-  const handleClearCredential = () => {
-    setSelectedCredential(null)
-    setFormData({
-      ...formData,
-      intendedRecipientName: '',
-      intendedRecipientEmail: '',
-      credentialId: '',
-      requiresCredentialMatch: false,
-    })
-  }
+  const [generatedCode, setGeneratedCode] = useState<string | null>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target
+    const { name, value } = e.target
     setFormData({
       ...formData,
-      [name]:
-        name === 'count' || name === 'expiresInDays' || name === 'maxUses'
-          ? parseInt(value)
-          : type === 'checkbox'
-            ? (e.target as HTMLInputElement).checked
-            : value,
+      [name]: value,
     })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setSuccess('')
+    setGeneratedCode(null)
+
+    // Validation
+    if (!formData.employeeName.trim()) {
+      setError('직원 이름을 입력해주세요.')
+      return
+    }
+    if (!formData.employeeEmail.trim()) {
+      setError('이메일을 입력해주세요.')
+      return
+    }
+    if (!formData.employeePosition.trim()) {
+      setError('직급을 입력해주세요.')
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -121,11 +58,18 @@ export default function GenerateCodesPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...formData,
-          // Only send credential info if selected
-          intendedRecipientName: formData.intendedRecipientName || undefined,
-          intendedRecipientEmail: formData.intendedRecipientEmail || undefined,
-          credentialId: formData.credentialId || undefined,
+          count: 1,
+          codeType: 'registration',
+          role: 'user', // Everyone is employee/user
+          tier: formData.tier,
+          expiresInDays: null, // Never expires
+          maxUses: 1,
+          intendedRecipientName: formData.employeeName,
+          intendedRecipientEmail: formData.employeeEmail,
+          metadata: {
+            phone: formData.employeePhone,
+            position: formData.employeePosition,
+          },
         }),
       })
 
@@ -135,23 +79,9 @@ export default function GenerateCodesPage() {
       }
 
       const data = await response.json()
-      setGeneratedCodes(data.codes || [])
-      setSuccess(`${data.codes.length}개의 코드가 성공적으로 생성되었습니다!`)
-
-      // Reset form
-      setFormData({
-        count: 1,
-        codeType: 'registration',
-        role: 'user',
-        tier: 'free',
-        expiresInDays: 30,
-        maxUses: 1,
-        intendedRecipientName: '',
-        intendedRecipientEmail: '',
-        requiresCredentialMatch: false,
-        credentialId: '',
-      })
-      setSelectedCredential(null)
+      if (data.codes && data.codes.length > 0) {
+        setGeneratedCode(data.codes[0])
+      }
     } catch (err: any) {
       console.error('Code generation error:', err)
       setError(err.message || '코드 생성에 실패했습니다.')
@@ -160,384 +90,209 @@ export default function GenerateCodesPage() {
     }
   }
 
-  const copyToClipboard = (code: string) => {
-    navigator.clipboard.writeText(code)
-  }
-
-  const copyAllCodes = () => {
-    navigator.clipboard.writeText(generatedCodes.join('\n'))
+  const copyToClipboard = () => {
+    if (generatedCode) {
+      navigator.clipboard.writeText(generatedCode)
+    }
   }
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <Link href="/admin/codes" className="text-gray-600 hover:text-gray-900">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
           <div>
-            <div className="flex items-center space-x-4">
-              <Link href="/admin/codes" className="text-gray-600 hover:text-gray-900">
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">인증 코드 생성</h1>
-                <p className="mt-2 text-sm text-gray-600">
-                  새로운 액세스 코드를 생성합니다
-                </p>
-              </div>
-            </div>
+            <h1 className="text-3xl font-bold text-gray-900">직원 인증 코드 생성</h1>
+            <p className="mt-2 text-sm text-gray-600">
+              영구 사용 가능한 직원 액세스 코드를 생성합니다
+            </p>
           </div>
         </div>
-
-        {/* Success Message */}
-        {success && (
-          <div className="p-4 bg-green-50 border border-green-200 rounded-md flex items-start">
-            <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 mr-3" />
-            <div className="flex-1">
-              <p className="text-sm text-green-800">{success}</p>
-            </div>
-          </div>
-        )}
 
         {/* Error Message */}
         {error && (
           <div className="p-4 bg-red-50 border border-red-200 rounded-md flex items-start">
-            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3" />
+            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
             <p className="text-sm text-red-800">{error}</p>
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Generation Form */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">코드 설정</h2>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Credential Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  수신자 선택 (선택사항)
-                </label>
-
-                {selectedCredential ? (
-                  <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-md">
-                    <div className="flex-1">
-                      <div className="font-medium text-sm">{selectedCredential.full_name}</div>
-                      <div className="text-xs text-gray-600">
-                        {selectedCredential.email || 'No email'}
-                        {selectedCredential.employee_id && ` • ${selectedCredential.employee_id}`}
-                        {selectedCredential.department && ` • ${selectedCredential.department}`}
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleClearCredential}
-                      className="ml-2 text-gray-500 hover:text-gray-700"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <div>
-                    <button
-                      type="button"
-                      onClick={() => setShowCredentialSearch(!showCredentialSearch)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md text-left text-sm text-gray-600 hover:bg-gray-50 flex items-center"
-                    >
-                      <Search className="w-4 h-4 mr-2" />
-                      인증된 사용자 검색...
-                    </button>
-
-                    {showCredentialSearch && (
-                      <div className="mt-2 border border-gray-200 rounded-md p-3 bg-gray-50">
-                        <input
-                          type="text"
-                          placeholder="이름, 이메일, 사번으로 검색"
-                          value={credentialSearch}
-                          onChange={(e) => setCredentialSearch(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                        />
-
-                        {loadingCredentials && (
-                          <div className="mt-2 text-center text-sm text-gray-600">검색 중...</div>
-                        )}
-
-                        {credentials.length > 0 && (
-                          <div className="mt-2 max-h-48 overflow-y-auto space-y-1">
-                            {credentials.map((credential) => (
-                              <button
-                                key={credential.id}
-                                type="button"
-                                onClick={() => handleSelectCredential(credential)}
-                                className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded text-sm"
-                              >
-                                <div className="font-medium">{credential.full_name}</div>
-                                <div className="text-xs text-gray-600">
-                                  {credential.email || 'No email'}
-                                  {credential.employee_id && ` • ${credential.employee_id}`}
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-
-                        {!loadingCredentials &&
-                          credentialSearch.length > 0 &&
-                          credentials.length === 0 && (
-                            <div className="mt-2 text-center text-sm text-gray-600">
-                              결과 없음
-                            </div>
-                          )}
-                      </div>
-                    )}
-                  </div>
-                )}
+        {/* Success Message with Code */}
+        {generatedCode && (
+          <div className="p-6 bg-green-50 border-2 border-green-200 rounded-lg">
+            <div className="flex items-start mb-4">
+              <CheckCircle className="w-6 h-6 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-green-900 mb-1">
+                  코드가 성공적으로 생성되었습니다!
+                </h3>
+                <p className="text-sm text-green-700 mb-2">
+                  <strong>{formData.employeeName}</strong>님께 전달할 코드입니다.
+                </p>
+                <p className="text-xs text-green-600">
+                  직급: {formData.employeePosition} | 이메일: {formData.employeeEmail}
+                  {formData.employeePhone && ` | 연락처: ${formData.employeePhone}`}
+                </p>
               </div>
+            </div>
 
-              {/* Manual Recipient Info (if no credential selected) */}
-              {!selectedCredential && (
-                <>
-                  <div>
-                    <label
-                      htmlFor="intendedRecipientName"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      수신자 이름 (선택사항)
-                    </label>
-                    <input
-                      id="intendedRecipientName"
-                      name="intendedRecipientName"
-                      type="text"
-                      value={formData.intendedRecipientName}
-                      onChange={handleChange}
-                      placeholder="홍길동"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="intendedRecipientEmail"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      수신자 이메일 (선택사항)
-                    </label>
-                    <input
-                      id="intendedRecipientEmail"
-                      name="intendedRecipientEmail"
-                      type="email"
-                      value={formData.intendedRecipientEmail}
-                      onChange={handleChange}
-                      placeholder="hong@company.com"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    />
-                  </div>
-                </>
-              )}
-
-              {/* Credential Match Requirement */}
-              {selectedCredential && (
-                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      name="requiresCredentialMatch"
-                      checked={formData.requiresCredentialMatch}
-                      onChange={handleChange}
-                      className="mr-2"
-                    />
-                    <span className="text-sm text-yellow-800">
-                      인증 정보 일치 필수 (추천)
-                    </span>
-                  </label>
-                  <p className="text-xs text-yellow-700 mt-1 ml-6">
-                    코드 사용 시 선택한 사용자의 인증 정보와 일치해야 합니다
-                  </p>
-                </div>
-              )}
-
-              {/* Count */}
-              <div>
-                <label
-                  htmlFor="count"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  생성할 코드 수
-                </label>
-                <input
-                  id="count"
-                  name="count"
-                  type="number"
-                  min="1"
-                  max="100"
-                  value={formData.count}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                />
+            <div className="bg-white border-2 border-green-300 rounded-lg p-4 mb-4">
+              <div className="text-center">
+                <code className="text-2xl font-mono font-bold text-gray-900 tracking-wider">
+                  {generatedCode}
+                </code>
               </div>
+            </div>
 
-              {/* Code Type */}
-              <div>
-                <label
-                  htmlFor="codeType"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  코드 타입
-                </label>
-                <select
-                  id="codeType"
-                  name="codeType"
-                  value={formData.codeType}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                >
-                  <option value="registration">회원가입</option>
-                  <option value="subscription">구독 업그레이드</option>
-                  <option value="one_time_access">일회성 액세스</option>
-                </select>
-              </div>
+            <button
+              onClick={copyToClipboard}
+              className="w-full px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 transition-colors"
+            >
+              코드 복사
+            </button>
+          </div>
+        )}
 
-              {/* Role */}
-              <div>
-                <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
-                  역할
-                </label>
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                >
-                  <option value="user">사용자</option>
-                  <option value="junior">주니어</option>
-                  <option value="senior">시니어</option>
-                  <option value="manager">관리자</option>
-                  <option value="admin">총괄 관리자</option>
-                  <option value="ceo">대표이사</option>
-                </select>
-              </div>
+        {/* Generation Form */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">직원 정보 및 접근 권한</h2>
 
-              {/* Tier */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Employee Name */}
+            <div>
+              <label htmlFor="employeeName" className="block text-sm font-medium text-gray-700 mb-2">
+                직원 이름 <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="employeeName"
+                name="employeeName"
+                type="text"
+                value={formData.employeeName}
+                onChange={handleChange}
+                required
+                placeholder="홍길동"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+              />
+            </div>
+
+            {/* Employee Email */}
+            <div>
+              <label htmlFor="employeeEmail" className="block text-sm font-medium text-gray-700 mb-2">
+                이메일 <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="employeeEmail"
+                name="employeeEmail"
+                type="email"
+                value={formData.employeeEmail}
+                onChange={handleChange}
+                required
+                placeholder="hong@company.com"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+              />
+            </div>
+
+            {/* Employee Phone */}
+            <div>
+              <label htmlFor="employeePhone" className="block text-sm font-medium text-gray-700 mb-2">
+                연락처 (선택사항)
+              </label>
+              <input
+                id="employeePhone"
+                name="employeePhone"
+                type="tel"
+                value={formData.employeePhone}
+                onChange={handleChange}
+                placeholder="010-1234-5678"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+              />
+            </div>
+
+            {/* Employee Position (직급) */}
+            <div>
+              <label htmlFor="employeePosition" className="block text-sm font-medium text-gray-700 mb-2">
+                직급 <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="employeePosition"
+                name="employeePosition"
+                type="text"
+                value={formData.employeePosition}
+                onChange={handleChange}
+                required
+                placeholder="예: 사원, 대리, 과장, 차장, 부장, 이사"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                직원의 직급을 입력하세요 (예: 사원, 대리, 과장, 차장, 부장, 이사)
+              </p>
+            </div>
+
+            <div className="border-t border-gray-200 pt-6">
+              {/* Access Tier */}
               <div>
-                <label htmlFor="tier" className="block text-sm font-medium text-gray-700 mb-1">
-                  지식 접근 레벨
+                <label htmlFor="tier" className="block text-sm font-medium text-gray-700 mb-2">
+                  지식 접근 레벨 (Access Tier) <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="tier"
                   name="tier"
                   value={formData.tier}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
                 >
-                  <option value="free">무료 (공개 정보만)</option>
-                  <option value="basic">베이직 (기본 내부 정보)</option>
-                  <option value="pro">프로 (전문 지식)</option>
-                  <option value="enterprise">엔터프라이즈 (모든 정보)</option>
+                  <option value="free">레벨 1 - 공개 정보 (일반 직원)</option>
+                  <option value="basic">레벨 2 - 내부 정보 (팀원급)</option>
+                  <option value="pro">레벨 3 - 전문 정보 (리더급)</option>
+                  <option value="enterprise">레벨 4 - 전체 정보 (경영진)</option>
                 </select>
-                <p className="mt-1 text-xs text-gray-500">
-                  모든 레벨 동일 요금. 레벨은 접근 가능한 정보의 범위를 결정합니다.
+                <p className="mt-2 text-xs text-gray-500">
+                  높은 레벨일수록 더 많은 내부 지식과 민감한 정보에 접근할 수 있습니다
                 </p>
               </div>
-
-              {/* Expiry */}
-              <div>
-                <label
-                  htmlFor="expiresInDays"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  만료 기간 (일)
-                </label>
-                <input
-                  id="expiresInDays"
-                  name="expiresInDays"
-                  type="number"
-                  min="1"
-                  max="365"
-                  value={formData.expiresInDays}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                />
-              </div>
-
-              {/* Max Uses */}
-              <div>
-                <label
-                  htmlFor="maxUses"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  최대 사용 횟수
-                </label>
-                <input
-                  id="maxUses"
-                  name="maxUses"
-                  type="number"
-                  min="1"
-                  max="1000"
-                  value={formData.maxUses}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                />
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white font-semibold text-lg rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-              >
-                {loading ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <>
-                    <Plus className="w-5 h-5 mr-2" />
-                    코드 생성
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
-
-          {/* Generated Codes Display */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">생성된 코드</h2>
-              {generatedCodes.length > 0 && (
-                <button
-                  onClick={copyAllCodes}
-                  className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-                >
-                  전체 복사
-                </button>
-              )}
             </div>
 
-            {generatedCodes.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-96 text-center">
-                <Key className="w-12 h-12 text-gray-400 mb-4" />
-                <p className="text-sm text-gray-600">생성된 코드가 여기에 표시됩니다</p>
-              </div>
-            ) : (
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {generatedCodes.map((code, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-md border border-gray-200"
-                  >
-                    <code className="text-sm font-mono font-semibold text-gray-900">{code}</code>
-                    <button
-                      onClick={() => copyToClipboard(code)}
-                      className="text-xs text-primary-600 hover:text-primary-700 font-medium"
-                    >
-                      복사
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+            {/* Info Box */}
+            <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+              <h4 className="text-sm font-semibold text-blue-900 mb-2">코드 특징</h4>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>• 사용자 유형: 직원 (Employee)</li>
+                <li>• 만료 기간: 없음 (영구 사용)</li>
+                <li>• 사용 횟수: 1회</li>
+                <li>• 타입: 회원가입용</li>
+              </ul>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center px-4 py-4 bg-blue-600 text-white font-semibold text-lg rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            >
+              {loading ? (
+                <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <>
+                  <Key className="w-6 h-6 mr-2" />
+                  코드 생성하기
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+
+        {/* Back to Codes List */}
+        <div className="text-center">
+          <Link
+            href="/admin/codes"
+            className="text-sm text-gray-600 hover:text-gray-900 underline"
+          >
+            ← 코드 목록으로 돌아가기
+          </Link>
         </div>
       </div>
     </DashboardLayout>

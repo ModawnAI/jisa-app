@@ -85,6 +85,83 @@ export async function POST(request: NextRequest) {
     console.log('='.repeat(80));
 
     // =====================================================
+    // COMMAND HANDLING: /delete
+    // =====================================================
+    if (userMessage.toLowerCase() === '/delete' || userMessage.toLowerCase() === '/삭제') {
+      console.log('[KakaoTalk] Delete command detected - removing user profile');
+
+      const serviceClient = createServiceClient();
+
+      // Find and delete the user's profile
+      const { data: profile, error: findError } = await serviceClient
+        .from('profiles')
+        .select('id, full_name, email')
+        .eq('kakao_user_id', kakaoUserId)
+        .single();
+
+      if (profile) {
+        // Delete the auth user first (this will cascade delete the profile via trigger)
+        const { error: authDeleteError } = await serviceClient.auth.admin.deleteUser(profile.id);
+
+        if (authDeleteError) {
+          console.error('[KakaoTalk] Failed to delete auth user:', authDeleteError);
+          // Still try to delete profile even if auth deletion fails
+        } else {
+          console.log(`[KakaoTalk] Successfully deleted auth user: ${profile.id}`);
+        }
+
+        // Delete the profile (in case trigger didn't work)
+        const { error: deleteError } = await serviceClient
+          .from('profiles')
+          .delete()
+          .eq('id', profile.id);
+
+        if (deleteError) {
+          console.error('[KakaoTalk] Failed to delete profile:', deleteError);
+        }
+
+        console.log(`[KakaoTalk] Successfully deleted profile and auth user: ${profile.id}`);
+
+        // Log the deletion event
+        await serviceClient.from('analytics_events').insert({
+          event_type: 'user.deleted',
+          kakao_user_id: kakaoUserId,
+          user_id: profile.id,
+          metadata: {
+            full_name: profile.full_name,
+            email: profile.email,
+            deleted_at: new Date().toISOString()
+          }
+        });
+
+        return NextResponse.json<KakaoResponse>({
+          version: '2.0',
+          template: {
+            outputs: [{
+              simpleText: {
+                text: '✅ 계정이 성공적으로 삭제되었습니다!\n\n새로운 인증 코드로 다시 가입할 수 있습니다.\n\n코드를 입력하여 시작하세요.'
+              }
+            }],
+            quickReplies: []
+          }
+        });
+      } else {
+        // No profile found
+        return NextResponse.json<KakaoResponse>({
+          version: '2.0',
+          template: {
+            outputs: [{
+              simpleText: {
+                text: 'ℹ️ 등록된 계정이 없습니다.\n\n인증 코드를 입력하여 가입하세요.'
+              }
+            }],
+            quickReplies: []
+          }
+        });
+      }
+    }
+
+    // =====================================================
     // STEP 1: Check if user has profile (gated access)
     // =====================================================
 
@@ -270,6 +347,22 @@ export async function POST(request: NextRequest) {
         console.log(`[KakaoTalk] User already exists, using existing profile: ${existingProfile.id}`);
         authUserId = existingProfile.id;
       } else {
+        // Check if auth user exists by email (from previous failed attempts)
+        console.log(`[KakaoTalk] Checking for existing auth user with email: ${dummyEmail}`);
+        const { data: existingAuthUsers } = await serviceClient.auth.admin.listUsers();
+        const existingAuthUser = existingAuthUsers?.users?.find(u => u.email === dummyEmail);
+
+        if (existingAuthUser) {
+          console.log(`[KakaoTalk] Found existing auth user without profile, deleting: ${existingAuthUser.id}`);
+          const { error: deleteAuthError } = await serviceClient.auth.admin.deleteUser(existingAuthUser.id);
+
+          if (deleteAuthError) {
+            console.error('[KakaoTalk] Failed to delete existing auth user:', deleteAuthError);
+          } else {
+            console.log(`[KakaoTalk] Successfully deleted orphaned auth user: ${existingAuthUser.id}`);
+          }
+        }
+
         // Create new auth user
         console.log(`[KakaoTalk] Creating new auth user with email: ${dummyEmail}`);
 
@@ -444,13 +537,95 @@ export async function POST(request: NextRequest) {
 
     console.log(`[KakaoTalk] Verified user: ${kakaoUserId}, role=${profile.role}, tier=${profile.subscription_tier}`);
 
-    // Update last chat timestamp
-    await supabase
+    // =====================================================
+    // CALLBACK HANDLING (IMMEDIATE RESPONSE)
+    // =====================================================
+    // If callbackUrl exists, return IMMEDIATELY and process in background
+    if (callbackUrl) {
+      console.log('[KakaoTalk] CallbackURL detected - returning immediate response and processing in background');
+
+      // Update last chat timestamp in background (don't block response!)
+      supabase
+        .from('profiles')
+        .update({ last_chat_at: new Date().toISOString() })
+        .eq('id', profile.id)
+        .then(() => console.log('[KakaoTalk] Last chat timestamp updated'))
+        .catch((err) => console.error('[KakaoTalk] Failed to update timestamp:', err));
+
+      // Start background processing (don't await!)
+      getTextFromGPT(userMessage, profile.id)
+        .then(async (finalResponse) => {
+          console.log('[KakaoTalk] Background processing complete, sending to callback URL');
+
+          // Send response to callback URL
+          const callbackResponse = await fetch(callbackUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              version: '2.0',
+              template: {
+                outputs: [{ simpleText: { text: finalResponse } }]
+              }
+            })
+          });
+
+          if (!callbackResponse.ok) {
+            console.error('[KakaoTalk] Callback failed:', await callbackResponse.text());
+          } else {
+            console.log('[KakaoTalk] Callback successful');
+          }
+
+          // Log the final response
+          const { data: logData, error: logError } = await supabase.from('query_logs').insert({
+            user_id: profile.id,
+            kakao_user_id: kakaoUserId,
+            query_text: userMessage,
+            response_text: finalResponse,
+            query_type: finalResponse.includes('수수료') || finalResponse.includes('%') ? 'commission' : 'rag',
+            response_time_ms: Date.now() - startTime,
+            timestamp: new Date().toISOString(),
+            metadata: {
+              kakao_nickname: kakaoNickname,
+              role: profile.role,
+              tier: profile.subscription_tier,
+              via_callback: true
+            }
+          });
+
+          if (logError) {
+            console.error('[KakaoTalk] Failed to log query:', logError);
+          } else {
+            console.log('[KakaoTalk] Query logged successfully to database');
+          }
+        })
+        .catch((bgError) => {
+          console.error('[KakaoTalk] Background processing error:', bgError);
+        });
+
+      // Return IMMEDIATE response with useCallback (< 100ms)
+      console.log('[KakaoTalk] Returning immediate useCallback response');
+      return NextResponse.json({
+        version: '2.0',
+        useCallback: true,
+        data: {
+          text: '질문에 대한 답변을 준비 중입니다. 잠시만 기다려주세요...'
+        }
+      });
+    }
+
+    // =====================================================
+    // NO CALLBACK - SYNCHRONOUS PROCESSING WITH TIMEOUT
+    // =====================================================
+    console.log('[KakaoTalk] No callbackUrl - processing synchronously with timeout');
+
+    // Update last chat timestamp in background (don't block response!)
+    supabase
       .from('profiles')
       .update({ last_chat_at: new Date().toISOString() })
-      .eq('id', profile.id);
+      .eq('id', profile.id)
+      .then(() => console.log('[KakaoTalk] Last chat timestamp updated'))
+      .catch((err) => console.error('[KakaoTalk] Failed to update timestamp:', err));
 
-    // Timeout handling (KakaoTalk 5s limit)
     const timeoutPromise = new Promise<string>((_, reject) =>
       setTimeout(() => reject(new Error('Timeout')), 4500)
     );
@@ -460,76 +635,22 @@ export async function POST(request: NextRequest) {
     try {
       // Process query with RBAC (uses profile.id to get role/tier)
       response = await Promise.race([
-        getTextFromGPT(userMessage, profile.id),  // CRITICAL: Pass profile.id for RBAC
+        getTextFromGPT(userMessage, profile.id),
         timeoutPromise
       ]);
     } catch (error) {
-      // Timeout - return quick response and continue processing
-      console.log('[KakaoTalk] Query timeout - sending immediate response and continuing in background');
+      // Timeout - return error message
+      console.log('[KakaoTalk] Query timeout (no callback available)');
 
-      // Log timeout event
-      await supabase.from('analytics_events').insert({
-        event_type: 'query.timeout',
-        user_id: profile.id,
-        kakao_user_id: kakaoUserId,
-        metadata: { query: userMessage }
-      });
-
-      // If we have a callback URL, continue processing in background
-      if (callbackUrl) {
-        console.log('[KakaoTalk] CallbackURL available, processing query in background...');
-
-        // Process in background and send result to callback
-        getTextFromGPT(userMessage, profile.id)
-          .then(async (finalResponse) => {
-            console.log('[KakaoTalk] Background processing complete, sending to callback URL');
-
-            // Send response to callback URL
-            const callbackResponse = await fetch(callbackUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                version: '2.0',
-                template: {
-                  outputs: [{ simpleText: { text: finalResponse } }]
-                }
-              })
-            });
-
-            if (!callbackResponse.ok) {
-              console.error('[KakaoTalk] Callback failed:', await callbackResponse.text());
-            } else {
-              console.log('[KakaoTalk] Callback successful');
-            }
-
-            // Log the final response
-            await supabase.from('query_logs').insert({
-              user_id: profile.id,
-              kakao_user_id: kakaoUserId,
-              query_text: userMessage,
-              response_text: finalResponse,
-              query_type: finalResponse.includes('수수료') || finalResponse.includes('%') ? 'commission' : 'rag',
-              response_time_ms: Date.now() - startTime,
-              timestamp: new Date().toISOString(),
-              metadata: {
-                kakao_nickname: kakaoNickname,
-                role: profile.role,
-                tier: profile.subscription_tier,
-                via_callback: true
-              }
-            });
-          })
-          .catch((bgError) => {
-            console.error('[KakaoTalk] Background processing error:', bgError);
-          });
-      }
-
-      // Return immediate fallback response with useCallback flag
-      return NextResponse.json({
+      return NextResponse.json<KakaoResponse>({
         version: '2.0',
-        useCallback: true,
-        data: {
-          text: '답변을 준비하고 있습니다... ⏳\n곧 메시지를 보내드릴게요!'
+        template: {
+          outputs: [{
+            simpleText: {
+              text: '처리 시간이 초과되었습니다. ⏱️\n\n더 간단한 질문으로 다시 시도해주세요.'
+            }
+          }],
+          quickReplies: []
         }
       });
     }

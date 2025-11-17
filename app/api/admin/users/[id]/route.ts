@@ -66,6 +66,8 @@ export async function GET(
 
     // Get verification code (if used by this user)
     let verificationCode = null
+
+    // Check if credential has a verification code ID
     if (credential?.verification_code_id) {
       const { data: code } = await serviceClient
         .from('verification_codes')
@@ -76,9 +78,20 @@ export async function GET(
       verificationCode = code
     }
 
+    // Also check if profile has a verification code (for KakaoTalk users)
+    if (!verificationCode && profile.verified_with_code) {
+      const { data: code } = await serviceClient
+        .from('verification_codes')
+        .select('*')
+        .eq('code', profile.verified_with_code)
+        .single()
+
+      verificationCode = code
+    }
+
     // Calculate access summary
-    const roleLevel = ROLE_HIERARCHY.indexOf(profile.role)
-    const tierLevel = TIER_HIERARCHY.indexOf(profile.tier)
+    const roleLevel = ROLE_HIERARCHY.indexOf(profile.role || 'user')
+    const tierLevel = TIER_HIERARCHY.indexOf(profile.tier || 'free')
     const credentialVerified = credential?.status === 'verified'
     const credentialBoost = credentialVerified ? 0.2 : 0.0
 
