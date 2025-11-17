@@ -409,19 +409,19 @@ export default function GenerateCodesPage() {
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
-                  <option value="user">User</option>
-                  <option value="junior">Junior</option>
-                  <option value="senior">Senior</option>
-                  <option value="manager">Manager</option>
-                  <option value="admin">Admin</option>
-                  <option value="ceo">CEO</option>
+                  <option value="user">사용자</option>
+                  <option value="junior">주니어</option>
+                  <option value="senior">시니어</option>
+                  <option value="manager">관리자</option>
+                  <option value="admin">총괄 관리자</option>
+                  <option value="ceo">대표이사</option>
                 </select>
               </div>
 
               {/* Tier */}
               <div>
                 <label htmlFor="tier" className="block text-sm font-medium text-gray-700 mb-1">
-                  구독 티어
+                  지식 접근 레벨
                 </label>
                 <select
                   id="tier"
@@ -430,11 +430,14 @@ export default function GenerateCodesPage() {
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
-                  <option value="free">Free</option>
-                  <option value="basic">Basic</option>
-                  <option value="pro">Pro</option>
-                  <option value="enterprise">Enterprise</option>
+                  <option value="free">무료 (공개 정보만)</option>
+                  <option value="basic">베이직 (기본 내부 정보)</option>
+                  <option value="pro">프로 (전문 지식)</option>
+                  <option value="enterprise">엔터프라이즈 (모든 정보)</option>
                 </select>
+                <p className="mt-1 text-xs text-gray-500">
+                  모든 레벨 동일 요금. 레벨은 접근 가능한 정보의 범위를 결정합니다.
+                </p>
               </div>
 
               {/* Expiry */}

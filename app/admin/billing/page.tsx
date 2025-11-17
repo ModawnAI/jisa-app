@@ -80,16 +80,10 @@ export default function AdminBillingPage() {
           </div>
           <div className="flex gap-3">
             <button
-              onClick={() => window.location.href = '/admin/billing/subscriptions'}
+              onClick={() => window.location.href = '/admin/billing/companies'}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
             >
-              구독 관리
-            </button>
-            <button
-              onClick={() => window.location.href = '/admin/billing/payments'}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              결제 내역
+              회사 관리
             </button>
             <button
               onClick={() => window.location.href = '/admin/billing/invoices'}

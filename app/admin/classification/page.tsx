@@ -12,6 +12,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { DashboardLayout } from '@/components/layouts/dashboard-layout'
 
 interface ClassificationStats {
   total_documents: number
@@ -226,12 +227,13 @@ export default function ClassificationManagementPage() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Content Classification</h1>
-        <p className="text-gray-600">Manage multi-dimensional content classification</p>
-      </div>
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Content Classification</h1>
+          <p className="text-gray-600">Manage multi-dimensional content classification</p>
+        </div>
 
       {/* Stats Overview */}
       {stats && (
@@ -458,7 +460,7 @@ export default function ClassificationManagementPage() {
       {showBatchDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-screen overflow-auto p-6">
-            <h2 className="text-2xl font-bold mb-4">Classification Suggestions</h2>
+            <h2 className="text-2xl font-bold mb-4">분류 제안</h2>
 
             <div className="mb-4">
               <p className="text-sm text-gray-600">
@@ -514,6 +516,7 @@ export default function ClassificationManagementPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </DashboardLayout>
   )
 }

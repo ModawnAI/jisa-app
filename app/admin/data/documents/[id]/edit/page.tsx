@@ -12,6 +12,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { DashboardLayout } from '@/components/layouts/dashboard-layout'
 
 interface Document {
   id: string
@@ -232,35 +233,36 @@ export default function DocumentClassificationEditPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6 max-w-6xl">
-        <div className="text-center py-12">Loading document...</div>
-      </div>
+      <DashboardLayout>
+        <div className="text-center py-12">문서를 불러오는 중...</div>
+      </DashboardLayout>
     )
   }
 
   if (!document) {
     return (
-      <div className="container mx-auto p-6 max-w-6xl">
-        <div className="text-center py-12 text-red-600">Document not found</div>
-      </div>
+      <DashboardLayout>
+        <div className="text-center py-12 text-red-600">문서를 찾을 수 없습니다</div>
+      </DashboardLayout>
     )
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      {/* Header */}
-      <div className="mb-8">
-        <button
-          onClick={() => router.back()}
-          className="text-blue-600 hover:text-blue-800 mb-4"
-        >
-          ← Back
-        </button>
-        <h1 className="text-3xl font-bold mb-2">Edit Document Classification</h1>
-        <p className="text-gray-600">
-          Manually configure classification dimensions for content access control
-        </p>
-      </div>
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <button
+            onClick={() => router.back()}
+            className="text-blue-600 hover:text-blue-800 mb-4"
+          >
+            ← Back
+          </button>
+          <h1 className="text-3xl font-bold mb-2">문서 분류 수정</h1>
+          <p className="text-gray-600">
+            Manually configure classification dimensions for content access control
+          </p>
+        </div>
 
       {/* Messages */}
       {error && (
@@ -277,7 +279,7 @@ export default function DocumentClassificationEditPage() {
 
       {/* Document Preview */}
       <div className="bg-gray-50 rounded-lg p-6 mb-6">
-        <h2 className="text-lg font-semibold mb-3">Document Preview</h2>
+        <h2 className="text-lg font-semibold mb-3">문서 미리보기</h2>
         <div className="bg-white rounded border p-4">
           <p className="text-sm text-gray-700 line-clamp-3">{document.content}</p>
         </div>
@@ -528,6 +530,7 @@ export default function DocumentClassificationEditPage() {
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </DashboardLayout>
   )
 }

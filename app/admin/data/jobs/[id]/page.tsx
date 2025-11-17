@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { DashboardLayout } from '@/components/layouts/dashboard-layout';
 import {
   ArrowLeft,
   Clock,
@@ -89,20 +90,22 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
 
   if (loading) {
     return (
-      <div className="p-6 flex items-center justify-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
-      </div>
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-96">
+          <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+        </div>
+      </DashboardLayout>
     );
   }
 
   if (error || !job) {
     return (
-      <div className="p-6">
+      <DashboardLayout>
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <AlertCircle className="w-5 h-5 text-red-600 mb-2" />
           <p className="text-red-800">{error || '작업을 찾을 수 없습니다.'}</p>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
@@ -114,7 +117,8 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <DashboardLayout>
+      <div className="space-y-6">
       {/* Header */}
       <div className="mb-6">
         <button
@@ -317,6 +321,7 @@ export default function JobDetailPage({ params }: { params: Promise<{ id: string
           </pre>
         </div>
       )}
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

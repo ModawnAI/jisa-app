@@ -16,6 +16,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { DashboardLayout } from '@/components/layouts/dashboard-layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -217,35 +218,40 @@ export default function EmployeeDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading employee data...</p>
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+            <p className="mt-4 text-gray-600">직원 데이터를 불러오는 중...</p>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     )
   }
 
   if (!employee) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Employee Not Found</h2>
-          <p className="text-gray-600 mb-4">
-            The employee you're looking for doesn't exist.
-          </p>
-          <Button onClick={() => router.push('/admin/employees')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Employees
-          </Button>
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-2">직원을 찾을 수 없습니다</h2>
+            <p className="text-gray-600 mb-4">
+              요청하신 직원이 존재하지 않습니다.
+            </p>
+            <Button onClick={() => router.push('/admin/employees')}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              직원 목록으로 돌아가기
+            </Button>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     )
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-7xl">
+    <DashboardLayout>
+      <div className="space-y-6">
       {/* Header */}
       <div className="mb-6">
         <Button
@@ -260,7 +266,7 @@ export default function EmployeeDetailPage() {
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-2">{employee.full_name}</h1>
-            <p className="text-gray-600">Employee ID: {employee.employee_id}</p>
+            <p className="text-gray-600">사원번호: {employee.employee_id}</p>
           </div>
           <div className="flex gap-2">
             {getStatusBadge(employee.status)}
@@ -292,7 +298,7 @@ export default function EmployeeDetailPage() {
               </div>
 
               <div>
-                <p className="text-sm text-gray-500">Employee ID</p>
+                <p className="text-sm text-gray-500">사원번호</p>
                 <p className="font-medium">{employee.employee_id}</p>
               </div>
 
@@ -332,7 +338,7 @@ export default function EmployeeDetailPage() {
               <Separator />
 
               <div>
-                <p className="text-sm text-gray-500">Created</p>
+                <p className="text-sm text-gray-500">생성일</p>
                 <p className="font-medium">{formatDate(employee.created_at)}</p>
               </div>
             </CardContent>
@@ -385,7 +391,7 @@ export default function EmployeeDetailPage() {
               {employee.has_code && employee.verification_code ? (
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm text-gray-500 mb-2">Code</p>
+                    <p className="text-sm text-gray-500 mb-2">코드</p>
                     <div className="flex items-center gap-2">
                       <code className="flex-1 px-4 py-2 bg-gray-100 rounded font-mono text-lg">
                         {employee.verification_code}
@@ -403,7 +409,7 @@ export default function EmployeeDetailPage() {
                   </div>
 
                   <div>
-                    <p className="text-sm text-gray-500">Generated</p>
+                    <p className="text-sm text-gray-500">생성일</p>
                     <p className="font-medium">
                       {formatDate(employee.code_created_at)}
                     </p>
@@ -562,6 +568,7 @@ export default function EmployeeDetailPage() {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </DashboardLayout>
   )
 }

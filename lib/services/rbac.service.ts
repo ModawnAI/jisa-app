@@ -89,7 +89,8 @@ export class RBACService {
    * Get user profile with metadata
    */
   async getUserProfile(userId: string): Promise<UserProfile | null> {
-    const supabase = await createClient();
+    // Use service client to bypass RLS for RBAC checks
+    const supabase = createServiceClient();
 
     const { data, error } = await supabase
       .from('profiles')
@@ -101,6 +102,13 @@ export class RBACService {
       console.error('[RBAC] Failed to get user profile:', error);
       return null;
     }
+
+    console.log('[RBAC] User profile loaded:', {
+      id: data.id,
+      role: data.role,
+      tier: data.subscription_tier,
+      kakao_user_id: data.kakao_user_id
+    });
 
     return data as UserProfile;
   }

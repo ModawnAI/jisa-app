@@ -7,12 +7,11 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ paymentId: string }> }
+  props: { params: Promise<{ paymentId: string }> }
 ) {
-  const params = await props.params
   try {
     const supabase = await createClient();
-    const { paymentId } = await params;
+    const { paymentId } = await props.params;
 
     const {
       data: { user },

@@ -13,6 +13,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { DashboardLayout } from '@/components/layouts/dashboard-layout'
 
 interface Employee {
   // From user_credentials
@@ -196,12 +197,13 @@ export default function EmployeesPage() {
   const totalPages = Math.ceil(totalItems / itemsPerPage)
 
   return (
-    <div className="container mx-auto p-6">
+    <DashboardLayout>
+      <div className="space-y-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Employee Management</h1>
+        <h1 className="text-3xl font-bold mb-2">직원 관리</h1>
         <p className="text-gray-600">
-          View and manage all employees, verification status, and chat activity
+          모든 직원, 인증 상태 및 채팅 활동 조회 및 관리
         </p>
       </div>
 
@@ -209,31 +211,31 @@ export default function EmployeesPage() {
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Total</div>
+            <div className="text-sm text-gray-600">전체</div>
             <div className="text-2xl font-bold">{stats.total}</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Verified</div>
+            <div className="text-sm text-gray-600">인증완료</div>
             <div className="text-2xl font-bold text-green-600">{stats.verified}</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Pending</div>
+            <div className="text-sm text-gray-600">대기중</div>
             <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Inactive</div>
+            <div className="text-sm text-gray-600">비활성</div>
             <div className="text-2xl font-bold text-gray-600">{stats.inactive}</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">With Codes</div>
+            <div className="text-sm text-gray-600">코드보유</div>
             <div className="text-2xl font-bold text-blue-600">{stats.with_codes}</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">No Codes</div>
+            <div className="text-sm text-gray-600">코드없음</div>
             <div className="text-2xl font-bold text-orange-600">{stats.without_codes}</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Active Chatters</div>
+            <div className="text-sm text-gray-600">활성사용자</div>
             <div className="text-2xl font-bold text-purple-600">{stats.active_chatters}</div>
           </div>
         </div>
@@ -245,7 +247,7 @@ export default function EmployeesPage() {
           <div>
             <input
               type="text"
-              placeholder="Search by name, email, or employee ID..."
+              placeholder="이름, 이메일 또는 사원번호로 검색..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-3 py-2 border rounded"
@@ -257,10 +259,10 @@ export default function EmployeesPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full px-3 py-2 border rounded"
             >
-              <option value="all">All Statuses</option>
-              <option value="verified">Verified</option>
-              <option value="pending">Pending</option>
-              <option value="inactive">Inactive</option>
+              <option value="all">모든 상태</option>
+              <option value="verified">인증완료</option>
+              <option value="pending">대기중</option>
+              <option value="inactive">비활성</option>
             </select>
           </div>
           <div>
@@ -269,9 +271,9 @@ export default function EmployeesPage() {
               onChange={(e) => setCodeFilter(e.target.value)}
               className="w-full px-3 py-2 border rounded"
             >
-              <option value="all">All Employees</option>
-              <option value="with_code">With Code</option>
-              <option value="without_code">Without Code</option>
+              <option value="all">모든 직원</option>
+              <option value="with_code">코드 있음</option>
+              <option value="without_code">코드 없음</option>
             </select>
           </div>
           <div>
@@ -280,7 +282,7 @@ export default function EmployeesPage() {
               onChange={(e) => setDepartmentFilter(e.target.value)}
               className="w-full px-3 py-2 border rounded"
             >
-              <option value="all">All Departments</option>
+              <option value="all">모든 부서</option>
               <option value="영업팀">영업팀</option>
               <option value="마케팅팀">마케팅팀</option>
               <option value="IT팀">IT팀</option>
@@ -325,7 +327,7 @@ export default function EmployeesPage() {
       {loading && (
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          <p className="mt-2 text-gray-600">Loading employees...</p>
+          <p className="mt-2 text-gray-600">직원 정보를 불러오는 중...</p>
         </div>
       )}
 
@@ -520,6 +522,7 @@ export default function EmployeesPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </DashboardLayout>
   )
 }

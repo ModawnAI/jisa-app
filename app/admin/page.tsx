@@ -47,18 +47,11 @@ interface StatCard {
 
 const quickAccessCards: QuickAccessCard[] = [
   {
-    title: '사용자 관리',
-    description: '사용자 프로필 및 권한 관리',
-    href: '/admin/users',
+    title: '통합 사용자 관리',
+    description: '사용자, 인증 정보, 코드 통합 관리',
+    href: '/admin/user-management',
     icon: Users,
     color: 'blue',
-  },
-  {
-    title: '인증 정보',
-    description: '사용자 인증 정보 및 credential 관리',
-    href: '/admin/credentials',
-    icon: UserCheck,
-    color: 'green',
     badge: 'NEW',
   },
   {
@@ -74,7 +67,6 @@ const quickAccessCards: QuickAccessCard[] = [
     href: '/admin/codes/bulk-generate',
     icon: FileStack,
     color: 'orange',
-    badge: 'NEW',
   },
   {
     title: '분류 관리',
@@ -114,11 +106,19 @@ export default function AdminDashboardPage() {
       const classificationRes = await fetch('/api/admin/classification/stats')
       const classificationData = classificationRes.ok ? await classificationRes.json() : null
 
+      // Fetch users/profiles stats
+      const usersRes = await fetch('/api/admin/users')
+      const usersData = usersRes.ok ? await usersRes.json() : null
+
+      // Fetch contexts stats
+      const contextsRes = await fetch('/api/admin/data/contexts/stats')
+      const contextsData = contextsRes.ok ? await contextsRes.json() : null
+
       const statsCards: StatCard[] = [
         {
-          title: '총 사용자',
+          title: '총 인증 정보',
           value: credentialsData?.stats?.total || 0,
-          icon: Users,
+          icon: UserCheck,
           color: 'blue',
         },
         {
@@ -128,27 +128,27 @@ export default function AdminDashboardPage() {
           color: 'green',
         },
         {
-          title: '인증 대기',
-          value: credentialsData?.stats?.pending || 0,
-          icon: Clock,
-          color: 'yellow',
+          title: '활성 사용자',
+          value: usersData?.total || 0,
+          icon: Users,
+          color: 'indigo',
         },
         {
-          title: '분류된 문서',
-          value: classificationData?.stats?.total_classified || 0,
-          icon: Tags,
+          title: '총 문서',
+          value: classificationData?.stats?.total_documents || 0,
+          icon: FileStack,
           color: 'purple',
         },
         {
-          title: '자동 분류',
-          value: classificationData?.stats?.auto_classified || 0,
-          icon: Activity,
-          color: 'indigo',
+          title: '지식 베이스 (Pinecone)',
+          value: contextsData?.total || 0,
+          icon: FolderOpen,
+          color: 'orange',
         },
         {
           title: '분류율',
           value: classificationData?.stats?.classification_rate
-            ? `${Math.round(classificationData.stats.classification_rate * 100)}%`
+            ? `${Math.round(classificationData.stats.classification_rate)}%`
             : '0%',
           icon: TrendingUp,
           color: 'pink',
@@ -297,57 +297,6 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Recent Activity / Features Summary */}
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">✨ Phase 4 기능 완료</h2>
-          <div className="space-y-3">
-            <div className="flex items-start">
-              <CheckCircle className="w-5 h-5 text-green-600 mr-3 mt-0.5" />
-              <div>
-                <div className="font-medium text-gray-900">인증 정보 관리 시스템</div>
-                <div className="text-sm text-gray-600">
-                  사용자 credential 검색, 필터링, CRUD 작업 지원
-                </div>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <CheckCircle className="w-5 h-5 text-green-600 mr-3 mt-0.5" />
-              <div>
-                <div className="font-medium text-gray-900">대량 코드 생성 (CSV)</div>
-                <div className="text-sm text-gray-600">
-                  CSV 업로드로 최대 500명의 사용자 코드 일괄 생성
-                </div>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <CheckCircle className="w-5 h-5 text-green-600 mr-3 mt-0.5" />
-              <div>
-                <div className="font-medium text-gray-900">다차원 콘텐츠 분류</div>
-                <div className="text-sm text-gray-600">
-                  8+ 차원의 분류 기준으로 콘텐츠 접근 제어 관리
-                </div>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <CheckCircle className="w-5 h-5 text-green-600 mr-3 mt-0.5" />
-              <div>
-                <div className="font-medium text-gray-900">사용자 상세 뷰</div>
-                <div className="text-sm text-gray-600">
-                  프로필, credential, 접근 레벨 종합 정보 제공
-                </div>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <CheckCircle className="w-5 h-5 text-green-600 mr-3 mt-0.5" />
-              <div>
-                <div className="font-medium text-gray-900">개별 문서 분류 편집기</div>
-                <div className="text-sm text-gray-600">
-                  민감도, 카테고리, 시간/지역 제한 등 세밀한 분류 설정
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </DashboardLayout>
   )

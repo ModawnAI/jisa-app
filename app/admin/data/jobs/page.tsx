@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { DashboardLayout } from '@/components/layouts/dashboard-layout';
 import {
   Clock,
   CheckCircle2,
@@ -132,15 +133,16 @@ export default function IngestionJobsPage() {
   };
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">수집 작업 모니터링</h1>
-          <p className="text-gray-600 mt-1">
-            문서 처리 작업의 진행 상황을 실시간으로 확인합니다.
-          </p>
-        </div>
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">수집 작업 모니터링</h1>
+            <p className="text-gray-600 mt-1">
+              문서 처리 작업의 진행 상황을 실시간으로 확인합니다.
+            </p>
+          </div>
         <div className="flex gap-3">
           <button
             onClick={fetchJobs}
@@ -323,6 +325,7 @@ export default function IngestionJobsPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

@@ -11,7 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { getTextFromGPT } from '@/lib/services/chat.service';
 
 export const runtime = 'nodejs';
@@ -56,9 +56,20 @@ interface KakaoResponse {
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
 
+  console.log('='.repeat(80));
+  console.log('🔔 KAKAOTALK WEBHOOK RECEIVED');
+  console.log('📅 Time:', new Date().toISOString());
+  console.log('🌐 URL:', request.url);
+  console.log('📍 Method:', request.method);
+  console.log('='.repeat(80));
+
   try {
     const supabase = await createClient();
     const data: KakaoWebhookRequest = await request.json();
+
+    console.log('📦 RAW REQUEST BODY:');
+    console.log(JSON.stringify(data, null, 2));
+    console.log('='.repeat(80));
 
     // Extract KakaoTalk user information (Official v2.0 format)
     const kakaoUserId = data.userRequest.user.id;
@@ -66,17 +77,31 @@ export async function POST(request: NextRequest) {
     const userMessage = data.userRequest.utterance?.trim() || '';
     const callbackUrl = data.userRequest.callbackUrl;
 
-    console.log(`[KakaoTalk] User: ${kakaoUserId} (${kakaoNickname}), Message: "${userMessage}"`);
+    console.log('👤 USER INFO:');
+    console.log(`   Kakao ID: ${kakaoUserId}`);
+    console.log(`   Nickname: ${kakaoNickname}`);
+    console.log(`   Message: "${userMessage}"`);
+    console.log(`   Callback URL: ${callbackUrl || 'none'}`);
+    console.log('='.repeat(80));
 
     // =====================================================
     // STEP 1: Check if user has profile (gated access)
     // =====================================================
 
-    const { data: profile, error: profileError } = await supabase
+    // Use service client to bypass RLS and find profile
+    const serviceClient = createServiceClient();
+    const { data: profile, error: profileError } = await serviceClient
       .from('profiles')
       .select('*')
       .eq('kakao_user_id', kakaoUserId)
       .single();
+
+    console.log('🔍 PROFILE LOOKUP:');
+    console.log('   Profile found:', !!profile);
+    console.log('   Profile ID:', profile?.id);
+    console.log('   Profile role:', profile?.role);
+    console.log('   Profile tier:', profile?.subscription_tier);
+    console.log('='.repeat(80));
 
     // =====================================================
     // STEP 2: No profile = First-time user → Verify code
@@ -116,15 +141,22 @@ export async function POST(request: NextRequest) {
       const code = codeMatch[1].toUpperCase();
       console.log(`[KakaoTalk] Verification code detected: ${code}`);
 
-      const { data: verificationCode, error: codeError } = await supabase
+      // Use service client for code verification (already created above)
+      const { data: verificationCode, error: codeError } = await serviceClient
         .from('verification_codes')
         .select('*')
         .eq('code', code)
         .single();
 
+      console.log('🔍 CODE VERIFICATION DEBUG:');
+      console.log('   Code Error:', codeError);
+      console.log('   Verification Code:', JSON.stringify(verificationCode, null, 2));
+      console.log('='.repeat(80));
+
       // Invalid code
       if (codeError || !verificationCode) {
         console.log(`[KakaoTalk] Invalid code: ${code}`);
+        console.log('   Reason: Error or no data');
         return NextResponse.json<KakaoResponse>({
           version: '2.0',
           template: {
@@ -206,23 +238,93 @@ export async function POST(request: NextRequest) {
 
       console.log(`[KakaoTalk] Creating profile with role=${verificationCode.role}, tier=${verificationCode.tier}`);
 
-      const { data: newProfile, error: createError } = await supabase
+      // Create auth user first (KakaoTalk users don't have email/password)
+      const { randomUUID } = await import('crypto');
+      const dummyEmail = `kakao_${kakaoUserId.substring(0, 8)}@kakao.internal`;
+      const dummyPassword = randomUUID();
+
+      console.log(`[KakaoTalk] Checking for existing user with email: ${dummyEmail}`);
+
+      // Check if user already exists by kakao_user_id OR email
+      let authUserId: string;
+
+      // First try kakao_user_id
+      let { data: existingProfile } = await serviceClient
         .from('profiles')
-        .insert({
+        .select('id')
+        .eq('kakao_user_id', kakaoUserId)
+        .single();
+
+      // If not found, try by email (from previous failed attempts)
+      if (!existingProfile) {
+        const profileByEmail = await serviceClient
+          .from('profiles')
+          .select('id')
+          .eq('email', dummyEmail)
+          .single();
+
+        existingProfile = profileByEmail.data;
+      }
+
+      if (existingProfile) {
+        console.log(`[KakaoTalk] User already exists, using existing profile: ${existingProfile.id}`);
+        authUserId = existingProfile.id;
+      } else {
+        // Create new auth user
+        console.log(`[KakaoTalk] Creating new auth user with email: ${dummyEmail}`);
+
+        const { data: authUser, error: authError } = await serviceClient.auth.admin.createUser({
+          email: dummyEmail,
+          password: dummyPassword,
+          email_confirm: true,
+          user_metadata: {
+            kakao_user_id: kakaoUserId,
+            kakao_nickname: kakaoNickname,
+            full_name: kakaoNickname,
+          }
+        });
+
+        if (authError || !authUser.user) {
+          console.error('[KakaoTalk] Auth user creation failed:', authError);
+          return NextResponse.json<KakaoResponse>({
+            version: '2.0',
+            template: {
+              outputs: [{
+                simpleText: {
+                  text: `❌ 인증 처리 중 오류가 발생했습니다.\n\n잠시 후 다시 시도해주세요.\n문제가 지속되면 관리자에게 문의하세요.`
+                }
+              }],
+              quickReplies: []
+            }
+          });
+        }
+
+        console.log(`[KakaoTalk] Auth user created: ${authUser.user.id}`);
+        authUserId = authUser.user.id;
+      }
+
+      // Profile is auto-created by trigger, so update it with KakaoTalk info
+      const { data: newProfile, error: createError} = await serviceClient
+        .from('profiles')
+        .update({
           kakao_user_id: kakaoUserId,
           kakao_nickname: kakaoNickname,
           full_name: kakaoNickname,
           role: verificationCode.role,
           subscription_tier: verificationCode.tier,
+          query_count: 0,
+          permissions: [],
           metadata: {
             verification_code: code,
             verified_at: new Date().toISOString(),
             code_purpose: verificationCode.purpose,
             code_metadata: verificationCode.metadata
           },
+          verified_with_code: code,
           first_chat_at: new Date().toISOString(),
           last_chat_at: new Date().toISOString(),
         })
+        .eq('id', authUserId)
         .select()
         .single();
 
@@ -244,12 +346,12 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      // Update verification code usage
+      // Update verification code usage (use service client)
       const usedBy = verificationCode.used_by || [];
       const newUsedBy = [...usedBy, kakaoUserId];
       const newUseCount = verificationCode.current_uses + 1;
 
-      await supabase
+      await serviceClient
         .from('verification_codes')
         .update({
           current_uses: newUseCount,
@@ -291,6 +393,10 @@ export async function POST(request: NextRequest) {
 
       console.log(`[KakaoTalk] ✅ User verified: ${kakaoUserId} as ${verificationCode.role}/${verificationCode.tier}`);
 
+      // Get recipient name and email from verification code
+      const recipientName = verificationCode.intended_recipient_name || newProfile.full_name || kakaoNickname;
+      const recipientEmail = verificationCode.intended_recipient_email || newProfile.email || dummyEmail;
+
       return NextResponse.json<KakaoResponse>({
         version: '2.0',
         template: {
@@ -298,7 +404,9 @@ export async function POST(request: NextRequest) {
             simpleText: {
               text: `✅ 인증 완료!
 
-👤 역할: ${roleNames[verificationCode.role] || verificationCode.role}
+👤 이름: ${recipientName}
+📧 이메일: ${recipientEmail}
+💼 역할: ${roleNames[verificationCode.role] || verificationCode.role}
 🎫 등급: ${tierNames[verificationCode.tier] || verificationCode.tier}
 
 이제 JISA에게 질문하실 수 있습니다.
@@ -356,8 +464,8 @@ export async function POST(request: NextRequest) {
         timeoutPromise
       ]);
     } catch (error) {
-      // Timeout - return quick response
-      console.log('[KakaoTalk] Query timeout - returning fallback');
+      // Timeout - return quick response and continue processing
+      console.log('[KakaoTalk] Query timeout - sending immediate response and continuing in background');
 
       // Log timeout event
       await supabase.from('analytics_events').insert({
@@ -367,19 +475,61 @@ export async function POST(request: NextRequest) {
         metadata: { query: userMessage }
       });
 
-      return NextResponse.json<KakaoResponse>({
-        version: '2.0',
-        template: {
-          outputs: [{
-            simpleText: {
-              text: '아직 생각이 끝나지 않았어요. 🙍‍♂️\n\n잠시 후 아래 버튼을 눌러주세요 👆'
+      // If we have a callback URL, continue processing in background
+      if (callbackUrl) {
+        console.log('[KakaoTalk] CallbackURL available, processing query in background...');
+
+        // Process in background and send result to callback
+        getTextFromGPT(userMessage, profile.id)
+          .then(async (finalResponse) => {
+            console.log('[KakaoTalk] Background processing complete, sending to callback URL');
+
+            // Send response to callback URL
+            const callbackResponse = await fetch(callbackUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                version: '2.0',
+                template: {
+                  outputs: [{ simpleText: { text: finalResponse } }]
+                }
+              })
+            });
+
+            if (!callbackResponse.ok) {
+              console.error('[KakaoTalk] Callback failed:', await callbackResponse.text());
+            } else {
+              console.log('[KakaoTalk] Callback successful');
             }
-          }],
-          quickReplies: [{
-            action: 'message',
-            label: '생각 다 끝났나요? 🙋‍♂️',
-            messageText: '생각 다 끝났나요?'
-          }]
+
+            // Log the final response
+            await supabase.from('query_logs').insert({
+              user_id: profile.id,
+              kakao_user_id: kakaoUserId,
+              query_text: userMessage,
+              response_text: finalResponse,
+              query_type: finalResponse.includes('수수료') || finalResponse.includes('%') ? 'commission' : 'rag',
+              response_time_ms: Date.now() - startTime,
+              timestamp: new Date().toISOString(),
+              metadata: {
+                kakao_nickname: kakaoNickname,
+                role: profile.role,
+                tier: profile.subscription_tier,
+                via_callback: true
+              }
+            });
+          })
+          .catch((bgError) => {
+            console.error('[KakaoTalk] Background processing error:', bgError);
+          });
+      }
+
+      // Return immediate fallback response with useCallback flag
+      return NextResponse.json({
+        version: '2.0',
+        useCallback: true,
+        data: {
+          text: '답변을 준비하고 있습니다... ⏳\n곧 메시지를 보내드릴게요!'
         }
       });
     }
@@ -427,7 +577,12 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    console.log(`[KakaoTalk] ✅ Response sent (${responseTime}ms)`);
+    console.log('='.repeat(80));
+    console.log('✅ RESPONSE SENT');
+    console.log(`⏱️  Response Time: ${responseTime}ms`);
+    console.log(`📝 Response Length: ${response.length} chars`);
+    console.log(`👤 User: ${kakaoUserId}`);
+    console.log('='.repeat(80));
 
     // =====================================================
     // STEP 6: Return response to KakaoTalk
@@ -442,7 +597,11 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[KakaoTalk] Unexpected error:', error);
+    console.error('='.repeat(80));
+    console.error('❌ KAKAOTALK ERROR');
+    console.error('Error:', error);
+    console.error('Stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('='.repeat(80));
 
     // Return error response
     return NextResponse.json<KakaoResponse>({

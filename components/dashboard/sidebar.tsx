@@ -21,6 +21,7 @@ import {
   KeyRound,
   Briefcase,
   CreditCard,
+  TrendingUp,
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -46,7 +47,7 @@ const navigationSections: NavigationSection[] = [
         icon: LayoutDashboard,
       },
       {
-        name: '관리자',
+        name: '관리 콘솔',
         href: '/admin',
         icon: Shield,
         adminOnly: true,
@@ -57,32 +58,22 @@ const navigationSections: NavigationSection[] = [
     title: '사용자 관리',
     items: [
       {
-        name: '사용자',
-        href: '/admin/users',
+        name: '통합 관리',
+        href: '/admin/user-management',
         icon: Users,
         adminOnly: true,
+        badge: 'NEW',
       },
-      {
-        name: '직원',
-        href: '/admin/employees',
-        icon: Briefcase,
-        adminOnly: true,
-      },
-      {
-        name: '인증 정보',
-        href: '/admin/credentials',
-        icon: UserCheck,
-        adminOnly: true,
-      },
-    ],
-  },
-  {
-    title: '코드 관리',
-    items: [
       {
         name: '인증 코드',
         href: '/admin/codes',
         icon: KeyRound,
+        adminOnly: true,
+      },
+      {
+        name: '직원 관리',
+        href: '/admin/employees',
+        icon: UserCheck,
         adminOnly: true,
       },
     ],
@@ -111,12 +102,12 @@ const navigationSections: NavigationSection[] = [
     ],
   },
   {
-    title: '시스템',
+    title: '분석 및 시스템',
     items: [
       {
-        name: '결제',
-        href: '/admin/billing',
-        icon: CreditCard,
+        name: '분석',
+        href: '/admin/analytics',
+        icon: TrendingUp,
         adminOnly: true,
       },
       {
@@ -124,6 +115,22 @@ const navigationSections: NavigationSection[] = [
         href: '/admin/logs',
         icon: FileText,
         adminOnly: true,
+      },
+    ],
+  },
+  {
+    title: '결제 및 구독',
+    items: [
+      {
+        name: '기업 구독 (관리자)',
+        href: '/admin/billing',
+        icon: Briefcase,
+        adminOnly: true,
+      },
+      {
+        name: '내 구독',
+        href: '/dashboard/billing',
+        icon: CreditCard,
       },
     ],
   },

@@ -283,39 +283,24 @@ export default function DataUploadPage() {
           {/* Required Role */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              필수 역할 (선택사항)
+              최소 접근 레벨 (필수)
             </label>
             <select
               value={requiredRole}
               onChange={(e) => setRequiredRole(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             >
-              <option value="">제한 없음</option>
-              <option value="user">User</option>
-              <option value="junior">Junior</option>
-              <option value="senior">Senior</option>
-              <option value="manager">Manager</option>
-              <option value="admin">Admin</option>
-              <option value="ceo">CEO</option>
+              <option value="">모든 사용자 (제한 없음)</option>
+              <option value="user">사용자 (User) 이상</option>
+              <option value="junior">주니어 (Junior) 이상</option>
+              <option value="senior">시니어 (Senior) 이상</option>
+              <option value="manager">관리자 (Manager) 이상</option>
+              <option value="admin">총괄 관리자 (Admin) 이상</option>
+              <option value="ceo">대표이사 (CEO) 전용</option>
             </select>
-          </div>
-
-          {/* Required Tier */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              필수 구독 티어 (선택사항)
-            </label>
-            <select
-              value={requiredTier}
-              onChange={(e) => setRequiredTier(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">제한 없음</option>
-              <option value="free">Free</option>
-              <option value="basic">Basic</option>
-              <option value="pro">Pro</option>
-              <option value="enterprise">Enterprise</option>
-            </select>
+            <p className="mt-1 text-xs text-gray-500">
+              선택한 레벨 이상의 사용자만 이 데이터에 접근할 수 있습니다
+            </p>
           </div>
         </div>
         </div>

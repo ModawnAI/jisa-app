@@ -12,6 +12,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { DashboardLayout } from '@/components/layouts/dashboard-layout'
 
 interface Credential {
   id: string
@@ -365,14 +366,15 @@ export default function CredentialsPage() {
   const totalPages = Math.ceil(totalItems / itemsPerPage)
 
   return (
-    <div className="container mx-auto p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">User Credentials</h1>
-        <p className="text-gray-600">
-          Manage employee credentials and verification status
-        </p>
-      </div>
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold mb-2">사용자 인증 정보</h1>
+          <p className="text-gray-600">
+            Manage employee credentials and verification status
+          </p>
+        </div>
 
       {/* Bulk Upload Section */}
       <div className="bg-white rounded-lg shadow mb-6">
@@ -395,7 +397,7 @@ export default function CredentialsPage() {
               />
             </svg>
             <div className="text-left">
-              <h2 className="text-lg font-semibold">Bulk Upload Employees</h2>
+              <h2 className="text-lg font-semibold">직원 대량 업로드</h2>
               <p className="text-sm text-gray-600">
                 Upload multiple employees at once using CSV file
               </p>
@@ -423,7 +425,7 @@ export default function CredentialsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
               {/* Upload Area */}
               <div>
-                <h3 className="font-semibold mb-3">Upload CSV File</h3>
+                <h3 className="font-semibold mb-3">CSV 파일 업로드</h3>
                 <div
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
@@ -678,7 +680,7 @@ export default function CredentialsPage() {
                         />
                       </svg>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-red-800 mb-2">Upload Failed</h4>
+                        <h4 className="font-semibold text-red-800 mb-2">업로드 실패</h4>
                         <p className="text-sm text-red-700">{uploadResult.error}</p>
                         {uploadResult.details && (
                           <p className="text-sm text-red-600 mt-1">{uploadResult.details}</p>
@@ -1015,7 +1017,7 @@ export default function CredentialsPage() {
       {loading && (
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          <p className="mt-2 text-gray-600">Loading credentials...</p>
+          <p className="mt-2 text-gray-600">인증 정보를 불러오는 중...</p>
         </div>
       )}
 
@@ -1154,6 +1156,7 @@ export default function CredentialsPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </DashboardLayout>
   )
 }

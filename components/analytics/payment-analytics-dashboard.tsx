@@ -2,7 +2,8 @@
 
 /**
  * Payment Analytics Dashboard Component
- * Displays comprehensive payment and subscription metrics with charts
+ * 청구 관리 및 분석 대시보드
+ * Per-seat billing system dashboard
  */
 
 import { useEffect, useState } from 'react';
@@ -23,80 +24,66 @@ import {
 } from 'recharts';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { DollarSign, Users, TrendingUp, AlertCircle } from 'lucide-react';
 
-interface Analytics {
-  overview: {
-    mrr: number;
-    totalRevenue: number;
-    newSubscriptions: number;
-    churnRate: number;
-    successRate: number;
-  };
-  revenue: Array<{
-    period: string;
-    total_revenue: number;
-    subscription_count: number;
-    payment_count: number;
-  }>;
-  tierDistribution: Record<string, number>;
-  paymentStats: {
-    successful: number;
-    failed: number;
+interface BillingStats {
+  revenue: {
     total: number;
+    pending: number;
+    overdue: number;
+    estimated_mrr: number;
   };
-  topPaymentMethods: Record<string, number>;
-  recentEvents: Array<{
-    id: string;
-    event_type: string;
-    description: string;
-    amount?: number;
-    created_at: string;
-    profiles?: {
-      full_name?: string;
-      email?: string;
-    };
-  }>;
+  current_month: {
+    total_invoices: number;
+    total_active_users: number;
+    total_amount: number;
+    tier_distribution: Record<string, number>;
+  };
+  trends: {
+    active_users: Array<{
+      billing_month: string;
+      active_users: number;
+      billable_users: number;
+    }>;
+    revenue_by_month: Array<{
+      month: string;
+      amount: number;
+    }>;
+  };
+  invoice_status: Record<string, number>;
+  active_companies: number;
 }
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
 
 export function PaymentAnalyticsDashboard() {
-  const [analytics, setAnalytics] = useState<Analytics | null>(null);
+  const [stats, setStats] = useState<BillingStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [dateRange, setDateRange] = useState('30'); // days
 
   useEffect(() => {
-    fetchAnalytics();
-  }, [dateRange]);
+    fetchBillingStats();
+  }, []);
 
-  const fetchAnalytics = async () => {
+  const fetchBillingStats = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - parseInt(dateRange));
-
-      const params = new URLSearchParams({
-        start_date: startDate.toISOString(),
-        end_date: new Date().toISOString(),
-      });
-
-      const response = await fetch(`/api/analytics/payments?${params}`);
+      const response = await fetch('/api/admin/billing/stats');
 
       if (!response.ok) {
         if (response.status === 403) {
           throw new Error('관리자 권한이 필요합니다');
         }
-        throw new Error('Failed to fetch analytics');
+        throw new Error('청구 데이터를 불러오지 못했습니다');
       }
 
       const data = await response.json();
-      setAnalytics(data.analytics);
+      setStats(data.data);
     } catch (err) {
-      console.error('Error fetching analytics:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      console.error('Error fetching billing stats:', err);
+      setError(err instanceof Error ? err.message : '오류가 발생했습니다');
     } finally {
       setLoading(false);
     }
@@ -113,31 +100,34 @@ export function PaymentAnalyticsDashboard() {
 
   const getTierDisplayName = (tier: string) => {
     const names: Record<string, string> = {
-      free: 'Free',
-      basic: 'Basic',
-      pro: 'Pro',
-      enterprise: 'Enterprise',
+      free: '무료',
+      basic: '베이직',
+      pro: '프로',
+      enterprise: '엔터프라이즈',
     };
     return names[tier] || tier;
   };
 
-  const getPayMethodLabel = (method: string) => {
+  const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
-      card: '카드',
-      virtual_account: '가상계좌',
-      transfer: '계좌이체',
-      mobile: '휴대폰',
-      easy_pay: '간편결제',
+      draft: '임시저장',
+      pending: '대기',
+      sent: '발송됨',
+      paid: '지급완료',
+      partial: '부분지급',
+      overdue: '연체',
+      cancelled: '취소',
+      refunded: '환불',
     };
-    return labels[method] || method;
+    return labels[status] || status;
   };
 
   if (loading) {
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-8">
         <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="ml-3 text-gray-600">분석 데이터를 불러오는 중...</span>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <span className="ml-3 text-gray-600">청구 데이터를 불러오는 중...</span>
         </div>
       </div>
     );
@@ -150,7 +140,7 @@ export function PaymentAnalyticsDashboard() {
           <p className="font-semibold mb-2">오류가 발생했습니다</p>
           <p className="text-sm">{error}</p>
           <button
-            onClick={fetchAnalytics}
+            onClick={fetchBillingStats}
             className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
           >
             다시 시도
@@ -160,119 +150,180 @@ export function PaymentAnalyticsDashboard() {
     );
   }
 
-  if (!analytics) {
+  if (!stats) {
     return null;
   }
 
   // Prepare chart data
-  const tierChartData = Object.entries(analytics.tierDistribution).map(
+  const tierChartData = Object.entries(stats.current_month.tier_distribution).map(
     ([tier, count]) => ({
       name: getTierDisplayName(tier),
       value: count,
     })
   );
 
-  const paymentMethodData = Object.entries(analytics.topPaymentMethods).map(
-    ([method, count]) => ({
-      name: getPayMethodLabel(method),
+  const statusChartData = Object.entries(stats.invoice_status).map(
+    ([status, count]) => ({
+      name: getStatusLabel(status),
       count,
     })
   );
 
-  const revenueChartData = analytics.revenue.map((item) => ({
-    date: format(new Date(item.period), 'MM/dd', { locale: ko }),
-    revenue: item.total_revenue,
-    subscriptions: item.subscription_count,
-  }));
+  const revenueChartData = stats.trends.revenue_by_month
+    .slice()
+    .reverse()
+    .map((item) => ({
+      date: format(new Date(item.month), 'MM월', { locale: ko }),
+      revenue: item.amount,
+    }));
+
+  const activeUsersChartData = stats.trends.active_users
+    .slice()
+    .reverse()
+    .map((item) => ({
+      date: format(new Date(item.billing_month), 'MM월', { locale: ko }),
+      active: item.active_users,
+      billable: item.billable_users,
+    }));
 
   return (
     <div className="space-y-6">
-      {/* Date Range Selector */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">결제 분석</h2>
-          <select
-            value={dateRange}
-            onChange={(e) => setDateRange(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="7">최근 7일</option>
-            <option value="30">최근 30일</option>
-            <option value="90">최근 90일</option>
-            <option value="365">최근 1년</option>
-          </select>
-        </div>
-      </div>
-
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <p className="text-sm text-gray-600 mb-1">MRR</p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-gray-600">예상 MRR</p>
+            <DollarSign className="h-5 w-5 text-green-600" />
+          </div>
           <p className="text-2xl font-bold text-gray-900">
-            {formatAmount(analytics.overview.mrr)}
+            {formatAmount(stats.revenue.estimated_mrr)}
           </p>
           <p className="text-xs text-gray-500 mt-1">월간 반복 수익</p>
         </div>
 
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <p className="text-sm text-gray-600 mb-1">총 수익</p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-gray-600">총 수익</p>
+            <TrendingUp className="h-5 w-5 text-blue-600" />
+          </div>
           <p className="text-2xl font-bold text-gray-900">
-            {formatAmount(analytics.overview.totalRevenue)}
+            {formatAmount(stats.revenue.total)}
           </p>
-          <p className="text-xs text-gray-500 mt-1">기간 내 총액</p>
+          <p className="text-xs text-gray-500 mt-1">지급완료</p>
         </div>
 
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <p className="text-sm text-gray-600 mb-1">신규 구독</p>
-          <p className="text-2xl font-bold text-green-600">
-            +{analytics.overview.newSubscriptions}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">기간 내</p>
-        </div>
-
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <p className="text-sm text-gray-600 mb-1">이탈률</p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-gray-600">미수금</p>
+            <AlertCircle className="h-5 w-5 text-orange-600" />
+          </div>
           <p className="text-2xl font-bold text-orange-600">
-            {analytics.overview.churnRate.toFixed(1)}%
+            {formatAmount(stats.revenue.pending)}
           </p>
-          <p className="text-xs text-gray-500 mt-1">구독 취소율</p>
+          <p className="text-xs text-gray-500 mt-1">대기 + 발송됨</p>
         </div>
 
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <p className="text-sm text-gray-600 mb-1">결제 성공률</p>
-          <p className="text-2xl font-bold text-blue-600">
-            {analytics.overview.successRate.toFixed(1)}%
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-gray-600">활성 회사</p>
+            <Users className="h-5 w-5 text-primary-600" />
+          </div>
+          <p className="text-2xl font-bold text-gray-900">
+            {stats.active_companies}
           </p>
-          <p className="text-xs text-gray-500 mt-1">
-            {analytics.paymentStats.successful}/{analytics.paymentStats.total}
-          </p>
+          <p className="text-xs text-gray-500 mt-1">구독 중</p>
+        </div>
+      </div>
+
+      {/* Current Month Summary */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          당월 청구 현황
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <p className="text-sm text-gray-600 mb-1">인보이스 수</p>
+            <p className="text-xl font-bold text-gray-900">
+              {stats.current_month.total_invoices}건
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600 mb-1">활성 사용자</p>
+            <p className="text-xl font-bold text-gray-900">
+              {stats.current_month.total_active_users}명
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600 mb-1">당월 청구액</p>
+            <p className="text-xl font-bold text-gray-900">
+              {formatAmount(stats.current_month.total_amount)}
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Revenue Chart */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          수익 추이
+          월별 수익 추이
         </h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={revenueChartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip
-              formatter={(value: number) => formatAmount(value)}
-              labelStyle={{ color: '#111827' }}
-            />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="revenue"
-              stroke="#3B82F6"
-              strokeWidth={2}
-              name="수익"
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        {revenueChartData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={revenueChartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip
+                formatter={(value: number) => formatAmount(value)}
+                labelStyle={{ color: '#111827' }}
+              />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="revenue"
+                stroke="#3B82F6"
+                strokeWidth={2}
+                name="수익"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <p className="text-center text-gray-500 py-12">데이터가 없습니다</p>
+        )}
+      </div>
+
+      {/* Active Users Chart */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          월별 활성 사용자 추이
+        </h3>
+        {activeUsersChartData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={activeUsersChartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip labelStyle={{ color: '#111827' }} />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="active"
+                stroke="#10B981"
+                strokeWidth={2}
+                name="활성 사용자"
+              />
+              <Line
+                type="monotone"
+                dataKey="billable"
+                stroke="#3B82F6"
+                strokeWidth={2}
+                name="청구 대상"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <p className="text-center text-gray-500 py-12">데이터가 없습니다</p>
+        )}
       </div>
 
       {/* Charts Row */}
@@ -280,7 +331,7 @@ export function PaymentAnalyticsDashboard() {
         {/* Tier Distribution */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            플랜별 구독 분포
+            지식 레벨별 사용자 분포
           </h3>
           {tierChartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
@@ -314,14 +365,14 @@ export function PaymentAnalyticsDashboard() {
           )}
         </div>
 
-        {/* Payment Methods */}
+        {/* Invoice Status */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            결제 수단별 사용
+            인보이스 상태별 분포
           </h3>
-          {paymentMethodData.length > 0 ? (
+          {statusChartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={paymentMethodData}>
+              <BarChart data={statusChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
@@ -332,46 +383,6 @@ export function PaymentAnalyticsDashboard() {
           ) : (
             <p className="text-center text-gray-500 py-12">
               데이터가 없습니다
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Recent Events */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          최근 청구 이벤트
-        </h3>
-        <div className="space-y-3">
-          {analytics.recentEvents.length > 0 ? (
-            analytics.recentEvents.map((event) => (
-              <div
-                key={event.id}
-                className="flex items-start justify-between py-3 border-b border-gray-100 last:border-0"
-              >
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    {event.description}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {event.profiles?.full_name || event.profiles?.email || '알 수 없음'} •{' '}
-                    {format(
-                      new Date(event.created_at),
-                      'yyyy년 MM월 dd일 HH:mm',
-                      { locale: ko }
-                    )}
-                  </p>
-                </div>
-                {event.amount !== undefined && (
-                  <p className="text-sm font-semibold text-gray-900 ml-4">
-                    {formatAmount(event.amount)}
-                  </p>
-                )}
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-500 py-6">
-              최근 이벤트가 없습니다
             </p>
           )}
         </div>

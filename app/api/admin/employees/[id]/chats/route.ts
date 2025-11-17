@@ -12,11 +12,11 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient()
-    const employeeId = params.id
+    const { id: employeeId } = await props.params
 
     // 1. Check authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()

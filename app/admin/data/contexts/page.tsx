@@ -5,8 +5,10 @@
 
 'use client';
 
+import { Suspense } from 'react';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { DashboardLayout } from '@/components/layouts/dashboard-layout';
 import {
   Database,
   Search,
@@ -36,7 +38,7 @@ interface Context {
   } | null;
 }
 
-export default function ContextsPage() {
+function ContextsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const documentIdParam = searchParams?.get('document_id');
@@ -162,14 +164,15 @@ export default function ContextsPage() {
   };
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">지식 베이스 브라우저</h1>
-        <p className="text-gray-600 mt-1">
-          Pinecone에 저장된 모든 컨텍스트와 임베딩을 확인합니다.
-        </p>
-      </div>
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">지식 베이스 브라우저</h1>
+          <p className="text-gray-600 mt-1">
+            Pinecone에 저장된 모든 컨텍스트와 임베딩을 확인합니다.
+          </p>
+        </div>
 
       {/* Pinecone Index Stats */}
       {pineconeStats && (
@@ -739,6 +742,23 @@ export default function ContextsPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </DashboardLayout>
+  );
+}
+
+
+export default function ContextsPage() {
+  return (
+    <Suspense fallback={
+      <DashboardLayout>
+        <div className="p-12 text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          <p className="text-gray-600 mt-4">로딩 중...</p>
+        </div>
+      </DashboardLayout>
+    }>
+      <ContextsPageContent />
+    </Suspense>
   );
 }

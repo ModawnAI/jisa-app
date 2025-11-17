@@ -12,6 +12,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { DashboardLayout } from '@/components/layouts/dashboard-layout'
 
 interface UserProfile {
   id: string
@@ -139,37 +140,38 @@ export default function UserDetailPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6 max-w-6xl">
-        <div className="text-center py-12">Loading user details...</div>
-      </div>
+      <DashboardLayout>
+        <div className="text-center py-12">사용자 상세 정보를 불러오는 중...</div>
+      </DashboardLayout>
     )
   }
 
   if (error || !data) {
     return (
-      <div className="container mx-auto p-6 max-w-6xl">
-        <div className="text-center py-12 text-red-600">{error || 'User not found'}</div>
-      </div>
+      <DashboardLayout>
+        <div className="text-center py-12 text-red-600">{error || '사용자를 찾을 수 없습니다'}</div>
+      </DashboardLayout>
     )
   }
 
   const { profile, credential, verification_code, access_summary } = data
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      {/* Header */}
-      <div className="mb-8">
-        <button
-          onClick={() => router.back()}
-          className="text-blue-600 hover:text-blue-800 mb-4"
-        >
-          ← Back
-        </button>
-        <h1 className="text-3xl font-bold mb-2">User Details</h1>
-        <p className="text-gray-600">
-          Comprehensive view of user profile, credentials, and access levels
-        </p>
-      </div>
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <button
+            onClick={() => router.back()}
+            className="text-blue-600 hover:text-blue-800 mb-4"
+          >
+            ← Back
+          </button>
+          <h1 className="text-3xl font-bold mb-2">사용자 상세 정보</h1>
+          <p className="text-gray-600">
+            사용자 프로필, 인증 정보 및 접근 레벨에 대한 종합 정보
+          </p>
+        </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Profile & Credential */}
@@ -211,7 +213,7 @@ export default function UserDetailPage() {
                   <div className="font-medium">{profile.kakao_id || 'N/A'}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600">User ID</div>
+                  <div className="text-sm text-gray-600">사용자 ID</div>
                   <div className="font-mono text-xs">{profile.id}</div>
                 </div>
               </div>
@@ -243,7 +245,7 @@ export default function UserDetailPage() {
           {credential ? (
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold">Credential Information</h2>
+                <h2 className="text-xl font-semibold">인증 정보</h2>
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(credential.status)}`}
                 >
@@ -258,7 +260,7 @@ export default function UserDetailPage() {
                     <div className="font-medium">{credential.full_name}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600">Employee ID</div>
+                    <div className="text-sm text-gray-600">사원번호</div>
                     <div className="font-medium">{credential.employee_id || 'N/A'}</div>
                   </div>
                   <div>
@@ -323,9 +325,9 @@ export default function UserDetailPage() {
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
               <div className="flex items-center">
                 <div className="text-yellow-800">
-                  <div className="font-semibold mb-1">No Credential Linked</div>
+                  <div className="font-semibold mb-1">연결된 인증 정보가 없습니다</div>
                   <div className="text-sm">
-                    This user has not verified their identity with a credential yet.
+                    이 사용자는 아직 인증 정보로 신원을 확인하지 않았습니다.
                   </div>
                 </div>
               </div>
@@ -336,7 +338,7 @@ export default function UserDetailPage() {
           {verification_code && (
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold">Verification Code</h2>
+                <h2 className="text-xl font-semibold">인증 코드</h2>
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(verification_code.status)}`}
                 >
@@ -347,7 +349,7 @@ export default function UserDetailPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <div className="text-sm text-gray-600">Code</div>
+                    <div className="text-sm text-gray-600">코드</div>
                     <div className="font-mono font-bold text-lg">{verification_code.code}</div>
                   </div>
                   <div>
@@ -358,7 +360,7 @@ export default function UserDetailPage() {
 
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                   <div>
-                    <div className="text-sm text-gray-600">Created</div>
+                    <div className="text-sm text-gray-600">생성일</div>
                     <div className="font-medium">
                       {new Date(verification_code.created_at).toLocaleDateString()}
                     </div>
@@ -430,11 +432,11 @@ export default function UserDetailPage() {
               </div>
 
               <div>
-                <div className="text-sm text-gray-600 mb-2">Credential Status</div>
+                <div className="text-sm text-gray-600 mb-2">인증 상태</div>
                 <div className="bg-white rounded-lg p-3">
                   <div className="flex items-center justify-between">
                     <span className="font-medium">
-                      {access_summary.credential_verified ? 'Verified' : 'Not Verified'}
+                      {access_summary.credential_verified ? '인증완료' : '미인증'}
                     </span>
                     <span
                       className={`w-3 h-3 rounded-full ${access_summary.credential_verified ? 'bg-green-500' : 'bg-gray-300'}`}
@@ -472,6 +474,7 @@ export default function UserDetailPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </DashboardLayout>
   )
 }

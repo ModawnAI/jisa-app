@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
 
           // Document info
           document_id: context.document_id,
-          document_title: context.documents?.title || context.title,
+          document_title: Array.isArray(context.documents) ? context.documents[0]?.title : context.title,
 
           // Content
           title: context.title,

@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const defaults = requestData.defaults || {}
+    const defaults = requestData.defaults || { role: '', tier: '' }
 
     // Validate defaults
     if (!defaults.role || !defaults.tier) {
