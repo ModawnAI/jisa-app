@@ -6,22 +6,18 @@
   "regions": ["icn1"],
   "functions": {
     "app/api/kakao/**/*.ts": {
-      "runtime": "nodejs20.x",
       "maxDuration": 30,
       "memory": 1024
     },
     "app/api/admin/**/*.ts": {
-      "runtime": "nodejs20.x",
       "maxDuration": 10,
       "memory": 512
     },
     "app/api/dashboard/**/*.ts": {
-      "runtime": "nodejs20.x",
       "maxDuration": 10,
       "memory": 512
     },
     "app/api/auth/**/*.ts": {
-      "runtime": "nodejs20.x",
       "maxDuration": 10,
       "memory": 512
     }
