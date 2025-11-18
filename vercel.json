@@ -83,7 +83,12 @@
   "redirects": [
     {
       "source": "/",
-      "destination": "/dashboard",
+      "destination": "/admin",
+      "permanent": false
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/admin",
       "permanent": false
     }
   ]
