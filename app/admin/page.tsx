@@ -46,14 +46,15 @@ interface StatCard {
 }
 
 const quickAccessCards: QuickAccessCard[] = [
-  {
-    title: '통합 사용자 관리',
-    description: '사용자, 인증 정보, 코드 통합 관리',
-    href: '/admin/user-management',
-    icon: Users,
-    color: 'blue',
-    badge: 'NEW',
-  },
+  // Hidden: 통합 사용자 관리
+  // {
+  //   title: '통합 사용자 관리',
+  //   description: '사용자, 인증 정보, 코드 통합 관리',
+  //   href: '/admin/user-management',
+  //   icon: Users,
+  //   color: 'blue',
+  //   badge: 'NEW',
+  // },
   {
     title: '인증 코드',
     description: '코드 생성 및 관리',

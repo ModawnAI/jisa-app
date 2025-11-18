@@ -51,13 +51,14 @@ const navigationSections: NavigationSection[] = [
   {
     title: '사용자 관리',
     items: [
-      {
-        name: '통합 관리',
-        href: '/admin/user-management',
-        icon: Users,
-        adminOnly: true,
-        badge: 'NEW',
-      },
+      // Hidden: 통합 관리
+      // {
+      //   name: '통합 관리',
+      //   href: '/admin/user-management',
+      //   icon: Users,
+      //   adminOnly: true,
+      //   badge: 'NEW',
+      // },
       {
         name: '인증 코드',
         href: '/admin/codes',
@@ -104,12 +105,13 @@ const navigationSections: NavigationSection[] = [
         icon: TrendingUp,
         adminOnly: true,
       },
-      {
-        name: '로그',
-        href: '/admin/logs',
-        icon: FileText,
-        adminOnly: true,
-      },
+      // Hidden: 로그
+      // {
+      //   name: '로그',
+      //   href: '/admin/logs',
+      //   icon: FileText,
+      //   adminOnly: true,
+      // },
     ],
   },
   {
@@ -121,11 +123,12 @@ const navigationSections: NavigationSection[] = [
         icon: Briefcase,
         adminOnly: true,
       },
-      {
-        name: '요금제',
-        href: '/admin/pricing',
-        icon: Tags,
-      },
+      // Hidden: 요금제
+      // {
+      //   name: '요금제',
+      //   href: '/admin/pricing',
+      //   icon: Tags,
+      // },
       {
         name: '내 구독',
         href: '/admin/subscription',

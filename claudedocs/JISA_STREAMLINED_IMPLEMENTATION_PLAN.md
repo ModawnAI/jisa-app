@@ -1,6 +1,6 @@
 # JISA Gated KakaoTalk Chatbot - Streamlined Implementation Plan
 
-**Database:** kuixphvkbuuzfezoeyii (Supabase)
+rep
 **Platform:** Next.js 15 + Supabase + Pinecone
 **Analysis Date:** November 17, 2025
 **Purpose:** Ultra-detailed implementation plan for streamlined employee chatbot system
