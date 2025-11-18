@@ -89,10 +89,12 @@ export function formatCommissionForGPT(result: CommissionResult): string {
   lines.push(`보험회사: ${bestMatch.company}`);
   lines.push(`납입기간: ${bestMatch.payment_period}`);
 
-  // Add 환산율 (conversion rate) if available
+  // Add 환산율 (conversion rate) if available - CONVERT TO PERCENTAGE
   const metadata = bestMatch.metadata || {};
   if (metadata['환산율']) {
-    lines.push(`환산율: ${metadata['환산율']}`);
+    const conversionRate = parseFloat(metadata['환산율']);
+    const conversionRatePercent = (conversionRate * 100).toFixed(2);
+    lines.push(`환산율: ${conversionRatePercent}%`);
   }
 
   lines.push('');
@@ -111,7 +113,7 @@ export function formatCommissionForGPT(result: CommissionResult): string {
     return !key.startsWith('col_') && !key.startsWith('Col_');
   });
 
-  // Show only meaningful rates with cleaner key names
+  // Show only meaningful rates with cleaner key names - CONVERT TO PERCENTAGE
   for (const [key, value] of meaningfulRates.slice(0, 10)) {
     // Clean up key name
     let cleanKey = key;
@@ -122,7 +124,9 @@ export function formatCommissionForGPT(result: CommissionResult): string {
       cleanKey = cleanKey.replace('2025년 FC 수수료_', '');
     }
 
-    lines.push(`${cleanKey}: ${value}`);
+    // CRITICAL: Convert decimal to percentage (0.78 → 78%, 3.7714 → 377.14%)
+    const percentValue = (value * 100).toFixed(2);
+    lines.push(`${cleanKey}: ${percentValue}%`);
   }
 
   lines.push('');

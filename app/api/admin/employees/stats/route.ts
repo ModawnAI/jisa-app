@@ -72,11 +72,11 @@ export async function GET(request: NextRequest) {
 
     // 8. Calculate percentages
     const total = totalCount || 0
-    const verifiedPercentage = total > 0 ? Math.round((verifiedCount / total) * 100) : 0
+    const verifiedPercentage = total > 0 ? Math.round(((verifiedCount || 0) / total) * 100) : 0
     const pendingPercentage = total > 0 ? Math.round(((pendingCount || 0) / total) * 100) : 0
     const withCodesPercentage = total > 0 ? Math.round((withCodesCount / total) * 100) : 0
-    const activeChattersPercentage = verifiedCount > 0
-      ? Math.round((activeChattersCount / verifiedCount) * 100)
+    const activeChattersPercentage = (verifiedCount || 0) > 0
+      ? Math.round((activeChattersCount / (verifiedCount || 0)) * 100)
       : 0
 
     // 9. Return statistics with simple format for employee page

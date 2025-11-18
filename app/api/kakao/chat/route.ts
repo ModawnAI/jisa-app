@@ -545,12 +545,11 @@ export async function POST(request: NextRequest) {
       console.log('[KakaoTalk] CallbackURL detected - returning immediate response and processing in background');
 
       // Update last chat timestamp in background (don't block response!)
-      supabase
+      void supabase
         .from('profiles')
         .update({ last_chat_at: new Date().toISOString() })
         .eq('id', profile.id)
-        .then(() => console.log('[KakaoTalk] Last chat timestamp updated'))
-        .catch((err) => console.error('[KakaoTalk] Failed to update timestamp:', err));
+        .then(() => console.log('[KakaoTalk] Last chat timestamp updated'));
 
       // Start background processing (don't await!)
       getTextFromGPT(userMessage, profile.id)
@@ -619,12 +618,11 @@ export async function POST(request: NextRequest) {
     console.log('[KakaoTalk] No callbackUrl - processing synchronously with timeout');
 
     // Update last chat timestamp in background (don't block response!)
-    supabase
+    void supabase
       .from('profiles')
       .update({ last_chat_at: new Date().toISOString() })
       .eq('id', profile.id)
-      .then(() => console.log('[KakaoTalk] Last chat timestamp updated'))
-      .catch((err) => console.error('[KakaoTalk] Failed to update timestamp:', err));
+      .then(() => console.log('[KakaoTalk] Last chat timestamp updated'));
 
     const timeoutPromise = new Promise<string>((_, reject) =>
       setTimeout(() => reject(new Error('Timeout')), 4500)
