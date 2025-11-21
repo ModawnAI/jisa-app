@@ -254,8 +254,8 @@ async function main() {
         .insert({
           code,
           code_type: 'registration',
-          tier: 'employee',
-          role: 'employee',
+          tier: 'basic',
+          role: 'user',
           expires_at: expiresAt.toISOString(),
           max_uses: 1,
           current_uses: 0,
