@@ -7,6 +7,7 @@ import { detectCommissionQuery } from './commission-detector';
 import { queryCommission, formatCommissionForGPT } from './commission.service';
 import { ragAnswer } from './rag.service';
 import { ragAnswerWithRBAC } from './rag.service.enhanced';
+import { isEmployeeRAGQuery, cleanEmployeeRAGQuery, queryEmployeeRAG } from './employee-rag.service';
 import { GoogleGenAI } from '@google/genai';
 
 const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
@@ -18,6 +19,42 @@ const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 export async function getTextFromGPT(prompt: string, userId?: string | null): Promise<string> {
   try {
     console.log('='.repeat(80));
+
+    // Step 0: Check for Employee RAG query (starts with "/")
+    if (isEmployeeRAGQuery(prompt)) {
+      console.log('👤 Routing to EMPLOYEE RAG SYSTEM (/ command detected)');
+
+      if (!userId) {
+        return '죄송합니다. "/" 명령어는 등록된 직원만 사용할 수 있습니다. 먼저 등록 코드로 인증해주세요.';
+      }
+
+      try {
+        const cleanQuery = cleanEmployeeRAGQuery(prompt);
+        console.log(`   Cleaned query: ${cleanQuery}`);
+
+        const result = await queryEmployeeRAG({
+          userId,
+          query: cleanQuery,
+          topK: 10,
+        });
+
+        return result.answer;
+      } catch (error) {
+        console.error('❌ Employee RAG error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+        if (errorMessage.includes('not found')) {
+          return '직원 정보를 찾을 수 없습니다. 관리자에게 문의해주세요.';
+        }
+
+        if (errorMessage.includes('not enabled')) {
+          return 'RAG 시스템이 활성화되지 않았습니다. 관리자에게 문의해주세요.';
+        }
+
+        return `급여 정보 조회 중 오류가 발생했습니다: ${errorMessage}`;
+      }
+    }
+
     console.log('🔍 Step 1: Commission Detection');
 
     const detection = detectCommissionQuery(prompt);
