@@ -11,14 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
   Users,
   Key,
   CheckCircle,
@@ -28,7 +20,6 @@ import {
   Download,
   Copy,
 } from 'lucide-react';
-import { toast } from 'sonner';
 
 interface GeneratedCode {
   sabon: string;
@@ -80,10 +71,10 @@ export default function GenerateCodesPage() {
       }
 
       setResult(data);
-      toast.success(`성공적으로 ${data.summary.codesGenerated}개의 코드를 생성했습니다!`);
+      alert(`성공적으로 ${data.summary.codesGenerated}개의 코드를 생성했습니다!`);
     } catch (error: any) {
       console.error('Generation error:', error);
-      toast.error(error.message || '코드 생성에 실패했습니다.');
+      alert(error.message || '코드 생성에 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -107,7 +98,7 @@ export default function GenerateCodesPage() {
     a.click();
     URL.revokeObjectURL(url);
 
-    toast.success('코드가 다운로드되었습니다.');
+    alert('코드가 다운로드되었습니다.');
   };
 
   const copyAllCodes = () => {
@@ -118,12 +109,12 @@ export default function GenerateCodesPage() {
       .join('\n');
 
     navigator.clipboard.writeText(text);
-    toast.success('모든 코드가 복사되었습니다.');
+    alert('모든 코드가 복사되었습니다.');
   };
 
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code);
-    toast.success('코드가 복사되었습니다.');
+    alert('코드가 복사되었습니다.');
   };
 
   return (
@@ -318,38 +309,38 @@ export default function GenerateCodesPage() {
             </CardHeader>
             <CardContent>
               <div className="rounded-md border max-h-[600px] overflow-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[80px]">사번</TableHead>
-                      <TableHead>이름</TableHead>
-                      <TableHead>코드</TableHead>
-                      <TableHead>네임스페이스</TableHead>
-                      <TableHead className="text-center">벡터</TableHead>
-                      <TableHead className="text-center">작업</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                <table className="w-full">
+                  <thead className="border-b bg-muted/50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-medium w-[80px]">사번</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">이름</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">코드</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">네임스페이스</th>
+                      <th className="px-4 py-3 text-center text-sm font-medium">벡터</th>
+                      <th className="px-4 py-3 text-center text-sm font-medium">작업</th>
+                    </tr>
+                  </thead>
+                  <tbody>
                     {result.codes.map((code) => (
-                      <TableRow key={code.sabon}>
-                        <TableCell className="font-mono font-medium">
+                      <tr key={code.sabon} className="border-b hover:bg-muted/50">
+                        <td className="px-4 py-3 font-mono font-medium">
                           {code.sabon}
-                        </TableCell>
-                        <TableCell>{code.name}</TableCell>
-                        <TableCell>
+                        </td>
+                        <td className="px-4 py-3">{code.name}</td>
+                        <td className="px-4 py-3">
                           <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
                             {code.code}
                           </code>
-                        </TableCell>
-                        <TableCell>
+                        </td>
+                        <td className="px-4 py-3">
                           <code className="text-xs text-muted-foreground">
                             {code.namespace}
                           </code>
-                        </TableCell>
-                        <TableCell className="text-center">
+                        </td>
+                        <td className="px-4 py-3 text-center">
                           <Badge variant="outline">{code.vectors}</Badge>
-                        </TableCell>
-                        <TableCell className="text-center">
+                        </td>
+                        <td className="px-4 py-3 text-center">
                           <Button
                             size="sm"
                             variant="ghost"
@@ -357,11 +348,11 @@ export default function GenerateCodesPage() {
                           >
                             <Copy className="h-4 w-4" />
                           </Button>
-                        </TableCell>
-                      </TableRow>
+                        </td>
+                      </tr>
                     ))}
-                  </TableBody>
-                </Table>
+                  </tbody>
+                </table>
               </div>
             </CardContent>
           </Card>

@@ -9,19 +9,10 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Copy, Download, Key, Users, CheckCircle, XCircle } from 'lucide-react';
-import { toast } from 'sonner';
 
 interface EmployeeCode {
   code: string;
@@ -89,7 +80,7 @@ export default function EmployeeCodesPage() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success('코드가 복사되었습니다.');
+    alert('코드가 복사되었습니다.');
   };
 
   const copyAllCodes = () => {
@@ -101,7 +92,7 @@ export default function EmployeeCodesPage() {
       .join('\n');
 
     navigator.clipboard.writeText(allCodes);
-    toast.success('모든 코드가 복사되었습니다.');
+    alert('모든 코드가 복사되었습니다.');
   };
 
   const downloadCodes = () => {
@@ -121,7 +112,7 @@ export default function EmployeeCodesPage() {
     a.click();
     URL.revokeObjectURL(url);
 
-    toast.success('코드 목록이 다운로드되었습니다.');
+    alert('코드 목록이 다운로드되었습니다.');
   };
 
   if (loading) {
@@ -212,43 +203,43 @@ export default function EmployeeCodesPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[100px]">사번</TableHead>
-                  <TableHead>이름</TableHead>
-                  <TableHead>코드</TableHead>
-                  <TableHead>네임스페이스</TableHead>
-                  <TableHead className="text-center">벡터수</TableHead>
-                  <TableHead className="text-center">상태</TableHead>
-                  <TableHead className="text-right">만료일</TableHead>
-                  <TableHead className="text-center">작업</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+          <div className="rounded-md border overflow-x-auto">
+            <table className="w-full">
+              <thead className="border-b bg-muted/50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium w-[100px]">사번</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium">이름</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium">코드</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium">네임스페이스</th>
+                  <th className="px-4 py-3 text-center text-sm font-medium">벡터수</th>
+                  <th className="px-4 py-3 text-center text-sm font-medium">상태</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium">만료일</th>
+                  <th className="px-4 py-3 text-center text-sm font-medium">작업</th>
+                </tr>
+              </thead>
+              <tbody>
                 {codes.map((code) => (
-                  <TableRow key={code.code}>
-                    <TableCell className="font-mono font-medium">
+                  <tr key={code.code} className="border-b hover:bg-muted/50">
+                    <td className="px-4 py-3 font-mono font-medium">
                       {code.employee_sabon}
-                    </TableCell>
-                    <TableCell>{code.intended_recipient_name}</TableCell>
-                    <TableCell>
+                    </td>
+                    <td className="px-4 py-3">{code.intended_recipient_name}</td>
+                    <td className="px-4 py-3">
                       <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
                         {code.code}
                       </code>
-                    </TableCell>
-                    <TableCell>
+                    </td>
+                    <td className="px-4 py-3">
                       <code className="text-xs text-muted-foreground">
                         {code.pinecone_namespace}
                       </code>
-                    </TableCell>
-                    <TableCell className="text-center">
+                    </td>
+                    <td className="px-4 py-3 text-center">
                       <Badge variant="outline">
                         {code.metadata?.vector_count || 0}
                       </Badge>
-                    </TableCell>
-                    <TableCell className="text-center">
+                    </td>
+                    <td className="px-4 py-3 text-center">
                       {code.is_used ? (
                         <Badge variant="default" className="bg-green-600">
                           <CheckCircle className="mr-1 h-3 w-3" />
@@ -260,11 +251,11 @@ export default function EmployeeCodesPage() {
                           미사용
                         </Badge>
                       )}
-                    </TableCell>
-                    <TableCell className="text-right text-sm text-muted-foreground">
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm text-muted-foreground">
                       {new Date(code.expires_at).toLocaleDateString('ko-KR')}
-                    </TableCell>
-                    <TableCell className="text-center">
+                    </td>
+                    <td className="px-4 py-3 text-center">
                       <Button
                         size="sm"
                         variant="ghost"
@@ -272,11 +263,11 @@ export default function EmployeeCodesPage() {
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
-                    </TableCell>
-                  </TableRow>
+                    </td>
+                  </tr>
                 ))}
-              </TableBody>
-            </Table>
+              </tbody>
+            </table>
           </div>
         </CardContent>
       </Card>
