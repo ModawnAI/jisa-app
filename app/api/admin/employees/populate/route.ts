@@ -228,7 +228,7 @@ export async function POST(request: NextRequest) {
           .from('verification_codes')
           .insert({
             code,
-            code_type: 'employee_registration',
+            code_type: 'registration',
             tier: 'employee',
             role: 'employee',
             expires_at: expiresAt.toISOString(),

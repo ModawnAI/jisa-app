@@ -51,7 +51,7 @@ export default function EmployeeCodesPage() {
       const { data, error } = await supabase
         .from('verification_codes')
         .select('*')
-        .eq('code_type', 'employee_registration')
+        .eq('code_type', 'registration')
         .not('employee_sabon', 'is', null)
         .order('employee_sabon', { ascending: true });
 
