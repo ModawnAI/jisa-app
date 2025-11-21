@@ -153,6 +153,10 @@ export async function POST(request: NextRequest) {
       const credentialTier = credential.metadata?.tier || defaultTier
       const credentialRole = credential.metadata?.role || defaultRole
 
+      // Construct Pinecone namespace if employee_id exists
+      const employeeSabon = credential.employee_id || null;
+      const pineconeNamespace = employeeSabon ? `employee_${employeeSabon}` : null;
+
       const codeRecord = {
         code,
         code_type: 'registration',
@@ -168,11 +172,14 @@ export async function POST(request: NextRequest) {
         intended_recipient_email: credential.email || null,
         intended_recipient_id: credential.id,
         requires_credential_match: true,
+        employee_sabon: employeeSabon,
+        pinecone_namespace: pineconeNamespace,
         metadata: {
           source: 'batch_generation',
           generated_at: new Date().toISOString(),
           employee_id: credential.employee_id,
           generated_by: profile.role,
+          rag_enabled: !!pineconeNamespace,
         },
       }
 

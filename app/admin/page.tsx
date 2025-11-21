@@ -56,6 +56,21 @@ const quickAccessCards: QuickAccessCard[] = [
   //   badge: 'NEW',
   // },
   {
+    title: '직원 코드 생성',
+    description: '52명 직원 코드 자동 생성',
+    href: '/admin/employees/generate-codes',
+    icon: Users,
+    color: 'green',
+    badge: 'RAG',
+  },
+  {
+    title: '직원 코드 관리',
+    description: '생성된 직원 코드 조회 및 배포',
+    href: '/admin/employees/codes',
+    icon: UserCheck,
+    color: 'blue',
+  },
+  {
     title: '인증 코드',
     description: '코드 생성 및 관리',
     href: '/admin/codes',

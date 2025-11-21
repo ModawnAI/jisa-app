@@ -57,15 +57,29 @@ export async function POST(request: NextRequest) {
 
     // Extract role and tier from metadata
     const metadata = codeData.metadata || {};
-    const role = metadata.role || 'user';
-    const tier = metadata.subscription_tier || 'free';
+    const role = metadata.role || codeData.role || 'user';
+    const tier = metadata.subscription_tier || codeData.tier || 'free';
+
+    // Include employee namespace information if available
+    const employeeSabon = codeData.employee_sabon || null;
+    const pineconeNamespace = codeData.pinecone_namespace || null;
+    const ragEnabled = !!pineconeNamespace;
 
     return NextResponse.json({
       valid: true,
       role,
       tier,
-      metadata,
+      metadata: {
+        ...metadata,
+        employee_sabon: employeeSabon,
+        pinecone_namespace: pineconeNamespace,
+        rag_enabled: ragEnabled,
+      },
       codeType: codeData.code_type,
+      employeeSabon,
+      pineconeNamespace,
+      ragEnabled,
+      credentialId: codeData.intended_recipient_id,
     });
   } catch (error) {
     console.error('[Verify Code] Error:', error);
