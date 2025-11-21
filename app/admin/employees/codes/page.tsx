@@ -72,7 +72,7 @@ export default function EmployeeCodesPage() {
       });
     } catch (error) {
       console.error('Error fetching codes:', error);
-      toast.error('코드 목록을 불러오는데 실패했습니다.');
+      alert('코드 목록을 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
