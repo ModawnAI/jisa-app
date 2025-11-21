@@ -78,7 +78,7 @@ export async function getEmployeeInfo(profileId: string): Promise<EmployeeInfo |
       pinecone_namespace,
       rag_enabled,
       credential_id,
-      user_credentials (
+      user_credentials!profiles_credential_id_fkey (
         employee_id,
         full_name,
         rag_vector_count

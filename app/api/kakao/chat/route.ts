@@ -188,7 +188,10 @@ export async function POST(request: NextRequest) {
       console.log(`[KakaoTalk] First-time user: ${kakaoUserId}`);
 
       // Check if message contains verification code pattern
-      const codePattern = /([A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3})/;
+      // Supports both formats:
+      // - Admin codes: ABC-DEF-GHI-JKL (4 segments of 3 chars)
+      // - Employee codes: EMP-00124-673 (EMP + 5 digits + 3 chars)
+      const codePattern = /([A-Z]{3,4}-[A-Z0-9]{3,5}-[A-Z0-9]{3,5}(?:-[A-Z0-9]{3,5})?)/;
       const codeMatch = userMessage.match(codePattern);
 
       // No code in message - request code
@@ -203,7 +206,9 @@ export async function POST(request: NextRequest) {
 
 처음 사용하시는 분은 관리자로부터 받은 **인증 코드**를 입력해주세요.
 
-📝 코드 형식: HXK-9F2-M7Q-3WP
+📝 코드 형식 예시:
+• 직원 코드: EMP-00124-673
+• 관리자 코드: HXK-9F2-M7Q-3WP
 
 인증 코드가 없으신가요?
 관리자에게 문의하여 코드를 받으세요.`
@@ -397,6 +402,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Profile is auto-created by trigger, so update it with KakaoTalk info
+      // For employee codes, also set namespace and RAG fields
       const { data: newProfile, error: createError} = await serviceClient
         .from('profiles')
         .update({
@@ -407,11 +413,16 @@ export async function POST(request: NextRequest) {
           subscription_tier: verificationCode.tier,
           query_count: 0,
           permissions: [],
+          // Employee RAG fields
+          pinecone_namespace: verificationCode.pinecone_namespace || null,
+          rag_enabled: !!verificationCode.pinecone_namespace,
+          credential_id: verificationCode.intended_recipient_id || null,
           metadata: {
             verification_code: code,
             verified_at: new Date().toISOString(),
             code_purpose: verificationCode.purpose,
-            code_metadata: verificationCode.metadata
+            code_metadata: verificationCode.metadata,
+            employee_sabon: verificationCode.employee_sabon || null,
           },
           verified_with_code: code,
           first_chat_at: new Date().toISOString(),
@@ -490,12 +501,26 @@ export async function POST(request: NextRequest) {
       const recipientName = verificationCode.intended_recipient_name || newProfile.full_name || kakaoNickname;
       const recipientEmail = verificationCode.intended_recipient_email || newProfile.email || dummyEmail;
 
-      return NextResponse.json<KakaoResponse>({
-        version: '2.0',
-        template: {
-          outputs: [{
-            simpleText: {
-              text: `✅ 인증 완료!
+      // Customize message for employees vs admins
+      const isEmployee = !!verificationCode.pinecone_namespace && !!verificationCode.employee_sabon;
+
+      const welcomeText = isEmployee
+        ? `✅ 인증 완료!
+
+👤 이름: ${recipientName}
+📧 이메일: ${recipientEmail}
+💼 역할: ${roleNames[verificationCode.role] || verificationCode.role}
+🎫 등급: ${tierNames[verificationCode.tier] || verificationCode.tier}
+
+이제 JISA에게 질문하실 수 있습니다.
+
+💡 예시 질문:
+• 일반 질문: "11월 교육 일정 알려줘"
+• 내 급여 정보: "/ 보험계약 건별 수수료 알려줘"
+• 내 계약 정보: "/ 메리츠화재 계약 현황"
+
+⭐ 본인 급여 정보 조회는 반드시 "/" 로 시작하세요!`
+        : `✅ 인증 완료!
 
 👤 이름: ${recipientName}
 📧 이메일: ${recipientEmail}
@@ -507,10 +532,27 @@ export async function POST(request: NextRequest) {
 💡 예시 질문:
 • "11월 교육 일정 알려줘"
 • "한화생명 종신보험 수수료"
-• "이번 주 KRS 시험 일정"`
+• "이번 주 KRS 시험 일정"`;
+
+      const quickReplies = isEmployee
+        ? [
+            {
+              action: 'message',
+              label: '내 급여 정보 💰',
+              messageText: '/ 내 최종지급액 알려줘'
+            },
+            {
+              action: 'message',
+              label: '내 계약 현황 📋',
+              messageText: '/ 보험계약 건별 수수료'
+            },
+            {
+              action: 'message',
+              label: '일반 정보 📚',
+              messageText: '11월 교육 일정'
             }
-          }],
-          quickReplies: [
+          ]
+        : [
             {
               action: 'message',
               label: '11월 일정 📅',
@@ -526,7 +568,17 @@ export async function POST(request: NextRequest) {
               label: 'KRS 일정 📚',
               messageText: 'KRS 시험 일정'
             }
-          ]
+          ];
+
+      return NextResponse.json<KakaoResponse>({
+        version: '2.0',
+        template: {
+          outputs: [{
+            simpleText: {
+              text: welcomeText
+            }
+          }],
+          quickReplies
         }
       });
     }
