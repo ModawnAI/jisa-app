@@ -180,7 +180,7 @@ async function main() {
             rag_enabled: true,
             rag_vector_count: vectors,
             rag_last_sync_at: new Date().toISOString(),
-            status: 'active',
+            status: 'verified',
             metadata: {
               source: 'employee_population_script',
               created_at: new Date().toISOString(),
