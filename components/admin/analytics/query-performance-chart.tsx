@@ -49,8 +49,8 @@ export function QueryPerformanceChart({ metrics, loading = false }: QueryPerform
       <div className="space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle>Query Performance Distribution</CardTitle>
-            <CardDescription>Response time percentiles</CardDescription>
+            <CardTitle>쿼리 성능 분포</CardTitle>
+            <CardDescription>응답 시간 백분위수</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[300px] bg-muted animate-pulse rounded" />
@@ -65,8 +65,8 @@ export function QueryPerformanceChart({ metrics, loading = false }: QueryPerform
       {/* Overall Performance Distribution */}
       <Card>
         <CardHeader>
-          <CardTitle>Response Time Distribution</CardTitle>
-          <CardDescription>Overall system response time percentiles</CardDescription>
+          <CardTitle>응답 시간 분포</CardTitle>
+          <CardDescription>전체 시스템 응답 시간 백분위수</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
@@ -75,7 +75,7 @@ export function QueryPerformanceChart({ metrics, loading = false }: QueryPerform
               <XAxis dataKey="name" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} unit="ms" />
               <Tooltip
-                formatter={(value: number) => [`${value.toFixed(0)}ms`, 'Response Time']}
+                formatter={(value: number) => [`${value.toFixed(0)}ms`, '응답 시간']}
               />
               <Area
                 type="monotone"
@@ -93,8 +93,8 @@ export function QueryPerformanceChart({ metrics, loading = false }: QueryPerform
       {chartData.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Performance by Query Type</CardTitle>
-            <CardDescription>Response times for RAG and Commission queries</CardDescription>
+            <CardTitle>쿼리 타입별 성능</CardTitle>
+            <CardDescription>RAG 및 Commission 쿼리 응답 시간</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -104,7 +104,7 @@ export function QueryPerformanceChart({ metrics, loading = false }: QueryPerform
                 <YAxis tick={{ fontSize: 12 }} unit="ms" />
                 <Tooltip
                   formatter={(value: number, name: string) => {
-                    if (name === 'count') return [`${value} queries`, 'Query Count'];
+                    if (name === 'count') return [`${value} 쿼리`, '쿼리 수'];
                     return [`${value.toFixed(0)}ms`, name.toUpperCase()];
                   }}
                 />
@@ -114,7 +114,7 @@ export function QueryPerformanceChart({ metrics, loading = false }: QueryPerform
                   dataKey="avg"
                   stroke="#8884d8"
                   strokeWidth={2}
-                  name="Average"
+                  name="평균"
                 />
                 <Line
                   type="monotone"
@@ -139,7 +139,7 @@ export function QueryPerformanceChart({ metrics, loading = false }: QueryPerform
                 <div key={stat.type} className="space-y-1">
                   <div className="font-medium">{stat.type}</div>
                   <div className="text-muted-foreground">
-                    {stat.count} queries • Avg: {stat.avg.toFixed(0)}ms • P95: {stat.p95.toFixed(0)}ms
+                    {stat.count} 쿼리 • 평균: {stat.avg.toFixed(0)}ms • P95: {stat.p95.toFixed(0)}ms
                   </div>
                 </div>
               ))}

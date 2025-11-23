@@ -50,8 +50,8 @@ export function ContentHeatmap({ metrics, loading = false }: ContentHeatmapProps
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Content Access Patterns</CardTitle>
-          <CardDescription>Most accessed content by users</CardDescription>
+          <CardTitle>콘텐츠 접근 패턴</CardTitle>
+          <CardDescription>사용자가 가장 많이 접근한 콘텐츠</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[400px] bg-muted animate-pulse rounded" />
@@ -64,12 +64,12 @@ export function ContentHeatmap({ metrics, loading = false }: ContentHeatmapProps
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Content Access Patterns</CardTitle>
-          <CardDescription>Most accessed content by users</CardDescription>
+          <CardTitle>콘텐츠 접근 패턴</CardTitle>
+          <CardDescription>사용자가 가장 많이 접근한 콘텐츠</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[400px] flex items-center justify-center text-muted-foreground">
-            No content access data available
+            콘텐츠 접근 데이터가 없습니다
           </div>
         </CardContent>
       </Card>
@@ -79,8 +79,8 @@ export function ContentHeatmap({ metrics, loading = false }: ContentHeatmapProps
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Content Access Patterns</CardTitle>
-        <CardDescription>Top 10 most accessed documents (color-coded by access level)</CardDescription>
+        <CardTitle>콘텐츠 접근 패턴</CardTitle>
+        <CardDescription>상위 10개 접근 문서 (접근 레벨별 색상)</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={400}>
@@ -95,13 +95,13 @@ export function ContentHeatmap({ metrics, loading = false }: ContentHeatmapProps
             />
             <Tooltip
               formatter={(value: number, name: string) => {
-                if (name === 'accessCount') return [`${value} accesses`, 'Total Access'];
-                if (name === 'uniqueUsers') return [`${value} users`, 'Unique Users'];
+                if (name === 'accessCount') return [`${value} 접근`, '전체 접근'];
+                if (name === 'uniqueUsers') return [`${value} 사용자`, '고유 사용자'];
                 return value;
               }}
             />
             <Legend />
-            <Bar dataKey="accessCount" name="Access Count">
+            <Bar dataKey="accessCount" name="접근 수">
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={getColor(entry.level)} />
               ))}
@@ -113,27 +113,27 @@ export function ContentHeatmap({ metrics, loading = false }: ContentHeatmapProps
         <div className="mt-4 flex flex-wrap gap-4 text-xs">
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded" style={{ backgroundColor: '#22c55e' }} />
-            <span>L1 Public</span>
+            <span>L1 공개</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded" style={{ backgroundColor: '#3b82f6' }} />
-            <span>L2 Basic</span>
+            <span>L2 기본</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded" style={{ backgroundColor: '#a855f7' }} />
-            <span>L3 Internal</span>
+            <span>L3 내부</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded" style={{ backgroundColor: '#f97316' }} />
-            <span>L4 Sensitive</span>
+            <span>L4 민감</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded" style={{ backgroundColor: '#ef4444' }} />
-            <span>L5 Confidential</span>
+            <span>L5 기밀</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded" style={{ backgroundColor: '#dc2626' }} />
-            <span>L6 Restricted</span>
+            <span>L6 제한</span>
           </div>
         </div>
       </CardContent>

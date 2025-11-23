@@ -238,7 +238,7 @@ export default function UserDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Profile Information */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Profile Information</h2>
+            <h2 className="text-xl font-semibold mb-4">프로필 정보</h2>
 
             <div className="space-y-4">
               <div className="flex items-start justify-between">
@@ -261,15 +261,15 @@ export default function UserDetailPage() {
 
               <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                 <div>
-                  <div className="text-sm text-gray-600">Email</div>
-                  <div className="font-medium">{profile.email || 'N/A'}</div>
+                  <div className="text-sm text-gray-600">이메일</div>
+                  <div className="font-medium">{profile.email || '없음'}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600">Phone</div>
-                  <div className="font-medium">{profile.phone_number || 'N/A'}</div>
+                  <div className="text-sm text-gray-600">전화번호</div>
+                  <div className="font-medium">{profile.phone_number || '없음'}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600">KakaoTalk ID</div>
+                  <div className="text-sm text-gray-600">카카오톡 ID</div>
                   <div className="font-medium">{profile.kakao_id || 'N/A'}</div>
                 </div>
                 <div>
@@ -280,19 +280,19 @@ export default function UserDetailPage() {
 
               <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                 <div>
-                  <div className="text-sm text-gray-600">Total Queries</div>
+                  <div className="text-sm text-gray-600">총 질문 수</div>
                   <div className="font-medium">{profile.total_queries || 0}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600">Last Active</div>
+                  <div className="text-sm text-gray-600">마지막 활동</div>
                   <div className="font-medium">
                     {profile.last_chat_at
                       ? new Date(profile.last_chat_at).toLocaleDateString()
-                      : 'Never'}
+                      : '없음'}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600">Joined</div>
+                  <div className="text-sm text-gray-600">가입일</div>
                   <div className="font-medium">
                     {new Date(profile.created_at).toLocaleDateString()}
                   </div>
@@ -316,64 +316,64 @@ export default function UserDetailPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <div className="text-sm text-gray-600">Full Name</div>
+                    <div className="text-sm text-gray-600">이름</div>
                     <div className="font-medium">{credential.full_name}</div>
                   </div>
                   <div>
                     <div className="text-sm text-gray-600">사원번호</div>
-                    <div className="font-medium">{credential.employee_id || 'N/A'}</div>
+                    <div className="font-medium">{credential.employee_id || '없음'}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600">Email</div>
-                    <div className="font-medium">{credential.email || 'N/A'}</div>
+                    <div className="text-sm text-gray-600">이메일</div>
+                    <div className="font-medium">{credential.email || '없음'}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600">Phone</div>
-                    <div className="font-medium">{credential.phone_number || 'N/A'}</div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                  <div>
-                    <div className="text-sm text-gray-600">Department</div>
-                    <div className="font-medium">{credential.department || 'N/A'}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-600">Team</div>
-                    <div className="font-medium">{credential.team || 'N/A'}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-600">Position</div>
-                    <div className="font-medium">{credential.position || 'N/A'}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-600">Location</div>
-                    <div className="font-medium">{credential.location || 'N/A'}</div>
+                    <div className="text-sm text-gray-600">전화번호</div>
+                    <div className="font-medium">{credential.phone_number || '없음'}</div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                   <div>
-                    <div className="text-sm text-gray-600">Hire Date</div>
+                    <div className="text-sm text-gray-600">부서</div>
+                    <div className="font-medium">{credential.department || '없음'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600">팀</div>
+                    <div className="font-medium">{credential.team || '없음'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600">직급</div>
+                    <div className="font-medium">{credential.position || '없음'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600">위치</div>
+                    <div className="font-medium">{credential.location || '없음'}</div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                  <div>
+                    <div className="text-sm text-gray-600">입사일</div>
                     <div className="font-medium">
                       {credential.hire_date
                         ? new Date(credential.hire_date).toLocaleDateString()
-                        : 'N/A'}
+                        : '없음'}
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600">Verified At</div>
+                    <div className="text-sm text-gray-600">인증일시</div>
                     <div className="font-medium">
                       {credential.verified_at
                         ? new Date(credential.verified_at).toLocaleDateString()
-                        : 'Not verified'}
+                        : '미인증'}
                     </div>
                   </div>
                 </div>
 
                 {credential.national_id_hash && (
                   <div className="pt-4 border-t">
-                    <div className="text-sm text-gray-600">National ID (Hashed)</div>
+                    <div className="text-sm text-gray-600">주민번호 (해시)</div>
                     <div className="font-mono text-xs text-gray-500 truncate">
                       {credential.national_id_hash}
                     </div>
@@ -413,7 +413,7 @@ export default function UserDetailPage() {
                     <div className="font-mono font-bold text-lg">{verification_code.code}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600">Intended Recipient</div>
+                    <div className="text-sm text-gray-600">의도된 수신자</div>
                     <div className="font-medium">{verification_code.intended_recipient_name}</div>
                   </div>
                 </div>
@@ -426,14 +426,14 @@ export default function UserDetailPage() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600">Expires</div>
+                    <div className="text-sm text-gray-600">만료일</div>
                     <div className="font-medium">
                       {new Date(verification_code.expires_at).toLocaleDateString()}
                     </div>
                   </div>
                   {verification_code.used_at && (
                     <div>
-                      <div className="text-sm text-gray-600">Used At</div>
+                      <div className="text-sm text-gray-600">사용일시</div>
                       <div className="font-medium">
                         {new Date(verification_code.used_at).toLocaleDateString()}
                       </div>
@@ -447,20 +447,20 @@ export default function UserDetailPage() {
           {/* Query History Section */}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">Query History</h2>
+              <h2 className="text-xl font-semibold">질문 기록</h2>
               {queryHistory && (
                 <div className="text-sm text-gray-600">
-                  Total: {queryHistory.stats.total_queries} queries | Avg: {queryHistory.stats.avg_response_time_ms}ms
+                  총 {queryHistory.stats.total_queries}개 질문 | 평균 응답시간: {queryHistory.stats.avg_response_time_ms}ms
                 </div>
               )}
             </div>
 
             {queriesLoading ? (
-              <div className="text-center py-8 text-gray-500">Loading query history...</div>
+              <div className="text-center py-8 text-gray-500">질문 기록을 불러오는 중...</div>
             ) : !queryHistory || queryHistory.queries.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                <p className="mb-2">No queries yet</p>
-                <p className="text-sm">User hasn't asked any questions</p>
+                <p className="mb-2">아직 질문이 없습니다</p>
+                <p className="text-sm">사용자가 아직 질문을 하지 않았습니다</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -545,12 +545,11 @@ export default function UserDetailPage() {
                       disabled={queryPage === 1}
                       className="px-4 py-2 text-sm border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                     >
-                      Previous
+                      이전
                     </button>
 
                     <span className="text-sm text-gray-600">
-                      Page {queryHistory.pagination.page} of{' '}
-                      {queryHistory.pagination.totalPages}
+                      페이지 {queryHistory.pagination.page} / {queryHistory.pagination.totalPages}
                     </span>
 
                     <button
@@ -562,7 +561,7 @@ export default function UserDetailPage() {
                       disabled={queryPage === queryHistory.pagination.totalPages}
                       className="px-4 py-2 text-sm border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                     >
-                      Next
+                      다음
                     </button>
                   </div>
                 )}
@@ -574,11 +573,11 @@ export default function UserDetailPage() {
         {/* Right Column - Access Summary */}
         <div className="lg:col-span-1">
           <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg shadow p-6 sticky top-6">
-            <h2 className="text-xl font-semibold mb-4">Access Level Summary</h2>
+            <h2 className="text-xl font-semibold mb-4">접근 레벨 요약</h2>
 
             <div className="space-y-4">
               <div>
-                <div className="text-sm text-gray-600 mb-2">Role Level</div>
+                <div className="text-sm text-gray-600 mb-2">역할 레벨</div>
                 <div className="bg-white rounded-lg p-3">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-medium capitalize">{profile.role || 'user'}</span>
@@ -598,7 +597,7 @@ export default function UserDetailPage() {
               </div>
 
               <div>
-                <div className="text-sm text-gray-600 mb-2">Tier Level</div>
+                <div className="text-sm text-gray-600 mb-2">등급 레벨</div>
                 <div className="bg-white rounded-lg p-3">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-medium capitalize">{profile.tier || 'free'}</span>
@@ -630,30 +629,30 @@ export default function UserDetailPage() {
                   </div>
                   {access_summary.credential_verified && (
                     <div className="mt-2 text-sm text-green-700">
-                      +{Math.round(access_summary.credential_boost * 100)}% access boost
+                      +{Math.round(access_summary.credential_boost * 100)}% 접근 부스트
                     </div>
                   )}
                 </div>
               </div>
 
               <div>
-                <div className="text-sm text-gray-600 mb-2">Effective Access</div>
+                <div className="text-sm text-gray-600 mb-2">유효 접근 레벨</div>
                 <div className="bg-white rounded-lg p-3">
                   <div className="text-lg font-bold text-center text-blue-600">
                     {access_summary.effective_access_level}
                   </div>
                   <div className="text-xs text-center text-gray-600 mt-1">
-                    Combined access level
+                    종합 접근 레벨
                   </div>
                 </div>
               </div>
 
               <div className="pt-4 border-t">
                 <div className="text-xs text-gray-600 space-y-1">
-                  <div>• Role and tier determine base access</div>
-                  <div>• Verified credentials provide bonus access</div>
-                  <div>• Classification rules filter content</div>
-                  <div>• Time/geo restrictions may apply</div>
+                  <div>• 역할과 등급이 기본 접근 권한을 결정합니다</div>
+                  <div>• 인증된 자격증명은 추가 접근 권한을 제공합니다</div>
+                  <div>• 분류 규칙이 컨텐츠를 필터링합니다</div>
+                  <div>• 시간/지역 제한이 적용될 수 있습니다</div>
                 </div>
               </div>
             </div>

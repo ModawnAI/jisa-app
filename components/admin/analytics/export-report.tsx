@@ -75,12 +75,12 @@ export function ExportReport({ timeRange }: ExportReportProps) {
         {isExporting ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            Exporting...
+            내보내는 중...
           </>
         ) : (
           <>
             <Download className="h-4 w-4" />
-            Export to CSV
+            CSV로 내보내기
           </>
         )}
       </Button>

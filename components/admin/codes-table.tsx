@@ -9,6 +9,29 @@ import { useState, useEffect } from 'react';
 import { formatDate } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, Copy, CheckCircle, XCircle } from 'lucide-react';
 
+interface UserInfo {
+  id: string;
+  kakao_user_id?: string;
+  kakao_nickname?: string;
+  full_name?: string;
+  email?: string;
+  department?: string;
+  verified_with_code?: string;
+  credential_id?: string;
+}
+
+interface IntendedRecipient {
+  id: string;
+  employee_id?: string;
+  full_name?: string;
+  email?: string;
+  department?: string;
+  team?: string;
+  position?: string;
+  phone_number?: string;
+  status?: string;
+}
+
 interface AccessCode {
   id: string;
   code: string;
@@ -18,10 +41,16 @@ interface AccessCode {
   max_uses: number;
   expires_at: string;
   created_at: string;
+  user_id?: string;
+  intended_recipient_name?: string;
+  intended_recipient_email?: string;
+  intended_recipient_employee_id?: string;
   metadata: {
     role?: string;
     subscription_tier?: string;
   };
+  user?: UserInfo | null;
+  intended_recipient?: IntendedRecipient | null;
 }
 
 export function CodesTable() {
@@ -130,6 +159,12 @@ export function CodesTable() {
                   역할/티어
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  의도된 수신자
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  실제 사용자
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   사용 현황
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -161,6 +196,69 @@ export function CodesTable() {
                       {code.metadata?.role || 'N/A'} /{' '}
                       {code.metadata?.subscription_tier || 'N/A'}
                     </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    {code.intended_recipient ? (
+                      <div className="text-sm">
+                        <div className="font-medium text-gray-900">
+                          {code.intended_recipient.full_name || 'N/A'}
+                        </div>
+                        <div className="text-gray-600">
+                          {code.intended_recipient.email || code.intended_recipient_email || 'N/A'}
+                        </div>
+                        {code.intended_recipient.employee_id && (
+                          <div className="text-gray-500 text-xs">
+                            직원번호: {code.intended_recipient.employee_id}
+                          </div>
+                        )}
+                        {code.intended_recipient.department && (
+                          <div className="text-gray-500 text-xs">
+                            부서: {code.intended_recipient.department}
+                            {code.intended_recipient.team && ` / ${code.intended_recipient.team}`}
+                          </div>
+                        )}
+                      </div>
+                    ) : code.intended_recipient_name || code.intended_recipient_email ? (
+                      <div className="text-sm">
+                        <div className="font-medium text-gray-900">
+                          {code.intended_recipient_name || 'N/A'}
+                        </div>
+                        <div className="text-gray-600">
+                          {code.intended_recipient_email || 'N/A'}
+                        </div>
+                        {code.intended_recipient_employee_id && (
+                          <div className="text-gray-500 text-xs">
+                            직원번호: {code.intended_recipient_employee_id}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-sm text-gray-400">미지정</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4">
+                    {code.user ? (
+                      <div className="text-sm">
+                        <div className="font-medium text-gray-900">
+                          {code.user.full_name || code.user.kakao_nickname || 'N/A'}
+                        </div>
+                        <div className="text-gray-600">
+                          {code.user.email || 'N/A'}
+                        </div>
+                        {code.user.kakao_user_id && (
+                          <div className="text-gray-500 text-xs">
+                            카카오 ID: {code.user.kakao_user_id}
+                          </div>
+                        )}
+                        {code.user.department && (
+                          <div className="text-gray-500 text-xs">
+                            부서: {code.user.department}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-sm text-gray-400">미사용</span>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">

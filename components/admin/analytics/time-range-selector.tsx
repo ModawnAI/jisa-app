@@ -21,14 +21,14 @@ export function TimeRangeSelector({
   className = '',
 }: TimeRangeSelectorProps) {
   const ranges: { value: TimeRange; label: string }[] = [
-    { value: '7d', label: 'Last 7 days' },
-    { value: '30d', label: 'Last 30 days' },
-    { value: '90d', label: 'Last 90 days' },
+    { value: '7d', label: '최근 7일' },
+    { value: '30d', label: '최근 30일' },
+    { value: '90d', label: '최근 90일' },
   ];
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <span className="text-sm font-medium text-muted-foreground">Time Range:</span>
+      <span className="text-sm font-medium text-muted-foreground">기간:</span>
       <div className="flex bg-muted rounded-lg p-1">
         {ranges.map((range) => (
           <button

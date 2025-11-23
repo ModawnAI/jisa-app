@@ -37,10 +37,33 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const status = searchParams.get('status'); // 'active', 'used', 'expired'
 
-    // Build query
+    // Build query with user information joins
     let query = supabase
       .from('verification_codes')
-      .select('*', { count: 'exact' });
+      .select(`
+        *,
+        user:profiles!verification_codes_user_id_fkey(
+          id,
+          kakao_user_id,
+          kakao_nickname,
+          full_name,
+          email,
+          department,
+          verified_with_code,
+          credential_id
+        ),
+        intended_recipient:user_credentials!verification_codes_intended_recipient_id_fkey(
+          id,
+          employee_id,
+          full_name,
+          email,
+          department,
+          team,
+          position,
+          phone_number,
+          status
+        )
+      `, { count: 'exact' });
 
     // Apply filters
     if (status === 'active') {

@@ -231,19 +231,19 @@ export default function ClassificationManagementPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold mb-2">Content Classification</h1>
-          <p className="text-gray-600">Manage multi-dimensional content classification</p>
+          <h1 className="text-3xl font-bold mb-2">콘텐츠 분류</h1>
+          <p className="text-gray-600">다차원 콘텐츠 분류 관리</p>
         </div>
 
       {/* Stats Overview */}
       {stats && (
         <div className="grid grid-cols-5 gap-4 mb-6">
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Total Documents</div>
+            <div className="text-sm text-gray-600">전체 문서</div>
             <div className="text-2xl font-bold">{stats.total_documents}</div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Classified</div>
+            <div className="text-sm text-gray-600">분류됨</div>
             <div className="text-2xl font-bold text-green-600">
               {stats.classified_documents}
             </div>
@@ -252,20 +252,20 @@ export default function ClassificationManagementPage() {
             </div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Auto-Classified</div>
+            <div className="text-sm text-gray-600">자동 분류</div>
             <div className="text-2xl font-bold text-blue-600">{stats.auto_classified}</div>
             <div className="text-xs text-gray-500">
               {stats.auto_classification_rate.toFixed(1)}%
             </div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Manual</div>
+            <div className="text-sm text-gray-600">수동 분류</div>
             <div className="text-2xl font-bold text-purple-600">
               {stats.manually_classified}
             </div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Avg Confidence</div>
+            <div className="text-sm text-gray-600">평균 신뢰도</div>
             <div className="text-2xl font-bold">
               {(stats.average_confidence * 100).toFixed(0)}%
             </div>
@@ -277,7 +277,7 @@ export default function ClassificationManagementPage() {
       {stats && (
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="font-semibold mb-3">By Sensitivity Level</h3>
+            <h3 className="font-semibold mb-3">민감도 수준별</h3>
             <div className="space-y-2">
               {Object.entries(stats.by_sensitivity).map(([level, count]) => (
                 <div key={level} className="flex justify-between items-center">
@@ -288,7 +288,7 @@ export default function ClassificationManagementPage() {
             </div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
-            <h3 className="font-semibold mb-3">By Category</h3>
+            <h3 className="font-semibold mb-3">카테고리별</h3>
             <div className="space-y-2 max-h-40 overflow-y-auto">
               {Object.entries(stats.by_category)
                 .sort(([, a], [, b]) => b - a)
@@ -312,20 +312,20 @@ export default function ClassificationManagementPage() {
               onChange={(e) => setFilterClassified(e.target.value)}
               className="px-3 py-2 border rounded"
             >
-              <option value="all">All Documents</option>
-              <option value="classified">Classified Only</option>
-              <option value="unclassified">Unclassified Only</option>
+              <option value="all">모든 문서</option>
+              <option value="classified">분류됨만</option>
+              <option value="unclassified">미분류만</option>
             </select>
             <select
               value={filterSensitivity}
               onChange={(e) => setFilterSensitivity(e.target.value)}
               className="px-3 py-2 border rounded"
             >
-              <option value="all">All Sensitivity Levels</option>
-              <option value="public">Public</option>
-              <option value="internal">Internal</option>
-              <option value="confidential">Confidential</option>
-              <option value="secret">Secret</option>
+              <option value="all">모든 민감도 수준</option>
+              <option value="public">공개</option>
+              <option value="internal">내부</option>
+              <option value="confidential">기밀</option>
+              <option value="secret">비밀</option>
             </select>
           </div>
           <div>
@@ -335,8 +335,8 @@ export default function ClassificationManagementPage() {
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
             >
               {batchProcessing
-                ? 'Processing...'
-                : `Classify Selected (${selectedDocuments.size})`}
+                ? '처리 중...'
+                : `선택 항목 분류 (${selectedDocuments.size})`}
             </button>
           </div>
         </div>
@@ -355,22 +355,22 @@ export default function ClassificationManagementPage() {
                 />
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Title
+                제목
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Sensitivity
+                민감도
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Categories
+                카테고리
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Method
+                방법
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Confidence
+                신뢰도
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Actions
+                작업
               </th>
             </tr>
           </thead>
@@ -378,13 +378,13 @@ export default function ClassificationManagementPage() {
             {loading ? (
               <tr>
                 <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                  Loading...
+                  불러오는 중...
                 </td>
               </tr>
             ) : documents.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                  No documents found
+                  문서를 찾을 수 없습니다
                 </td>
               </tr>
             ) : (
@@ -446,7 +446,7 @@ export default function ClassificationManagementPage() {
                       onClick={() => handleViewDocument(doc.id)}
                       className="text-blue-600 hover:text-blue-900"
                     >
-                      View/Edit
+                      보기/수정
                     </button>
                   </td>
                 </tr>
@@ -464,7 +464,7 @@ export default function ClassificationManagementPage() {
 
             <div className="mb-4">
               <p className="text-sm text-gray-600">
-                Review auto-classification suggestions for {suggestions.length} documents
+                {suggestions.length}개 문서에 대한 자동 분류 제안 검토
               </p>
             </div>
 
@@ -472,25 +472,25 @@ export default function ClassificationManagementPage() {
               {suggestions.map((suggestion, idx) => (
                 <div key={idx} className="border rounded p-4">
                   <div className="font-medium mb-2">
-                    Document #{idx + 1}
+                    문서 #{idx + 1}
                   </div>
                   <div className="text-sm space-y-1">
                     <div>
-                      <span className="font-medium">Sensitivity:</span>{' '}
+                      <span className="font-medium">민감도:</span>{' '}
                       <span className="capitalize">
-                        {suggestion.suggestions.sensitivity_level || 'Not detected'}
+                        {suggestion.suggestions.sensitivity_level || '감지 안 됨'}
                       </span>
                     </div>
                     <div>
-                      <span className="font-medium">Categories:</span>{' '}
-                      {suggestion.suggestions.content_category?.join(', ') || 'None'}
+                      <span className="font-medium">카테고리:</span>{' '}
+                      {suggestion.suggestions.content_category?.join(', ') || '없음'}
                     </div>
                     <div>
-                      <span className="font-medium">Departments:</span>{' '}
-                      {suggestion.suggestions.target_departments?.join(', ') || 'None'}
+                      <span className="font-medium">부서:</span>{' '}
+                      {suggestion.suggestions.target_departments?.join(', ') || '없음'}
                     </div>
                     <div>
-                      <span className="font-medium">Confidence:</span>{' '}
+                      <span className="font-medium">신뢰도:</span>{' '}
                       {getConfidenceBadge(suggestion.suggestions.confidence)}
                     </div>
                   </div>
@@ -503,14 +503,14 @@ export default function ClassificationManagementPage() {
                 onClick={() => setShowBatchDialog(false)}
                 className="px-4 py-2 border rounded hover:bg-gray-50"
               >
-                Cancel
+                취소
               </button>
               <button
                 onClick={handleApplySuggestions}
                 disabled={batchProcessing}
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
               >
-                {batchProcessing ? 'Applying...' : 'Apply All Suggestions'}
+                {batchProcessing ? '적용 중...' : '모든 제안 적용'}
               </button>
             </div>
           </div>

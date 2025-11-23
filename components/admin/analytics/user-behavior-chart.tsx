@@ -36,8 +36,8 @@ export function UserBehaviorChart({ metrics, loading = false }: UserBehaviorChar
     return (
       <Card>
         <CardHeader>
-          <CardTitle>User Activity Trends</CardTitle>
-          <CardDescription>Active users and retention over time</CardDescription>
+          <CardTitle>사용자 활동 추이</CardTitle>
+          <CardDescription>시간에 따른 활성 사용자 및 유지율</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[300px] bg-muted animate-pulse rounded" />
@@ -50,12 +50,12 @@ export function UserBehaviorChart({ metrics, loading = false }: UserBehaviorChar
     return (
       <Card>
         <CardHeader>
-          <CardTitle>User Activity Trends</CardTitle>
-          <CardDescription>Active users and retention over time</CardDescription>
+          <CardTitle>사용자 활동 추이</CardTitle>
+          <CardDescription>시간에 따른 활성 사용자 및 유지율</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-            No data available
+            데이터가 없습니다
           </div>
         </CardContent>
       </Card>
@@ -65,8 +65,8 @@ export function UserBehaviorChart({ metrics, loading = false }: UserBehaviorChar
   return (
     <Card>
       <CardHeader>
-        <CardTitle>User Activity Trends</CardTitle>
-        <CardDescription>Active users and retention rate over time</CardDescription>
+        <CardTitle>사용자 활동 추이</CardTitle>
+        <CardDescription>시간에 따른 활성 사용자 및 유지율</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -95,7 +95,7 @@ export function UserBehaviorChart({ metrics, loading = false }: UserBehaviorChar
               dataKey="activeUsers"
               stroke="#8884d8"
               strokeWidth={2}
-              name="Active Users"
+              name="활성 사용자"
             />
             <Line
               yAxisId="right"
@@ -103,7 +103,7 @@ export function UserBehaviorChart({ metrics, loading = false }: UserBehaviorChar
               dataKey="retentionRate"
               stroke="#82ca9d"
               strokeWidth={2}
-              name="Retention Rate (%)"
+              name="유지율 (%)"
             />
           </LineChart>
         </ResponsiveContainer>

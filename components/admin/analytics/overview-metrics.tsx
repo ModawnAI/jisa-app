@@ -27,28 +27,28 @@ export function OverviewMetrics({ metrics, loading = false }: OverviewMetricsPro
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <MetricCard
-        title="Total Users"
+        title="전체 사용자"
         value={formatNumber(metrics.users.totalUsers)}
         icon={Users}
         loading={loading}
       />
 
       <MetricCard
-        title="Active Users (7d)"
+        title="활성 사용자 (7일)"
         value={formatNumber(metrics.users.activeUsers7d)}
         icon={Users}
         loading={loading}
       />
 
       <MetricCard
-        title="Total Queries"
+        title="전체 쿼리"
         value={formatNumber(metrics.queries.totalQueries)}
         icon={MessageSquare}
         loading={loading}
       />
 
       <MetricCard
-        title="Avg Response Time"
+        title="평균 응답 시간"
         value={formatTime(metrics.performance.avgResponseTime)}
         icon={Clock}
         invertChange
@@ -56,21 +56,21 @@ export function OverviewMetrics({ metrics, loading = false }: OverviewMetricsPro
       />
 
       <MetricCard
-        title="Documents Accessed"
+        title="접근한 문서"
         value={formatNumber(metrics.queries.uniqueDocumentsAccessed)}
         icon={MessageSquare}
         loading={loading}
       />
 
       <MetricCard
-        title="Access Allowance Rate"
+        title="접근 허용률"
         value={`${metrics.rbac.allowanceRate.toFixed(1)}%`}
         icon={ShieldCheck}
         loading={loading}
       />
 
       <MetricCard
-        title="Error Rate"
+        title="오류율"
         value={`${metrics.performance.errorRate.toFixed(2)}%`}
         icon={Clock}
         invertChange
@@ -78,7 +78,7 @@ export function OverviewMetrics({ metrics, loading = false }: OverviewMetricsPro
       />
 
       <MetricCard
-        title="System Uptime"
+        title="시스템 가동률"
         value={`${metrics.performance.uptime.toFixed(1)}%`}
         icon={ShieldCheck}
         loading={loading}
