@@ -37,33 +37,10 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const status = searchParams.get('status'); // 'active', 'used', 'expired'
 
-    // Build query with user information joins
+    // Build query for verification codes
     let query = supabase
       .from('verification_codes')
-      .select(`
-        *,
-        user:profiles!verification_codes_user_id_fkey(
-          id,
-          kakao_user_id,
-          kakao_nickname,
-          full_name,
-          email,
-          department,
-          verified_with_code,
-          credential_id
-        ),
-        intended_recipient:user_credentials!verification_codes_intended_recipient_id_fkey(
-          id,
-          employee_id,
-          full_name,
-          email,
-          department,
-          team,
-          position,
-          phone_number,
-          status
-        )
-      `, { count: 'exact' });
+      .select('*', { count: 'exact' });
 
     // Apply filters
     if (status === 'active') {
@@ -77,7 +54,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Execute query with pagination
-    const { data, error, count } = await query
+    const { data: codes, error, count } = await query
       .range((page - 1) * limit, page * limit - 1)
       .order('created_at', { ascending: false });
 
@@ -89,8 +66,59 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    if (!codes || codes.length === 0) {
+      return NextResponse.json({
+        codes: [],
+        total: 0,
+        page,
+        limit,
+        totalPages: 0,
+      });
+    }
+
+    // Get user IDs and intended recipient IDs
+    const userIds = codes
+      .map((code) => code.user_id)
+      .filter((id): id is string => id != null);
+    const recipientIds = codes
+      .map((code) => code.intended_recipient_id)
+      .filter((id): id is string => id != null);
+
+    // Fetch user profiles
+    let usersMap = new Map();
+    if (userIds.length > 0) {
+      const { data: users } = await supabase
+        .from('profiles')
+        .select('id, kakao_user_id, kakao_nickname, full_name, email, department, verified_with_code, credential_id')
+        .in('id', userIds);
+
+      if (users) {
+        users.forEach(user => usersMap.set(user.id, user));
+      }
+    }
+
+    // Fetch intended recipients
+    let recipientsMap = new Map();
+    if (recipientIds.length > 0) {
+      const { data: recipients } = await supabase
+        .from('user_credentials')
+        .select('id, employee_id, full_name, email, department, team, position, phone_number, status')
+        .in('id', recipientIds);
+
+      if (recipients) {
+        recipients.forEach(recipient => recipientsMap.set(recipient.id, recipient));
+      }
+    }
+
+    // Combine data
+    const enrichedCodes = codes.map((code) => ({
+      ...code,
+      user: code.user_id ? usersMap.get(code.user_id) || null : null,
+      intended_recipient: code.intended_recipient_id ? recipientsMap.get(code.intended_recipient_id) || null : null,
+    }));
+
     return NextResponse.json({
-      codes: data || [],
+      codes: enrichedCodes,
       total: count || 0,
       page,
       limit,
